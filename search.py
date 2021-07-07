@@ -12,16 +12,16 @@ import json
 config = {
   "bearer_token": "AAAAAAAAAAAAAAAAAAAAAJMfPAEAAAAA3rFe4%2Fj%2Fwd%2Bsiff%2FOcMVw0RtnZo%3DuPS4o36B7uMWh4Dy9qdfUJLTkHmwW0JtUTAAPxaFZ1Blfpv38l",
   "params": {
-    "start_time": "2020-02-28T00:00:00Z",
-    "end_time": "2020-12-01T00:00:00Z",
-    "query": "havvind -is:retweet has:geo",
-    "max_results": 20, #it seems like you also have to change the other two places where max_results are listed below
-    "tweet_fields": "context_annotations,created_at",
-    "user_fields": "created_at",
-    "place_fields": "contained_within,country,country_code,full_name,geo,id,name,place_type",
-    "expansions": "author_id,geo.place_id"
+    "start_time": "2021-06-28T00:00:00Z",
+    #"end_time": "2021-07-07T10:41:00Z",
+    "query": "havvind -is:retweet has:geo", #lang:NO",
+    "max_results": 100, #it seems like you also have to change the other two places where max_results are listed below
+    "tweet_fields": "created_at,geo",
+    "place_fields": "country,full_name,geo,name",
+    "expansions": "author_id,geo.place_id",
+    "user_fields": "location, screen_name"
   },
-  "write_path": "havvind_2.txt"
+  "write_path": "havvind_2.json"
 }
 
 
@@ -60,11 +60,12 @@ def validate_config():
 def write_to_file(file_name, tweets):
     with open(file_name, 'a+') as filehandle:
         for tweet in tweets:
-            filehandle.write('%s\n' %tweet)
+            print(tweet)
+            filehandle.write('%s\n' % json.dumps(tweet))
 
 
 def search_tweets(next_token=None):
-    tweet_params = {'max_results': 20}  #THIS IS PER REQUEST! YOU CAN'T HAVE MORE THAN THIS PER REQUEST
+    tweet_params = {'max_results': 100}  #THIS IS PER REQUEST! YOU CAN'T HAVE MORE THAN THIS PER REQUEST
 
     if 'params' in config:
         params = config['params']
@@ -83,6 +84,7 @@ def search_tweets(next_token=None):
             tweet_params['end_time'] = params['end_time']
         if 'query' in params:
             tweet_params['query'] = params['query']
+
 
     if next_token is not None:
         tweet_params['next_token'] = next_token
@@ -113,7 +115,7 @@ if __name__ == '__main__':
     if 'params' in config and 'max_results' in config['params']:
         max_results = config['params']['max_results']
     else:
-        max_results = 20
+        max_results = 100
 
     while count < max_results:
 
@@ -127,6 +129,4 @@ if __name__ == '__main__':
             next_token = json_response['meta']['next_token']
         else:
             break
-
-
-# In[ ]:
+    print(result_count)
