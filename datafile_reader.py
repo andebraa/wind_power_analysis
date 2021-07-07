@@ -16,5 +16,8 @@ with open('havvind_2.txt') as file:
 
 df = pd.DataFrame(dictlist)
 print(df.columns)
-print(df['place'])
+print(type(df))
+print(df['geo'])
+print(type(df['geo']))
 places=df['place']
+print(type(places))
