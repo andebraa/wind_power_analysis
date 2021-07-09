@@ -6,14 +6,18 @@ def flatten_tweets(tweets):
 
     # Iterate through each tweet
     for tweet_obj in tweets:
+        print(tweet_obj)
+        print(tweet_obj['user'])
 
         ''' User info'''
-        # Store the user screen name in 'user-screen_name'
-        tweet_obj['user-screen_name'] = tweet_obj['user']['screen_name']
+        # Store the user screen name in 'user-username'
+        tweet_obj['user-username'] = tweet_obj['user']['username']
 
         # Store the user location
-        tweet_obj['user-location'] = tweet_obj['user']['location']
-
+        try:
+            tweet_obj['user-location'] = tweet_obj['user']['location']
+        except:
+            tweet_obj['user-location'] = tweet_obj['place']['name']
         ''' Text info'''
         # Check if this is a 140+ character tweet
         if 'extended_tweet' in tweet_obj:
@@ -21,27 +25,14 @@ def flatten_tweets(tweets):
             tweet_obj['extended_tweet-full_text'] = \
                                     tweet_obj['extended_tweet']['full_text']
 
-        if 'retweeted_status' in tweet_obj:
-            # Store the retweet user screen name in
-            # 'retweeted_status-user-screen_name'
-            tweet_obj['retweeted_status-user-screen_name'] = \
-                        tweet_obj['retweeted_status']['user']['screen_name']
 
-            # Store the retweet text in 'retweeted_status-text'
-            tweet_obj['retweeted_status-text'] = \
-                                        tweet_obj['retweeted_status']['text']
 
-            if 'extended_tweet' in tweet_obj['retweeted_status']:
-                # Store the extended retweet text in
-                #'retweeted_status-extended_tweet-full_text'
-                tweet_obj['retweeted_status-extended_tweet-full_text'] = \
-                tweet_obj['retweeted_status']['extended_tweet']['full_text']
 
         if 'quoted_status' in tweet_obj:
             # Store the retweet user screen name in
-            #'retweeted_status-user-screen_name'
-            tweet_obj['quoted_status-user-screen_name'] = \
-                            tweet_obj['quoted_status']['user']['screen_name']
+            #'retweeted_status-user-username'
+            tweet_obj['quoted_status-user-username'] = \
+                            tweet_obj['quoted_status']['user']['username']
 
             # Store the retweet text in 'retweeted_status-text'
             tweet_obj['quoted_status-text'] = \
@@ -98,6 +89,7 @@ def select_text(tweets):
 
 import pandas as pd
 import json
+import ast
 
 tweets_data = []
 for line in open('havvind_2.json','r'):
@@ -111,11 +103,14 @@ tweets = flatten_tweets(tweets_data)
 tweets = select_text(tweets)
 columns = ['text', 'lang', 'user-location', 'place-country',
            'place-country_code', 'location-coordinates',
-           'user-screen_name']
+           'user-username']
 
 # Create a DataFrame from `tweets`
 df_tweets = pd.DataFrame(tweets)#, columns=columns)
 # replaces NaNs by Nones
 df_tweets.where(pd.notnull(df_tweets), None, inplace=True)
 
-print(df_tweets.head)
+df_tweets.to_csv('test.csv')
+print(df_tweets['place'])
+test = ast.literal_eval(df_tweets['place'])
+print(test['name'])
