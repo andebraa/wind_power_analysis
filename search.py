@@ -15,7 +15,7 @@ config = {
     "end_time": "2020-06-01T00:00:00Z",
     "query": "(havvind OR vindkraft OR vindmøller) -is:retweet has:geo lang:no",
     "max_results": 500, #it seems like you also have to change the other two places where max_results are listed below
-    "tweet_fields": "geo,lang",
+    "tweet_fields": "geo,lang,created_at",
     "user_fields": "location",
     "place_fields": "country,full_name,geo,name",
     "expansions": "author_id,geo.place_id"
@@ -167,8 +167,8 @@ def search_tweets(next_token=None):
     return response.json()
 
 
-if __name__ == '__main__':
 
+def loop_request():
     validate_config()
 
     count = 0
@@ -184,13 +184,13 @@ if __name__ == '__main__':
         max_results = config['params']['max_results']
     else:
         max_results = 500
-    
+
     for i,month in enumerate(months):
         config['params']['start_time'] = year + str(months[i]) + first_of_month
         config['params']['end_time'] = year+ str(months[i+1]) + first_of_month
 
         while count < max_results:
-    
+
             json_response = search_tweets(next_token)
             tweets = get_formatted_tweets(json_response)
             write_to_file(config['write_path'], tweets)
@@ -203,3 +203,27 @@ if __name__ == '__main__':
                 break
     print(result_count)
 
+if __name__ == '__main__':
+    validate_config()
+
+    count = 0
+    next_token = None
+
+    if 'params' in config and 'max_results' in config['params']:
+        max_results = config['params']['max_results']
+    else:
+        max_results = 500
+
+    while count < max_results:
+
+        json_response = search_tweets(next_token)
+        tweets = get_formatted_tweets(json_response)
+        write_to_file(config['write_path'], tweets)
+        result_count = json_response['meta']['result_count']
+        count += result_count
+
+        if 'meta' in json_response and 'next_token' in json_response['meta']:
+            next_token = json_response['meta']['next_token']
+        else:
+            break
+print(result_count)

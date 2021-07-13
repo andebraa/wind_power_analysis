@@ -5,7 +5,7 @@ import json
 import ast
 
 tweets_data = []
-for line in open('havvind_2.json','r'):
+for line in open('vindkraft_ny.txt','r'):
     tweets_data.append(json.loads(line))
 
 print(tweets_data[:2])
