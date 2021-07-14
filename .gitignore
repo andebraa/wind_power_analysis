@@ -3,4 +3,7 @@
 *.pdf
 *.odt
 *.dcox
-*.json 
+*.json
+*.csv
+*.png
+*.jpg 
