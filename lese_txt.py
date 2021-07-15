@@ -24,13 +24,11 @@ with open('twitterdata.csv', 'w+', encoding='UTF8', newline='') as file_2:
 
         times.append(datetime.datetime.strptime(element['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").time())
 
-        #child = element['place']
-        #print(type(child))
-        #print(child['name'])
-        #print('hello')
-        tweet_info.extend((element['author_id'], element['text'], element['lang'], element['place']['name'], element['created_at']))
-        writer.writerow(tweet_info)
-
+        try:
+            tweet_info.extend((element['author_id'], element['text'], element['lang'], element['place']['name'], element['created_at']))
+            writer.writerow(tweet_info)
+        except:
+            pass
 
 
 file.close()

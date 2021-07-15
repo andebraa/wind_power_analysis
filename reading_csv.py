@@ -35,6 +35,7 @@ print(len(occurences))
 print(len(week_nums))
 plt.plot(week_nums, occurences)
 
+plt.savefig('first_output.jpg')
 #bins = 30
 #print(test_hist['created_at'])
 #test_hist['created_at'].hist(bins=week_nums.week)

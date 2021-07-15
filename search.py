@@ -12,7 +12,7 @@ config = {
   "bearer_token": "AAAAAAAAAAAAAAAAAAAAADzuPAEAAAAALeQBp4kjmU0RFPD9rkjAUEcboZ8%3DwXVoBxne7iMViqZg7BxjO7KuPFl35OwzNsT4XG5fN82mlTrvvf", #ADD BEARER TOKEN
   "params": {
     "start_time": "2020-01-01T00:00:00Z",
-    "end_time": "2020-06-01T00:00:00Z",
+    #"end_time": "2020-06-01T00:00:00Z",
     "query": "(havvind OR vindkraft OR vindmøller) -is:retweet has:geo lang:no",
     "max_results": 500, #it seems like you also have to change the other two places where max_results are listed below
     "tweet_fields": "geo,lang,created_at",
