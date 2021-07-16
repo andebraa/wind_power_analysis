@@ -6,13 +6,13 @@ import datetime
 import pandas as pd
 import numpy as np
 
-file = open('vindkraft_ny.txt')
+file = open('full_query_election.txt')
 tekst = file.read()
 
 tweets = tekst.split('\n\n')
 tweets.pop()
 
-
+skipped = 0 #number of skipped entries, which have no element[place][name] 
 header = ['author_id', 'text', 'language', 'loc', 'created_at']
 with open('twitterdata.csv', 'w+', encoding='UTF8', newline='') as file_2:
     writer = csv.writer(file_2)
@@ -28,8 +28,9 @@ with open('twitterdata.csv', 'w+', encoding='UTF8', newline='') as file_2:
             tweet_info.extend((element['author_id'], element['text'], element['lang'], element['place']['name'], element['created_at']))
             writer.writerow(tweet_info)
         except:
-            pass
+            skipped += 1 
 
 
 file.close()
+print( skipped)
 file_2.close()
