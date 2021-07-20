@@ -52,6 +52,8 @@ print(week_nums)
 print(len(occurences))
 print(len(week_nums))
 plt.plot(week_nums, occurences[:-1])
+plt.ylabel('number of tweets')
+plt.title('frequency of tweets with geodata in the last election cycle')
 
-plt.savefig('first_output.jpg')
+plt.savefig('first_output.jpg', bbox_inches = 'tight', pad_inches = -1) #0.1 is default when bbox is tight
 
