@@ -60,7 +60,7 @@ ax.plot(week_nums, occurences[:-1])
 plt.ylabel('number of tweets')
 plt.title('frequency of tweets with geodata in the last election cycle')
 
-plt.savefig('first_elec_cycle.jpg', bbox_inches = 'tight', pad_inches = 0.0001) #0.1 is default when bbox is tight
+plt.savefig('first_elec_cycle_retweets.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
 
 
