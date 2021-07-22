@@ -1,6 +1,6 @@
 """
 script for assigning users in dataset a random unique identifier.
-Takes a finished csv, where 'author_id' is the user name.
+Takes a finished csv, where 'username' is the user name.
 
 """
 import numpy as np
@@ -20,7 +20,9 @@ def generate_ID(ID):
     else:
         generate_ID(ID)
 
-for i, elem in enumerate(data['author_id']):
+for i, elem in enumerate(data['username']):
     new_ID = generate_ID(ID)
     ID[new_ID] = elem
-    data['author_id'][i] = new_ID
+    data['username'][i] = new_ID
+
+data.to_csv('anon_twitterdata.csv')
