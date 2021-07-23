@@ -43,17 +43,13 @@ for elem in tweet_occurances.values():
     num_of_tweets[elem] += 1 
 print(num_of_tweets)
 print(tweet_occurances)
-#TODO use tweet_occurances, which lists the amounts of time each user tweeted to make
-# a histogram of number of tweets on the x axis, and amount of users which have 
-# tweeted given amount 
-plt.hist(tweet_occurances, bins = np.arange(1,max_number_of_tweets+2))
 
 fig, ax = plt.subplots()
 
 for label in (ax.get_xticklabels() + ax.get_yticklabels()):
     label.set_fontsize(8)
 
-ax.hist(tweet_occurances.values())
+ax.hist(tweet_occurances.values(), bins = np.arange(1, max_number_of_tweets))
 plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2017 -2021')
