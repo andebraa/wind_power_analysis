@@ -58,7 +58,7 @@ plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2017 -2021')
 
-plt.savefig('first_elec_cycle_tweetfrequency.jpg', bbox_inches = 'tight', pad_inches = 0.0001) #0.1 is default when bbox is tight
+plt.savefig('first_elec_tweetfrequency.jpg', bbox_inches = 'tight', pad_inches = 0.0001) #0.1 is default when bbox is tight
 
 
 
