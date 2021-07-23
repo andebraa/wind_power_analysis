@@ -5,6 +5,7 @@ Takes a finished csv, where 'username' is the user name.
 """
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt 
 
 data = pd.read_csv('twitterdata.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
@@ -34,12 +35,32 @@ for i, elem in enumerate(data['username']):
     data['username'][i] = new_ID
 
 print(len(ID))
-num_of_tweets = np.arange(0,np.max(data.values()) 
-for i in range(len(tweet_occurances)):
-    num_of_tweets[tweet_occurances[i].values()] += 1 
+print(tweet_occurances.values())
+print(tweet_occurances)
+max_number_of_tweets = max(tweet_occurances.values())
+num_of_tweets = np.arange(1, max_number_of_tweets+2) 
+for elem in tweet_occurances.values():
+    num_of_tweets[elem] += 1 
 print(num_of_tweets)
 print(tweet_occurances)
 #TODO use tweet_occurances, which lists the amounts of time each user tweeted to make
 # a histogram of number of tweets on the x axis, and amount of users which have 
 # tweeted given amount 
+plt.hist(tweet_occurances, bins = max_number_of_tweets+10)
+
+fig, ax = plt.subplots()
+
+for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+    label.set_fontsize(8)
+
+ax.hist(tweet_occurances.values())
+plt.ylabel('number of users')
+plt.xlabel('number of tweets')
+plt.title('Frequency of tweets by users. 2017 -2021')
+
+plt.savefig('first_elec_cycle_tweetfrequency.jpg', bbox_inches = 'tight', pad_inches = 0.0001) #0.1 is default when bbox is tight
+
+
+
+
 data.to_csv('anon_twitterdata.csv')
