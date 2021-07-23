@@ -49,7 +49,7 @@ fig, ax = plt.subplots()
 for label in (ax.get_xticklabels() + ax.get_yticklabels()):
     label.set_fontsize(8)
 
-ax.hist(tweet_occurances.values(), bins = np.arange(1, max_number_of_tweets))
+ax.hist(tweet_occurances.values(), bins = np.arange(1, max_number_of_tweets+2))
 plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2017 -2021')
