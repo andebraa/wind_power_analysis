@@ -10,7 +10,7 @@ import datetime
 import pandas as pd
 import numpy as np
 
-test_hist = pd.read_csv('twitterdata.csv', parse_dates=True)
+test_hist = pd.read_csv('twitterdata_2006_and_up.csv', parse_dates=True)
 
 #reading, parsing and sorting time elements from twitter data
 tiems = test_hist['created_at']
@@ -43,13 +43,13 @@ occurences = np.zeros(len(week_nums)+1)
 print('twat')
 for i, elem in enumerate(tiems_sorted):
     print(int(elem.week + (year_indx_dict[elem.year]*52)) -1)
-
+    
     occurences[int(elem.week + (year_indx_dict[elem.year]*52)) -1]  += 1 
             #the number of year times 52 ensures indexing goes beyond 52 for the subsequent years
 
 print(occurences)
 print(week_nums)
-print(len(occurences))
+print(len(occurences)) 
 print(len(week_nums))
 fig, ax = plt.subplots()
 
@@ -60,7 +60,7 @@ ax.plot(week_nums, occurences[:-1])
 plt.ylabel('number of tweets')
 plt.title('frequency of tweets with geodata in the last election cycle')
 
-plt.savefig('first_elec_cycle_retweets.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('tweets_per_week_2006_and_up.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
 
 

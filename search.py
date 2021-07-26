@@ -20,7 +20,7 @@ config = {
     "place_fields": "country,full_name,geo,name",
     "expansions": "author_id,geo.place_id"
   },
-  "write_path": "full_query_election_retweets.txt"
+  "write_path": "full_query_2006_and_up.txt"
 }
 
 
@@ -31,7 +31,10 @@ def lookup(id, list):
 def get_formatted_tweets(json_response):
     list_of_tweets = []
     has_expansion_data = False
-    data = json_response['data']
+    try:
+        data = json_response['data']
+    except:
+        print(json_response)
     skipped = 0
     if 'includes' in json_response:
         includes = json_response['includes']
@@ -223,6 +226,8 @@ if __name__ == '__main__':
     while count < max_results:
 
         json_response = search_tweets(next_token)
+        if "'result_count': 0" in json_response:
+            pass #this means there are no results
         tweets = get_formatted_tweets(json_response)
         write_to_file(config['write_path'], tweets)
         result_count = json_response['meta']['result_count']

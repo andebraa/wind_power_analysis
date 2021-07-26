@@ -6,40 +6,56 @@ import datetime
 import pandas as pd
 import numpy as np
 
-file = open('full_query_election.txt')
+file = open('full_query_2006_and_up.txt')
 tekst = file.read()
 
 tweets = tekst.split('\n\n')
 tweets.pop()
-
-skipped = 0 #number of skipped entries, which have no element[place][name] 
+ 
 header = ['username', 'text', 'language', 'loc', 'created_at']
-elements = 0 
-with open('twitterdata.csv', 'w+', encoding='UTF8', newline='') as file_2:
+elements = 0
+no_tweetinfo = 0
+no_geodata = 0
+lost_tweets = 0 
+with open('twitterdata_2006_and_up.csv', 'w+', encoding='UTF8', newline='') as file_2:
     writer = csv.writer(file_2)
     writer.writerow(header)
     times = []
     for tweet in tweets[5:]:
+        success = False
         tweet_info = []
         element = json.loads(tweet)
         elements += 1 
         times.append(datetime.datetime.strptime(element['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").time())
-
+    
         try:
             tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['place']['name'], element['created_at']))
             writer.writerow(tweet_info)
             print(element['lang'])
+            success = True
         except:
-            """
-            Handling missing tweet location info by adding user location info instead. 
-            """
-            print(tweet)
-            tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at']))
-            writer.writerow(tweet_info)
-            skipped += 1 
+            no_tweetinfo += 1
+            pass
+        if success != True:
+            try:
+                """
+                Handling missing tweet location info by adding user location info instead. 
+                """
+                print(tweet)
+                tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at']))
+                writer.writerow(tweet_info)
+            except:
+                no_geodata += 1
+                pass 
+        if success != True: #still haven't found any data, this tweet is a loss   
+            lost_tweets += 1 
+            pass
 
 
 file.close()
-print( skipped)
+print(no_tweetinfo)
+print(no_geodata)
+print(lost_tweets)
+print('elements:')
 print(elements)
 file_2.close()

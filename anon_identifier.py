@@ -3,11 +3,12 @@ script for assigning users in dataset a random unique identifier.
 Takes a finished csv, where 'username' is the user name.
 
 """
+import json 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 
-data = pd.read_csv('twitterdata.csv', parse_dates = True)# , usecols = [''])
+data = pd.read_csv('twitterdatai_2006_and_up.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
 tweet_occurances = {} #keep track of number of tweets per user
 
@@ -35,14 +36,12 @@ for i, elem in enumerate(data['username']):
     data['username'][i] = new_ID
 
 print(len(ID))
-print(tweet_occurances.values())
-print(tweet_occurances)
+
 max_number_of_tweets = max(tweet_occurances.values())
 num_of_tweets = np.arange(1, max_number_of_tweets+2) 
 for elem in tweet_occurances.values():
     num_of_tweets[elem] += 1 
-print(num_of_tweets)
-print(tweet_occurances)
+
 
 fig, ax = plt.subplots()
 
@@ -54,9 +53,11 @@ plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2017 -2021')
 
-plt.savefig('first_elec_tweetfrequency.jpg', bbox_inches = 'tight', pad_inches = 0.0001) #0.1 is default when bbox is tight
+plt.savefig('2006_and_up_hist.jpg', bbox_inches = 'tight', pad_inches = 0.0001) #0.1 is default when bbox is tight
+
+outfile_ID = open('anondata_translator_2006_and_up.json', 'w')
 
 
+json.dump(ID, outfile_ID)
 
-
-data.to_csv('anon_twitterdata.csv')
+data.to_csv('anon_twitterdata_2006_and_up.csv')
