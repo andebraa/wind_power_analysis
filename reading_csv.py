@@ -11,11 +11,13 @@ import pandas as pd
 import numpy as np
 
 test_hist = pd.read_csv('twitterdata_2006_and_up.csv', parse_dates=True)
+print(len(test_hist))
 
 #reading, parsing and sorting time elements from twitter data
 tiems = test_hist['created_at']
 tiems= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
 tiems_sorted = tiems.sort_values()
+print(len(list(tiems_sorted)))
 
 week_nums = pd.date_range(tiems_sorted.iloc[0], tiems_sorted.iloc[-1], freq='W-MON')
 #year_nums = pd.date_range(tiems_sorted.iloc[0].year, tiems_sorted.iloc[-1].year, freq='YS')
@@ -38,11 +40,14 @@ print(end_year)
 #test_hist['created_at'].groupby(test_hist["created_at"].dt.week).count()#.plot(kind="bar")
 
 #bins = int(np.ceil(np.log(n)+1))
-occurences = np.zeros(len(week_nums)+1)
+occurences = np.zeros(len(week_nums)+2)
+print(week_nums)
+print(tiems_sorted.iloc[0])
+print(tiems_sorted.iloc[-1])
 
 print('twat')
 for i, elem in enumerate(tiems_sorted):
-    print(int(elem.week + (year_indx_dict[elem.year]*52)) -1)
+    #print(int(elem.week + (year_indx_dict[elem.year]*52)) -1)
     
     occurences[int(elem.week + (year_indx_dict[elem.year]*52)) -1]  += 1 
             #the number of year times 52 ensures indexing goes beyond 52 for the subsequent years
