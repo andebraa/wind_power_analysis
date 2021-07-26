@@ -40,16 +40,20 @@ print(end_year)
 #test_hist['created_at'].groupby(test_hist["created_at"].dt.week).count()#.plot(kind="bar")
 
 #bins = int(np.ceil(np.log(n)+1))
-occurences = np.zeros(len(week_nums)+2)
-print(week_nums)
+occurences = np.zeros(len(week_nums)+1)
+print(len(week_nums))
 print(tiems_sorted.iloc[0])
 print(tiems_sorted.iloc[-1])
 
+new_years = '29-12' #29th of december
+
 print('twat')
 for i, elem in enumerate(tiems_sorted):
-    #print(int(elem.week + (year_indx_dict[elem.year]*52)) -1)
-    
-    occurences[int(elem.week + (year_indx_dict[elem.year]*52)) -1]  += 1 
+    #NOTE: datetime.date(elem.year,29,12).isocalendar()[1]) is to exctract the total number of weeks in a given year. 
+    #this is because 2020 had 53 weeks and this fucked my code
+    print(int(elem.week + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) -1))
+    print(elem.year, elem.week)    
+    occurences[int(elem.week + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) )-1]  += 1 
             #the number of year times 52 ensures indexing goes beyond 52 for the subsequent years
 
 print(occurences)
