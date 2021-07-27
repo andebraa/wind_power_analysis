@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 import numpy as np
 
-file = open('full_query_2006_and_up.txt')
+file = open('no_geo_all_time.txt')
 tekst = file.read()
 
 tweets = tekst.split('\n\n')
@@ -17,7 +17,7 @@ elements = 0
 no_tweetinfo = 0
 no_geodata = 0
 lost_tweets = 0 
-with open('twitterdata_2006_and_up.csv', 'w+', encoding='UTF8', newline='') as file_2:
+with open('twitterdata_no_geo_all_time.csv', 'w+', encoding='UTF8', newline='') as file_2:
     writer = csv.writer(file_2)
     writer.writerow(header)
     times = []

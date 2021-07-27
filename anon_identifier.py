@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 
-data = pd.read_csv('twitterdata_2006_and_up.csv', parse_dates = True)# , usecols = [''])
+data = pd.read_csv('.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
 tweet_occurances = {} #keep track of number of tweets per user
 
