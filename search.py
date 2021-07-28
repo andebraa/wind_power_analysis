@@ -11,16 +11,16 @@ import numpy as np
 config = {
   "bearer_token": "AAAAAAAAAAAAAAAAAAAAADzuPAEAAAAALeQBp4kjmU0RFPD9rkjAUEcboZ8%3DwXVoBxne7iMViqZg7BxjO7KuPFl35OwzNsT4XG5fN82mlTrvvf", #ADD BEARER TOKEN
   "params": {
-    "start_time": "2021-07-01T00:00:00Z",
-    #"end_time": "2021-07-01T00:00:00Z",
-    "query": "(havvind OR vindkraft OR vindmølle OR vindmøller OE vindmøllene OR vindturbiner OR vindenergi) -has:geo lang:no",
+    "start_time": "2021-07-20T00:00:00Z",
+    #"end_time": "2021-07-20T00:00:00Z",
+    "query": "(havvind OR vindkraft OR vindmølle OR vindmøller OE vindmøllene OR vindturbiner OR vindenergi) lang:no",
     "max_results": 500, #it seems like you also have to change the other two places where max_results are listed below
     "tweet_fields": "geo,lang,created_at",
     "user_fields": "location",
     "place_fields": "country,full_name,geo,name",
     "expansions": "author_id,geo.place_id"
   },
-  "write_path": "no_geo_all_time.txt"
+  "write_path": "all_data_all_time.txt"
 }
 
 
@@ -32,7 +32,7 @@ def get_formatted_tweets(json_response):
     list_of_tweets = []
     has_expansion_data = False
     data = json_response['data']
-    
+    #print(json_response)  
     skipped = 0
     if 'includes' in json_response:
         includes = json_response['includes']

@@ -6,18 +6,19 @@ import datetime
 import pandas as pd
 import numpy as np
 
-file = open('no_geo_all_time.txt')
+file = open('all_data_all_time.txt')
 tekst = file.read()
+
 
 tweets = tekst.split('\n\n')
 tweets.pop()
- 
+print(len(tweets)) 
 header = ['username', 'text', 'language', 'loc', 'created_at']
 elements = 0
 no_tweetinfo = 0
 no_geodata = 0
 lost_tweets = 0 
-with open('twitterdata_no_geo_all_time.csv', 'w+', encoding='UTF8', newline='') as file_2:
+with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as file_2:
     writer = csv.writer(file_2)
     writer.writerow(header)
     times = []
@@ -41,7 +42,6 @@ with open('twitterdata_no_geo_all_time.csv', 'w+', encoding='UTF8', newline='') 
                 """
                 Handling missing tweet location info by adding user location info instead. 
                 """
-                print(tweet)
                 tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at']))
                 writer.writerow(tweet_info)
             except:
@@ -53,8 +53,11 @@ with open('twitterdata_no_geo_all_time.csv', 'w+', encoding='UTF8', newline='') 
 
 
 file.close()
+print('no_tweetinfo:')
 print(no_tweetinfo)
+print('no_geodata')
 print(no_geodata)
+print('lost_tweets:')
 print(lost_tweets)
 print('elements:')
 print(elements)
