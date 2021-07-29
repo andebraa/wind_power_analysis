@@ -10,52 +10,46 @@ import datetime
 import pandas as pd
 import numpy as np
 
-test_hist = pd.read_csv('twitterdata_2006_and_up.csv', parse_dates=True)
-print(len(test_hist))
+test_hist = pd.read_csv('all_data_all_time_edited.csv', parse_dates=True)
 
 #reading, parsing and sorting time elements from twitter data
 tiems = test_hist['created_at']
 tiems= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
 tiems_sorted = tiems.sort_values()
-print(len(list(tiems_sorted)))
 
 week_nums = pd.date_range(tiems_sorted.iloc[0], tiems_sorted.iloc[-1], freq='W-MON')
 #year_nums = pd.date_range(tiems_sorted.iloc[0].year, tiems_sorted.iloc[-1].year, freq='YS')
 year_nums = np.arange(tiems_sorted.iloc[0].year, tiems_sorted.iloc[-1].year +1)
 
-print('twat')
-print(year_nums)
 
 year_indx_dict = {} 
 for i, elem in enumerate(year_nums): #make a dictionary containing year and corresponding index 
-    print(i)
     year_indx_dict[elem] = i
-print(year_indx_dict)
 
 start_year = tiems_sorted.iloc[0].year
 end_year = tiems_sorted.iloc[-1].year
-print(start_year)
-print(end_year)
 
 #test_hist['created_at'].groupby(test_hist["created_at"].dt.week).count()#.plot(kind="bar")
 
 #bins = int(np.ceil(np.log(n)+1))
-occurences = np.zeros(len(week_nums)+1)
-print(len(week_nums))
-print(tiems_sorted.iloc[0])
-print(tiems_sorted.iloc[-1])
+occurences = np.zeros(len(week_nums)+5)
 
-new_years = '29-12' #29th of december
 
 print('twat')
 for i, elem in enumerate(tiems_sorted):
     #NOTE: datetime.date(elem.year,29,12).isocalendar()[1]) is to exctract the total number of weeks in a given year. 
     #this is because 2020 had 53 weeks and this fucked my code
     print(int(elem.week + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) -1))
-    print(elem.year, elem.week)    
-    occurences[int(elem.week + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) )-1]  += 1 
+    print(elem.year, elem.week)
+    print(elem)
+    doy = elem.day_of_year
+    dow = elem.day_of_week
+    woy = ((10 + doy - dow) //7) -1 #https://en.wikipedia.org/wiki/ISO_week_date#Differences_to_other_calendars
+    print('woy')
+    print(woy)
+    occurences[int(woy + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) )]  += 1 
             #the number of year times 52 ensures indexing goes beyond 52 for the subsequent years
-
+            # calculating woy is due to ISO calendar not ending the year at first of january
 print(occurences)
 print(week_nums)
 print(len(occurences)) 

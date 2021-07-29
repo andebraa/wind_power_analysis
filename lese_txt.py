@@ -17,7 +17,8 @@ header = ['username', 'text', 'language', 'loc', 'created_at']
 elements = 0
 no_tweetinfo = 0
 no_geodata = 0
-lost_tweets = 0 
+lost_tweets = 0
+tot_tweets = 0
 with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as file_2:
     writer = csv.writer(file_2)
     writer.writerow(header)
@@ -32,8 +33,8 @@ with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as 
         try:
             tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['place']['name'], element['created_at']))
             writer.writerow(tweet_info)
-            print(element['lang'])
             success = True
+            tot_tweets += 1 
         except:
             no_tweetinfo += 1
             pass
@@ -44,6 +45,8 @@ with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as 
                 """
                 tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at']))
                 writer.writerow(tweet_info)
+                success = True
+                tot_tweets += 1
             except:
                 no_geodata += 1
                 pass 
@@ -61,4 +64,6 @@ print('lost_tweets:')
 print(lost_tweets)
 print('elements:')
 print(elements)
+print('tot_tweets')
+print(tot_tweets)
 file_2.close()
