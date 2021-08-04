@@ -7,15 +7,21 @@
 import requests
 import json
 import numpy as np
+import datetime
+
+start_time = "2021-08-01T00:00:00z"
+#end___time = "2021-08-0T00:00:00z"
+print(start_time)
+#print(end___time)
 
 config = {
   "bearer_token": "AAAAAAAAAAAAAAAAAAAAADzuPAEAAAAALeQBp4kjmU0RFPD9rkjAUEcboZ8%3DwXVoBxne7iMViqZg7BxjO7KuPFl35OwzNsT4XG5fN82mlTrvvf", #ADD BEARER TOKEN
   "params": {
-    "start_time": "2007-01-10T00:00:00Z",
-    "end_time": "2007-01-20T00:00:00Z",
+    "start_time": start_time,
+    #"end_time": end___time,
     "query": "(havvind OR vindkraft OR vindmølle OR vindmøller OR vindmøllene OR vindturbiner OR vindenergi) lang:no",
     "max_results": 500, #it seems like you also have to change the other two places where max_results are listed below
-    "tweet_fields": "geo,lang,created_at",
+    "tweet_fields": "geo,created_at,public_metrics",
     "user_fields": "location",
     "place_fields": "country,full_name,geo,name",
     "expansions": "author_id,geo.place_id"

@@ -13,13 +13,14 @@ tekst = file.read()
 tweets = tekst.split('\n\n')
 tweets.pop()
 print(len(tweets)) 
-header = ['username', 'text', 'language', 'loc', 'created_at']
+header = ['username', 'text', 'language', 'loc', 'created_at', 'like_count', 'quote_count']
 elements = 0
 no_tweetinfo = 0
 no_geodata = 0
 lost_tweets = 0
 tot_tweets = 0
 with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as file_2:
+    print('open')
     writer = csv.writer(file_2)
     writer.writerow(header)
     times = []
@@ -29,9 +30,10 @@ with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as 
         element = json.loads(tweet)
         elements += 1 
         times.append(datetime.datetime.strptime(element['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").time())
-    
+        print(element['public_metrics']['like_count']) 
         try:
-            tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['place']['name'], element['created_at']))
+            tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['place']['name'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
+            print(tweet_info)
             writer.writerow(tweet_info)
             success = True
             tot_tweets += 1 
@@ -43,7 +45,7 @@ with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as 
                 """
                 Handling missing tweet location info by adding user location info instead. 
                 """
-                tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at']))
+                tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
                 writer.writerow(tweet_info)
                 success = True
                 tot_tweets += 1
