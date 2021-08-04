@@ -13,7 +13,7 @@ tekst = file.read()
 tweets = tekst.split('\n\n')
 tweets.pop()
 print(len(tweets)) 
-header = ['username', 'text', 'language', 'loc', 'created_at', 'like_count', 'quote_count']
+header = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
 elements = 0
 no_tweetinfo = 0
 no_geodata = 0
@@ -29,10 +29,11 @@ with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as 
         tweet_info = []
         element = json.loads(tweet)
         elements += 1 
-        times.append(datetime.datetime.strptime(element['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").time())
-        print(element['public_metrics']['like_count']) 
+        times.append(datetime.datetime.strptime(element['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ").time()) 
+        #tweet_info.extend((element['user']['username'], element['text'],  element['place']['name'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
+
         try:
-            tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['place']['name'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
+            tweet_info.extend((element['user']['username'], element['text'], element['place']['name'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
             print(tweet_info)
             writer.writerow(tweet_info)
             success = True
@@ -45,7 +46,7 @@ with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as 
                 """
                 Handling missing tweet location info by adding user location info instead. 
                 """
-                tweet_info.extend((element['user']['username'], element['text'], element['lang'], element['user']['location'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
+                tweet_info.extend((element['user']['username'], element['text'], element['user']['location'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
                 writer.writerow(tweet_info)
                 success = True
                 tot_tweets += 1
