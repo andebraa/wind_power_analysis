@@ -52,7 +52,7 @@ for i, elem in enumerate(tiems_sorted):
     #dow = elem.day_of_week
     #woy = ((10 + doy - dow) //7) -1 #https://en.wikipedia.org/wiki/ISO_week_date#Differences_to_other_calendars
     
-    print(elem.week) 
+    #print(elem.year, elem.week-1)  
     occurences[year_indx_dict[elem.year], elem.week-1] += 1 
     #occurences[int(woy + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) )]  += 1 
             #the number of year times 52 ensures indexing goes beyond 52 for the subsequent years
@@ -63,10 +63,23 @@ flat = occurences.flatten()
 fig, ax = plt.subplots()
 first_tweet_week = tiems_sorted.iloc[0].week -1 #-1 for index
 flat = flat[first_tweet_week:]
-print(flat)
+#print(flat)
 
 for label in (ax.get_xticklabels() + ax.get_yticklabels()):
     label.set_fontsize(8)
+#print(week_nums)
+#print(flat)
+print(occurences)
+print(occurences[year_indx_dict[2020], 52]) 
+print(occurences[year_indx_dict[2015], 52])
+print(occurences[year_indx_dict[2009], 52])
+print(occurences[year_indx_dict[2008], 52]) # empty
+print(occurences[year_indx_dict[2007], 52]) # empty
+
+print('zeros')
+print(flat[154])
+print(flat)
+
 
 ax.plot(week_nums, flat)
 plt.ylabel('number of tweets')
