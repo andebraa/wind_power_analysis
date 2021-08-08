@@ -32,6 +32,7 @@ for i, elem in enumerate(year_nums): #make a dictionary containing year and corr
 
 start_year = tiems_sorted.iloc[0].year
 end_year = tiems_sorted.iloc[-1].year
+long_years = [2009, 2015, 2020]
 
 occurences = np.zeros((len(year_indx_dict), 53))
 print(np.shape(occurences))
@@ -51,7 +52,11 @@ for i, elem in enumerate(tiems_sorted):
     #doy = elem.day_of_year
     #dow = elem.day_of_week
     #woy = ((10 + doy - dow) //7) -1 #https://en.wikipedia.org/wiki/ISO_week_date#Differences_to_other_calendars
-    
+    if elem.week == 52 and elem.year in long_years:
+        occurences[year_indx_dict[elem.year], elem.week -2] += 1 
+        pass 
+
+        
     #print(elem.year, elem.week-1)  
     occurences[year_indx_dict[elem.year], elem.week-1] += 1 
     #occurences[int(woy + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) )]  += 1 
@@ -69,12 +74,10 @@ for label in (ax.get_xticklabels() + ax.get_yticklabels()):
     label.set_fontsize(8)
 #print(week_nums)
 #print(flat)
-print(occurences)
-print(occurences[year_indx_dict[2020], 52]) 
+print(occurences) 
 print(occurences[year_indx_dict[2015], 52])
 print(occurences[year_indx_dict[2009], 52])
-print(occurences[year_indx_dict[2008], 52]) # empty
-print(occurences[year_indx_dict[2007], 52]) # empty
+print(occurences[year_indx_dict[2020], 52])
 
 print('zeros')
 print(flat[154])
