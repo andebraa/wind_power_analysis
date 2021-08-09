@@ -70,4 +70,4 @@ plt.savefig('all_data_all_time_hist.jpg', bbox_inches = 'tight', pad_inches = 0.
 outfile_ID = open('all_data_all_time_translator.json', 'w')
 json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
-data.to_csv('anon_twitterdata_2006_and_up.csv')
+data.to_csv('all_data_all_time_anonymous.csv')
