@@ -1,0 +1,23 @@
+# WIND POWER ANALYSIS #
+
+## search.py ##
+script for searching twitter API with a bearer token and a search query. Max number of tweets at a time is 500, and it will not loop. Thus one has to do 500 tweets at a time, and manually update the search period.
+
+outputs a .txt file with twitter data.
+
+## lese_txt.py ##
+reads the lines of the search.py txt file, and organizes this into a csv.
+If Has:geo is not a search query it will look for wether the tweet element or user element has a geo attribute. Thus all elements returned from lese_txt will have some sort of geo tag.
+NOTE user geo element is self attributed, meaning you can write anything.
+
+outpus a .csv file with the specified elements from the tweet.
+
+## reading_csv.py ##
+Reads the output of lese_txt to plot a timeline of weekly tweets.
+output is a jpg saved in the script location:w
+
+## anon_identifier.py ##
+reads the lese_txt csv and attributes each unique user a random identifier. The username and ID is written to a json file in scritp location. new anonymized dataset and the dictionary of keys is written to file.
+
+outputs a .json of keys and usernames, a .csv of anonymized data and a histogram of unique users and amount of times they have tweeted. 
+
