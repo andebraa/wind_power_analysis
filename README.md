@@ -19,4 +19,10 @@ output is a jpg saved in the script location:w
 ## anon_identifier.py ##
 reads the lese_txt csv and attributes each unique user a random identifier. The username and ID is written to a json file in scritp location. new anonymized dataset and the dictionary of keys is written to file.
 
+
 outputs a .json of keys and usernames, a .csv of anonymized data and a histogram of unique users and amount of times they have tweeted. 
+
+
+## geo_locating.py ##
+
+Attempts to read location elements in the user metadata. This info is written by the user themselves, so a lot of them are not valid locations, and simply 'the couch' or something stupid like that.

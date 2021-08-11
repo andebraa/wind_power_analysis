@@ -36,6 +36,7 @@ long_years = [2009, 2015, 2020]
 
 occurences = np.zeros((len(year_indx_dict), 53))
 print(np.shape(occurences))
+long_weeks = 0
 
 #TODO:  Check week num and year in week_nums array and elem to find matching index. 
 for i, elem in enumerate(tiems_sorted):
@@ -52,8 +53,10 @@ for i, elem in enumerate(tiems_sorted):
     #doy = elem.day_of_year
     #dow = elem.day_of_week
     #woy = ((10 + doy - dow) //7) -1 #https://en.wikipedia.org/wiki/ISO_week_date#Differences_to_other_calendars
-    if elem.week == 52 and elem.year in long_years:
+    if elem.week == 53 and elem.year in long_years:
         occurences[year_indx_dict[elem.year], elem.week -2] += 1 
+        print(elem)
+        long_weeks += 1
         pass 
 
         
@@ -64,7 +67,7 @@ for i, elem in enumerate(tiems_sorted):
             # calculating woy is due to ISO calendar not ending the year at first of january
 
 flat = occurences.flatten()
-
+print(long_weeks)
 fig, ax = plt.subplots()
 first_tweet_week = tiems_sorted.iloc[0].week -1 #-1 for index
 flat = flat[first_tweet_week:]
