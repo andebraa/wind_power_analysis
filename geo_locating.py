@@ -38,11 +38,17 @@ print(data)
 print(data['city'])
 print(len(data['city']))
 
+non_empts = 0
 for i, line in enumerate(data['city']):
-    print(line)
+    
+    elem = line.split(' ')
+    print(elem)
+    if elem[1]:
+        non_empts += 1 
+        data_out.append(data.iloc[i])
     #print(geopandas.tools.geocode(line, 
     #                                provider = 'nominatim'),
     #                                user_agent = 'my_request'
     #                                )
     #time.sleep(1) #nominatim has a 1 request per second limit
-data['city'].to_csv('temp_citydata.csv')
+print(data_out)
