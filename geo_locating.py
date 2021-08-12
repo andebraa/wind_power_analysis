@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import geopandas
 import time
+import re
 from geotext import GeoText
 #from geopy.geocoders import get_geocoders_for_service
 
@@ -41,7 +42,8 @@ print(len(data['city']))
 non_empts = 0
 for i, line in enumerate(data['city']):
     
-    elem = line.split(' ')
+    #elem = line.split(' ')
+    elem = re.findall(r"(\d*)\s*\['(\w*)'\]", line)
     print(elem)
     if elem[1]:
         non_empts += 1 
