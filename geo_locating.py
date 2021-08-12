@@ -1,13 +1,16 @@
 import numpy as np
 import pandas as pd
-import geopandas 
+import geopandas
+import time
 from geotext import GeoText
+#from geopy.geocoders import get_geocoders_for_service
 
+#get_geocoder_for_service('nomatim') #nominatim
 data = pd.read_csv('all_data_all_time_edited.csv',
                     usecols = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
                     )
 print(data['loc'])
-#data_out = geopandas.tools.geocode(data.loc)
+#idata_out = geopandas.tools.geocode(data.loc)
 
 data_out = pd.DataFrame()
 
@@ -33,3 +36,13 @@ print(data.iloc[0])
 data['city']=cty
 print(data)
 print(data['city'])
+print(len(data['city']))
+
+for i, line in enumerate(data['city']):
+    print(line)
+    #print(geopandas.tools.geocode(line, 
+    #                                provider = 'nominatim'),
+    #                                user_agent = 'my_request'
+    #                                )
+    #time.sleep(1) #nominatim has a 1 request per second limit
+data['city'].to_csv('temp_citydata.csv')
