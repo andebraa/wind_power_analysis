@@ -21,8 +21,12 @@ for i, line in enumerate(data['loc']):
     city = GeoText(str(line)).cities
     #unsure how well this geotext functions. may be better alternatives somewhere
     if city:
-        
-        cty.append(str(city))
+        print(city)
+        reg_extract = re.search(r"\[(?:'(\w*)'(?:,\s*)*)+\]", str(city)).group(0) 
+        #TODO regex won't handle places with spaces, i.e new york.
+        # make regex find both places. if two places excist, and one is Oslo, choose the other one!
+        print(reg_extract)
+        cty.append(reg_extract)
     else:
         #pass
         cty.append('')
@@ -33,17 +37,30 @@ data['city']=cty
 #note, data_out is now all the data with geo locations
 
 data_out = data[data.city != ''] 
-
+print(data_out)
 
 #getting geografical data from nominatim. NOTE max 1 request per second
 Nom_instance = Nominatim(user_agent = 'GetLoc')
 latitude = []
 longitude = []
-for line in data_out[2:]:
-    print(line)
-    getLoc = Nom_instance.geocode(line['city'])
-    print(getLoc.adress) 
+
+for line in data_out['city']:
+    print(len(line))
+    print(type(line))
+    if len(line) > 1:
+        line = line[0] #is user has written multiple places, we just use the first one.
+    getLoc = Nom_instance.geocode(line)
+    try:
+        print(getLoc.address) 
+    except:
+        print('nah')
     latitude.append(getLoc.latitude)
     longitude.append(getLoc.longitude)
-    time.sleep(2) 
+    time.sleep(1) 
+     
+
+data_out['latitude'] = latitude
+data_out['longitude'] = longitude
+
+data_out.to_csv('full_geodata.csv')
 
