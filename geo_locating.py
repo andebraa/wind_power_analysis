@@ -25,9 +25,16 @@ for i, line in enumerate(data['loc']):
         #r",*\s*'*(\w*)'*" captures ", 'Oslo'". If it's there. allowes regex to extract the multiple places.
         reg_extract = re.search(r"\['([\w\s]*)',*\s*'*([\w\s]*)'*,*\s*'*([\w\s]*)'*(?:,*\s*'*([\w\s]*)'*)*\]", str(city)) #regex is my passion 
         #TODO fix scandinavian letters. Also doesn't seem to handle repeats of the last capture group
+        #TODO add - support. doesn't manage Mitry-Mory (in france)
+        print(reg_extract)
+        if len(reg_extract.group()) > 1:
+            places = list(reg_extract.group())
+            if 'Oslo' in places:
+                places.remove('Oslo')
+        
         print(reg_extract)
         print(reg_extract.group())
-        cty.append(reg_extract)
+        cty.append(reg_extract.group(0)) #after removing Oslo if there are multiple, we simply pick the first one 
     else:
         #pass
         cty.append('')
