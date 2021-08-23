@@ -22,10 +22,11 @@ for i, line in enumerate(data['loc']):
     #unsure how well this geotext functions. may be better alternatives somewhere
     if city:
         print(city)
-        reg_extract = re.search(r"\[(?:'(\w*)'(?:,\s*)*)+\]", str(city)).group(0) 
-        #TODO regex won't handle places with spaces, i.e new york.
-        # make regex find both places. if two places excist, and one is Oslo, choose the other one!
+        #r",*\s*'*(\w*)'*" captures ", 'Oslo'". If it's there. allowes regex to extract the multiple places.
+        reg_extract = re.search(r"\['([\w\s]*)',*\s*'*([\w\s]*)'*,*\s*'*([\w\s]*)'*(?:,*\s*'*([\w\s]*)'*)*\]", str(city)) #regex is my passion 
+        #TODO fix scandinavian letters. Also doesn't seem to handle repeats of the last capture group
         print(reg_extract)
+        print(reg_extract.group())
         cty.append(reg_extract)
     else:
         #pass
