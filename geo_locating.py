@@ -32,7 +32,7 @@ data = data[data['loc'] != 'New York, NY'] #don't want new yark
 
 #note, data_out is now all the data with geo locations
 data_out = pd.DataFrame()
-data_out = data[data.city != ''] 
+data_out = data[data.city != ''].copy()  
 
 #removing mentions of Oslo and Bergen, as there are a fuck ton of them which takes time
 working_data = data_out[data_out['loc'] != 'Oslo, Norge']
@@ -44,27 +44,40 @@ working_data = working_data[working_data['loc'] != 'Trondheim, Norge']
 working_data = working_data[working_data['loc'] != 'Trondheim, Norway']
 #this reduces from 44423 to 14152
 
-print('mode')
-print(working_data['loc'].mode())
-print(len(working_data['loc']))
-print(working_data['loc'])
-raise AssertionError('twat')
 
-
+data_out['latitude'] = ''
+data_out['longitude'] = '' 
 
 
 
 #getting geografical data from nominatim. NOTE max 1 request per second
-Nom_instance = Nominatim(user_agent = 'GetLoc')
+nom_instance = Nominatim(user_agent = 'GetLoc')
 latitude = []
 longitude = []
 
-for line in data_out['city']:
-    print(len(line))
+oslo_coords = nom_instance.geocode('Oslo, Norway') 
+bergen_coords = nom_instance.geocode('Bergen, Norway')
+trondheim_coords = nom_instance.geocode('Trondheim, Norway') 
+
+data_out.loc[data['loc'] == 'Oslo, Norway', 'latitude'] = oslo_coords.latitude  
+data_out.loc[data['loc'] == 'Oslo, Norway', 'longitude'] = oslo_coords.longitude
+data_out.loc[data['loc'] == 'Oslo', 'latitude'] = oslo_coords.latitude
+data_out.loc[data['loc'] == 'Oslo', 'longitude'] = oslo_coords.longitude
+data_out.loc[data['loc'] == 'Bergen, Norway', 'latitude'] = bergen_coords.latitude
+data_out.loc[data['loc'] == 'Bergen, Norway', 'longitude'] = bergen_coords.longitude
+data_out.loc[data['loc'] == 'Bergen', 'latitude'] = bergen_coords.latitude
+data_out.loc[data['loc'] == 'Bergen', 'longitude'] = bergen_coords.longitude
+data_out.loc[data['loc'] == 'Trondheim, Norway', 'latitude'] = trondheim_coords.latitude
+data_out.loc[data['loc'] == 'Trondheim, Norway', 'longitude'] = trondheim_coords.longitude
+data_out.loc[data['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.latitude
+data_out.loc[data['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
+
+#works till here
+
+for line in working_data['city']:
+    print(line)
     print(type(line))
-    if len(line) > 1:
-        line = line[0] #is user has written multiple places, we just use the first one.
-    getLoc = Nom_instance.geocode(line)
+    getLoc = nom_instance.geocode(line)
     try:
         print(getLoc.address) 
     except:
@@ -74,8 +87,9 @@ for line in data_out['city']:
     time.sleep(1) 
      
 
-data_out['latitude'] = latitude
-data_out['longitude'] = longitude
+data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
+data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
+
 
 data_out.to_csv('full_geodata.csv')
 
