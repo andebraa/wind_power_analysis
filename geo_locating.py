@@ -11,9 +11,6 @@ data = pd.read_csv('all_data_all_time_edited.csv',
                     usecols = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
                     )
 
-data_out = pd.DataFrame()
-
-
 cty=[]
 for i, line in enumerate(data['loc']):
     #extracting the place names that make sense, in string form
@@ -21,30 +18,41 @@ for i, line in enumerate(data['loc']):
     city = GeoText(str(line)).cities
     #unsure how well this geotext functions. may be better alternatives somewhere
     if city:
-        print(city)
         #r",*\s*'*(\w*)'*" captures ", 'Oslo'". If it's there. allowes regex to extract the multiple places.
-        reg_extract = re.search(r"\['([\w\sæøåÆØÅ]*)',*\s*'*([\w\sæøåÆØÅ]*)'*,*\s*'*([\w\sæøåÆØÅ]*)'*(?:,*\s*'*([\w\sæøåÆØÅ]*)'*)*\]", str(city)) #regex is my passion 
-        #TODO add - support. doesn't manage Mitry-Mory (in france)
-        print(reg_extract)
-        if len(reg_extract.group()) > 1:
-            places = list(reg_extract.group())
-            if 'Oslo' in places:
-                places.remove('Oslo')
+        reg_extract = re.search(r"\['([\w\sæøåÆØÅ-]*)',*\s*'*([\w\sæøåÆØÅ-]*)'*,*\s*'*([\w\sæøåÆØÅ-]*)'*(?:,*\s*'*([\w\sæøåÆØÅ-]*)'*)*\]", str(city)) #regex is my passion 
         
-        print(reg_extract)
-        print(reg_extract.group())
-        cty.append(reg_extract.group(0)) #after removing Oslo if there are multiple, we simply pick the first one 
+        cty.append(reg_extract.group(0)) #We assume that the first written place is the main one  
     else:
         #pass
         cty.append('')
         
 
 data['city']=cty
+data = data[data['loc'] != 'New York, NY'] #don't want new yark 
 
 #note, data_out is now all the data with geo locations
-
+data_out = pd.DataFrame()
 data_out = data[data.city != ''] 
-print(data_out)
+
+#removing mentions of Oslo and Bergen, as there are a fuck ton of them which takes time
+working_data = data_out[data_out['loc'] != 'Oslo, Norge']
+working_data = working_data[working_data['loc'] != 'Oslo, Norway']
+working_data = working_data[working_data['loc'] != 'Bergen, Norway']
+working_data = working_data[working_data['loc'] != 'Oslo']
+working_data = working_data[working_data['loc'] != 'Bergen']
+working_data = working_data[working_data['loc'] != 'Trondheim, Norge']
+working_data = working_data[working_data['loc'] != 'Trondheim, Norway']
+#this reduces from 44423 to 14152
+
+print('mode')
+print(working_data['loc'].mode())
+print(len(working_data['loc']))
+print(working_data['loc'])
+raise AssertionError('twat')
+
+
+
+
 
 #getting geografical data from nominatim. NOTE max 1 request per second
 Nom_instance = Nominatim(user_agent = 'GetLoc')
