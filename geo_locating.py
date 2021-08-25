@@ -20,8 +20,8 @@ for i, line in enumerate(data['loc']):
     if city:
         #r",*\s*'*(\w*)'*" captures ", 'Oslo'". If it's there. allowes regex to extract the multiple places.
         reg_extract = re.search(r"\['([\w\sæøåÆØÅ-]*)',*\s*'*([\w\sæøåÆØÅ-]*)'*,*\s*'*([\w\sæøåÆØÅ-]*)'*(?:,*\s*'*([\w\sæøåÆØÅ-]*)'*)*\]", str(city)) #regex is my passion 
-        
-        cty.append(reg_extract.group(0)) #We assume that the first written place is the main one  
+        #TODO fix 'pic one' doesn't work seemingly 
+        cty.append(reg_extract.group(1)) #We assume that the first written place is the main one  
     else:
         #pass
         cty.append('')
@@ -73,10 +73,11 @@ data_out.loc[data['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.l
 data_out.loc[data['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
 
 #works till here
-
+i = 0
+fin = len(working_data['city'])
 for line in working_data['city']:
     print(line)
-    print(type(line))
+    print(i, fin)
     getLoc = nom_instance.geocode(line)
     try:
         print(getLoc.address) 
@@ -85,7 +86,7 @@ for line in working_data['city']:
     latitude.append(getLoc.latitude)
     longitude.append(getLoc.longitude)
     time.sleep(1) 
-     
+    i += 1
 
 data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
 data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
