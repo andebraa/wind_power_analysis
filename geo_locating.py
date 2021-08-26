@@ -75,6 +75,7 @@ data_out.loc[data['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.
 #works till here
 i = 0
 fin = len(working_data['city'])
+
 for line in working_data['city']:
     print(line)
     print(i, fin)
@@ -88,9 +89,12 @@ for line in working_data['city']:
     time.sleep(1) 
     i += 1
 
+#data_out.loc[data_out['latitude'] == '', 'latitude'] = 6969
+#data_out.loc[data_out['longitude'] == '', 'longitude'] = 420
+
 data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
 data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
 
-
-data_out.to_csv('full_geodata.csv')
+print(data_out)
+#data_out.to_csv('full_geodata.csv')
 
