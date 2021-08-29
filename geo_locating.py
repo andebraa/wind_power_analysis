@@ -1,3 +1,8 @@
+"""
+Script for reading location data from csv. Uses geotex and regex to extract names of places, then uses nomatim
+geo API to fetch longitude and latitude. The nomatim api has a 1 call per second limitation, so this takes time.
+I manually remove Oslo, Bergen and Trondheim occurences, reducing the number of calls from 44423 to 14152.
+"""
 import numpy as np
 import pandas as pd
 import time
@@ -61,6 +66,8 @@ trondheim_coords = nom_instance.geocode('Trondheim, Norway')
 
 data_out.loc[data['loc'] == 'Oslo, Norway', 'latitude'] = oslo_coords.latitude  
 data_out.loc[data['loc'] == 'Oslo, Norway', 'longitude'] = oslo_coords.longitude
+data_out.loc[data['loc'] == 'Oslo, Norge', 'latitude'] = oslo_coords.latitude
+data_out.loc[data['loc'] == 'Oslo, Norge', 'longitude'] = oslo_coords.longitude
 data_out.loc[data['loc'] == 'Oslo', 'latitude'] = oslo_coords.latitude
 data_out.loc[data['loc'] == 'Oslo', 'longitude'] = oslo_coords.longitude
 data_out.loc[data['loc'] == 'Bergen, Norway', 'latitude'] = bergen_coords.latitude
@@ -84,17 +91,21 @@ for line in working_data['city']:
         print(getLoc.address) 
     except:
         print('nah')
+    
     latitude.append(getLoc.latitude)
     longitude.append(getLoc.longitude)
     time.sleep(1) 
+    
     i += 1
+
 
 #data_out.loc[data_out['latitude'] == '', 'latitude'] = 6969
 #data_out.loc[data_out['longitude'] == '', 'longitude'] = 420
+
 
 data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
 data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
 
 print(data_out)
-#data_out.to_csv('full_geodata.csv')
+data_out.to_csv('full_geodata_longlat.csv')
 
