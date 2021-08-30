@@ -9,9 +9,7 @@ import time
 from geopy.geocoders import Nominatim
 import re
 from geotext import GeoText
-#from geopy.geocoders import get_geocoders_for_service
 
-#get_geocoder_for_service('nomatim') #nominatim
 data = pd.read_csv('all_data_all_time_edited.csv',
                     usecols = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
                     )
@@ -25,7 +23,6 @@ for i, line in enumerate(data['loc']):
     if city:
         #r",*\s*'*(\w*)'*" captures ", 'Oslo'". If it's there. allowes regex to extract the multiple places.
         reg_extract = re.search(r"\['([\w\sæøåÆØÅ-]*)',*\s*'*([\w\sæøåÆØÅ-]*)'*,*\s*'*([\w\sæøåÆØÅ-]*)'*(?:,*\s*'*([\w\sæøåÆØÅ-]*)'*)*\]", str(city)) #regex is my passion 
-        #TODO fix 'pic one' doesn't work seemingly 
         cty.append(reg_extract.group(1)) #We assume that the first written place is the main one  
     else:
         #pass
@@ -79,33 +76,37 @@ data_out.loc[data['loc'] == 'Trondheim, Norway', 'longitude'] = trondheim_coords
 data_out.loc[data['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.latitude
 data_out.loc[data['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
 
-#works till here
+
 i = 0
 fin = len(working_data['city'])
 
 for line in working_data['city']:
     print(line)
     print(i, fin)
+
     getLoc = nom_instance.geocode(line)
-    try:
-        print(getLoc.address) 
-    except:
-        print('nah')
-    
-    latitude.append(getLoc.latitude)
-    longitude.append(getLoc.longitude)
+    country = getLoc.address
+    print('country:')
+    print(country[-5:])
+    if country[-5:] != 'Norge':
+        print('-'*20)
+        latitude.append('') 
+        longitude.append('')
+    else:
+
+        latitude.append(getLoc.latitude)
+        longitude.append(getLoc.longitude)
     time.sleep(1) 
     
     i += 1
 
 
-#data_out.loc[data_out['latitude'] == '', 'latitude'] = 6969
-#data_out.loc[data_out['longitude'] == '', 'longitude'] = 420
-
 
 data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
 data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
+data_out = data_out[data_out['latitude'] != ''] 
+
 
 print(data_out)
-data_out.to_csv('full_geodata_longlat.csv')
+data_out.to_csv('full_geodata_longlat_noforeign.csv')
 
