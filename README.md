@@ -27,4 +27,6 @@ outputs a .json of keys and usernames, a .csv of anonymized data and a histogram
 
 ## geo_locating.py ##
 
-Attempts to read location elements in the user metadata. This info is written by the user themselves, so a lot of them are not valid locations, and simply 'the couch' or something stupid like that.
+Attempts to read location elements in the user metadata. This info is written by the user themselves, so a lot of them are not valid locations, and simply 'the couch' or something similar.
+
+uses GeoText to identify actual place names, then uses nominatim to fetch the coordinates to these. Nominatim has a 1 request per second, meaning this takes a lot of time.
