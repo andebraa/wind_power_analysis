@@ -5,6 +5,8 @@ script for searching twitter API with a bearer token and a search query. Max num
 
 outputs a .txt file with twitter data.
 
+loop_request and connect_to_endpoint functions are non functional as twitter doesn't allow loops. 
+
 ## lese_txt.py ##
 reads the lines of the search.py txt file, and organizes this into a csv.
 If Has:geo is not a search query it will look for wether the tweet element or user element has a geo attribute. Thus all elements returned from lese_txt will have some sort of geo tag.
