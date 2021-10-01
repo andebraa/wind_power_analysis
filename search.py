@@ -7,20 +7,26 @@
 import requests
 import json
 import numpy as np
+import datetime
+
+start_time = "2021-08-01T00:00:00z"
+#end___time = "2021-08-0T00:00:00z"
+print(start_time)
+#print(end___time)
 
 config = {
   "bearer_token": "AAAAAAAAAAAAAAAAAAAAADzuPAEAAAAALeQBp4kjmU0RFPD9rkjAUEcboZ8%3DwXVoBxne7iMViqZg7BxjO7KuPFl35OwzNsT4XG5fN82mlTrvvf", #ADD BEARER TOKEN
   "params": {
-    "start_time": "2008-01-01T00:00:00Z",
-    "end_time": "2015-01-01T00:00:00Z",
-    "query": "(havvind OR vindkraft OR vindmølle OR vindmøller OE vindmøllene OR vindturbiner OR vindenergi) -is:retweet has:geo lang:no",
+    "start_time": start_time,
+    #"end_time": end___time,
+    "query": "(havvind OR vindkraft OR vindmølle OR vindmøller OR vindmøllene OR vindturbiner OR vindenergi) lang:no",
     "max_results": 500, #it seems like you also have to change the other two places where max_results are listed below
-    "tweet_fields": "geo,lang,created_at",
+    "tweet_fields": "geo,created_at,public_metrics",
     "user_fields": "location",
     "place_fields": "country,full_name,geo,name",
     "expansions": "author_id,geo.place_id"
   },
-  "write_path": "full_query_2006_and_up.txt"
+  "write_path": "all_data_all_time.txt"
 }
 
 
@@ -32,6 +38,8 @@ def get_formatted_tweets(json_response):
     list_of_tweets = []
     has_expansion_data = False
     data = json_response['data']
+    #print(json_response)  
+    skipped = 0
     if 'includes' in json_response:
         includes = json_response['includes']
         has_expansion_data = True
@@ -41,9 +49,15 @@ def get_formatted_tweets(json_response):
                 tweet_info['user'] = lookup(tweet_info['author_id'], includes['users'])
             if 'places' in includes:
                 if 'geo' in tweet_info:
-                    tweet_info['place'] = lookup(tweet_info['geo']['place_id'], includes['places'])
+                    try:
+                        tweet_info['place'] = lookup(tweet_info['geo']['place_id'], includes['places'])
+                    except:
+                        skipped += 1 
+                        pass
         list_of_tweets.append(tweet_info)
     print(len(list_of_tweets))
+    print('skipped')
+    print(skipped)
     return list_of_tweets
 
 
@@ -201,7 +215,6 @@ def loop_request():
                 next_token = json_response['meta']['next_token']
             else:
                 break
-    print(result_count)
 
 if __name__ == '__main__':
     validate_config()
@@ -217,6 +230,8 @@ if __name__ == '__main__':
     while count < max_results:
 
         json_response = search_tweets(next_token)
+        if "'result_count': 0" in json_response:
+            pass #this means there are no results
         tweets = get_formatted_tweets(json_response)
         write_to_file(config['write_path'], tweets)
         result_count = json_response['meta']['result_count']

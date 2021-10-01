@@ -1,0 +1,18 @@
+#Requirements for all of the wind analysis scripts
+#search.py
+numpy 
+requests
+datetime
+
+#lese_txt.py
+re
+json
+csv
+matplotlib.pyplot 
+pandas 
+
+#reading_csv
+matplotlib.patches
+time
+geopy.geocoders 
+geotext
