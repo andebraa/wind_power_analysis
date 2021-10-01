@@ -8,10 +8,14 @@ print(world.head())
 pd = geopandas.read_file('kommuner_komprimert.json')
 print(pd.head())
 
-data = pd.read_csv('full_geodata_longlat
+data = pd.read_csv('full_geodata_longlat_noforeign.csv',
+                  usecols = ['user', 'username','text','loc','created_at',
+                             'like_count','quote_count','city','latitude',
+                             'longitude']
+                  )
 
 pd.plot()
-
+plt.plot(data['latitude'], data['longitude'])
 plt.show()
 """
 colorscale=[
