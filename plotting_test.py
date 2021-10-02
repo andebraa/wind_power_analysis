@@ -2,11 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import geopandas
 
-world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
-print(world.head()) 
-#pd = geopandas.read_file('Basisdata_0000_Norge_25833_Kommuner_GEOJSON.geojson')
-pd = geopandas.read_file('kommuner_komprimert.json')
-print(pd.head())
+
+norway = geopandas.read_file('kommuner_komprimert.json')
 
 data = pd.read_csv('full_geodata_longlat_noforeign.csv',
                   usecols = ['user', 'username','text','loc','created_at',
@@ -14,7 +11,7 @@ data = pd.read_csv('full_geodata_longlat_noforeign.csv',
                              'longitude']
                   )
 
-pd.plot()
+norway.plot()
 plt.plot(data['latitude'], data['longitude'])
 plt.show()
 """
