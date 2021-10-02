@@ -37,3 +37,6 @@ Script for anotating tweets. Takes a full_geodata_longlat_noforeign csv file and
 the user is promted with an option to return 0 or 1, and this is added to the given tweet as a label.
 NOTE does not handle other integers than 0 or 1. 
 
+## rename_collumn.py ## 
+
+The NorBert algorithm accepts trainingdata on the form [labels, text]. I work with label instead of the plural labels. this scripts looks for any collumn named label and renames it labels. not very complicated. 
