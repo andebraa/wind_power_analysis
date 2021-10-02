@@ -25,6 +25,6 @@ for i, text in enumerate(trainingdata['text']):
 
 trainingdata['label'] = pos_mask.astype(int)
 
-trainingdata.to_csv('anotized_data_200_5.csv', index=False)
+trainingdata.to_csv('anotized_data_100_6.csv', index=False)
 
 
