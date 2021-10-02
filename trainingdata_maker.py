@@ -4,7 +4,7 @@ import numpy as np
 data = pd.read_csv('full_geodata_longlat_noforeign.csv',
                     usecols = ['text'])
 
-tweet_indx = np.random.randint(0, len(data), size = 100) 
+tweet_indx = np.random.randint(0, len(data), size = 200) 
 
 
 trainingdata = data.iloc[tweet_indx, :] 
@@ -25,6 +25,6 @@ for i, text in enumerate(trainingdata['text']):
 
 trainingdata['label'] = pos_mask.astype(int)
 
-trainingdata.to_csv('anotized_data_100.csv', index=False)
+trainingdata.to_csv('anotized_data_200_5.csv', index=False)
 
 
