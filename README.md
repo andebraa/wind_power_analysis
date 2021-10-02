@@ -30,3 +30,10 @@ outputs a .json of keys and usernames, a .csv of anonymized data and a histogram
 Attempts to read location elements in the user metadata. This info is written by the user themselves, so a lot of them are not valid locations, and simply 'the couch' or something similar.
 
 uses GeoText to identify actual place names, then uses nominatim to fetch the coordinates to these. Nominatim has a 1 request per second, meaning this takes a lot of time.
+
+## trainingdata_maker.py ## 
+
+Script for anotating tweets. Takes a full_geodata_longlat_noforeign csv file and prints out the text. 
+the user is promted with an option to return 0 or 1, and this is added to the given tweet as a label.
+NOTE does not handle other integers than 0 or 1. 
+
