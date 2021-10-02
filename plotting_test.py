@@ -1,4 +1,5 @@
 import pandas as pd 
+import numpy as np
 import matplotlib.pyplot as plt 
 import geopandas
 
@@ -11,16 +12,27 @@ data = pd.read_csv('small_datafile.csv',
                              'longitude']
                   )
 
+data['labels'] = np.random.randint(0,2,size = (len(data))) 
+print(data.head())
+
 
 gdf = geopandas.GeoDataFrame(data, geometry=geopandas.points_from_xy(data.longitude, data.latitude))
 
-print(gdf.head())
+fig, ax = plt.subplots() 
+norway.plot(ax = ax, alpha = 0.4)
 
+gdf[gdf['labels'] == 0].plot(ax = ax, markersize = 20, color = 'red', marker = 'o', label = 'neg')
+gdf[gdf['labels'] == 1].plot(ax = ax, markersize = 20, color = 'blue', marker = '^', label = 'pos') 
+ 
+
+
+""" #natural earth lowres attempt
 world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
 norway = world.log[world['name'] == 'Norway'] 
 
 ax = world[world.continent == 'Europe'].plot()
 gdf.plot(ax=ax, color = 'red')
+"""
 
 plt.show()
 
