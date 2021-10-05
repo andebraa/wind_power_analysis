@@ -65,7 +65,9 @@ def norway_plot():
     fig, ax = plt.subplots() 
     norway.plot(ax = ax)#, alpha = 0.4)
 
-
+    dispersion = np.random.normal(size = (len(gdf['labels']), len(gdf['labels'])))
+    gdf['latitude'] += dispersion[0] 
+    gdf['longitude'] += dispersion[1]
 
     gdf[gdf['labels'] == 0].plot(ax = ax, markersize = 20, color = 'red', marker = 'o', label = 'neg')
     #print(gdf.iloc[bool_label])
