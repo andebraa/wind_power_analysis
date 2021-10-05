@@ -92,6 +92,6 @@ def district_bar_plot():
     print(data.head())
 
 if __name__ == '__main__':
-    #plot_uncertainty_diff()
+    plot_uncertainty_diff()
     #norway_plot()
-    pass
+    #pass
