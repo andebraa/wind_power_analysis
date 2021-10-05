@@ -60,7 +60,7 @@ def plot_uncertainty_hist():
     plt.hist(max_label, bins=np.arange(min(max_label), max(max_label) + binwidth, binwidth))
 
     plt.legend()
-    plt.title('Distribution of values returned by NorBert')
+    plt.title('Distribution of non boolean values returned by NorBert')
     plt.savefig('fig/uncertainty_hist.png')
 
 
