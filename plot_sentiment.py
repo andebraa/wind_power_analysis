@@ -56,9 +56,9 @@ def plot_uncertainty_diff():
     plt.savefig('fig/uncertainty_diff.png')
 
 def plot_uncertainty_hist():
-    w = 3
-    bins = math.ceil((np.max(labels) - np.min(labels))/w)
-    plt.hist(max_label)#, bins = bins)#, label="mean: {}".format(np.mean(max_label)))
+    binwidth = 0.2
+    plt.hist(max_label, bins=np.arange(min(max_label), max(max_label) + binwidth, binwidth))
+
     plt.legend()
     plt.title('Distribution of values returned by NorBert')
     plt.savefig('fig/uncertainty_hist.png')
