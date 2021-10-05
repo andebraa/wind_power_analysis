@@ -47,7 +47,7 @@ def plot_uncertainty_diff():
     bins = np.linspace(np.min(label_diff), np.max(label_diff), n)
     #bins = math.ceil((np.max(labels) - np.min(labels))/w) 
     hist = np.histogram(label_diff)#, bins = bins)
-    plt.hist(hist)
+    plt.hist(label_diff)
     plt.legend()
     plt.title('difference between positive and negative label')
     plt.savefig('fig/uncertainty_diff.png')
