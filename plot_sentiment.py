@@ -74,8 +74,8 @@ def norway_plot():
     gdf[gdf['labels'] == 0].plot(ax = ax, markersize = 20, color = 'red', marker = 'o', label = 'neg')
     #print(gdf.iloc[bool_label])
     gdf[gdf['labels']==1].plot(ax = ax, markersize = 20, color = 'blue', marker = '^', label = 'pos') 
- 
-
+    plt.legend()
+    plt.title('distribution of positive and negative sentiment across the country')
     plt.savefig('fig/geo_distribution.png')
 
 if __name__ == '__main__':
