@@ -42,9 +42,9 @@ for i, row in data.iterrows():
 data.drop(data.index[delete_rows]) # delete rows with nan indexes
 
 def plot_uncertainty_diff():
-    n = 300
+    n = 30
     print(label_diff)
-    bins = np.linspace(np.min(labels), np.max(labels), n)
+    bins = np.linspace(np.min(label_diff), np.max(label_diff), n)
     #bins = math.ceil((np.max(labels) - np.min(labels))/w) 
     hist = np.histogram(label_diff, bins = bins)
     plt.hist(hist)
