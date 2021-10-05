@@ -9,7 +9,7 @@ import geopandas
 import re
 import math
 
-plt.style.use('ggplot')
+#plt.style.use('ggplot')
 
 norway = geopandas.read_file('kommuner_komprimert.json')
 
@@ -49,7 +49,8 @@ print(len(bool_label))
 
 
 def plot_uncertainty_diff():
-    plt.hist(label_diff, bins=30)
+    binwidth = 0.2
+    plt.hist(label_diff, bins=np.arange(min(label_diff), max(label_diff) + binwidth, binwidth))
     plt.legend()
     plt.title('difference between positive and negative label')
     plt.savefig('fig/uncertainty_diff.png')
@@ -93,5 +94,6 @@ def district_bar_plot():
 
 if __name__ == '__main__':
     plot_uncertainty_diff()
+    plot_uncertainty_hist()
     #norway_plot()
     #pass
