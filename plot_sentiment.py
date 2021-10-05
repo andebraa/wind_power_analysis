@@ -24,13 +24,14 @@ print(data.head())
 delete_rows = []
 max_label = np.zeros(len(data))
 bool_label = np.zeros(len(data))
+label_diff = np.zeros(len(data))
 for i, row in data.iterrows():
     try:    
         search = re.search(r"\[\s*((?:-){0,1}\d.\d+(?:e-\d+)*)\s+((?:-){0,1}\d.\d+(?:e-\d+)*)\s*\]", row['labels']).groups() 
         labels = (float(search[0]), float(search[1]) )
         max_label[i] = np.max(labels)
                     #note; logits are [0, 1], i think|
-
+        label_diff[i] = np.abs(labels[0] - labels[1]) 
         if labels[0] < labels[1]:
             bool_label[i] = 1 
         
@@ -39,6 +40,15 @@ for i, row in data.iterrows():
         delete_rows.append(i) #rows with nan labels are saved for later deletion
 
 data.drop(data.index[delete_rows]) # delete rows with nan indexes
+
+def plot_uncertainty_diff():
+    w = 4
+    print(label_diff)
+    bins = math.ceil((np.max(labels) - np.min(labels))/w) 
+    plt.hist(label_diff)#, bins=bins)
+    plt.legend()
+    plt.title('difference between positive and negative label')
+    plt.savefig('fig/uncertainty_diff.png')
 
 def plot_uncertainty_hist():
     w = 3
@@ -66,4 +76,5 @@ def norway_plot():
     plt.savefig('fig/geo_distribution.png')
 
 if __name__ == '__main__':
-    norway_plot()
+    plot_uncertainty_diff()
+    #norway_plot()
