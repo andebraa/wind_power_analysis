@@ -33,20 +33,16 @@ for i, row in data.iterrows():
                     #note; logits are [0, 1], i think|
         label_diff[i] = np.abs(labels[0] - labels[1]) 
         if labels[0] < labels[1]:
-            bool_label[i] = 1 
+            bool_label[i] = int(1) 
         
     except:
         print("delete row {}".format(i))
         delete_rows.append(i) #rows with nan labels are saved for later deletion
 
 data.drop(data.index[delete_rows]) # delete rows with nan indexes
+data['labels'] = bool_label
 
 def plot_uncertainty_diff():
-    n = 30
-    print(label_diff)
-    bins = np.linspace(np.min(label_diff), np.max(label_diff), n)
-    #bins = math.ceil((np.max(labels) - np.min(labels))/w) 
-    hist = np.histogram(label_diff)#, bins = bins)
     plt.hist(label_diff)
     plt.legend()
     plt.title('difference between positive and negative label')
@@ -71,12 +67,13 @@ def norway_plot():
 
 
 
-    #gdf[bool_label['labels']].plot(ax = ax, markersize = 20, color = 'red', marker = 'o', label = 'neg')
-    gdf[bool_label['labels']].plot(ax = ax, markersize = 20, color = 'blue', marker = '^', label = 'pos') 
+    gdf[gdf['labels'] == 0].plot(ax = ax, markersize = 20, color = 'red', marker = 'o', label = 'neg')
+    #print(gdf.iloc[bool_label])
+    gdf[gdf['labels']==1].plot(ax = ax, markersize = 20, color = 'blue', marker = '^', label = 'pos') 
  
 
     plt.savefig('fig/geo_distribution.png')
 
 if __name__ == '__main__':
-    plot_uncertainty_diff()
-    #norway_plot()
+    #plot_uncertainty_diff()
+    norway_plot()
