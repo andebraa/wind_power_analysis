@@ -9,8 +9,9 @@ import datetime
 import pandas as pd
 import numpy as np
 
-test_hist = pd.read_csv('all_data_all_time_edited.csv', parse_dates=True)
+test_hist = pd.read_csv('final_dataset_boollabel.csv', parse_dates=True)
 
+test_hist = test_hist[test_hist['labels'] == 1] 
 #reading, parsing and sorting time elements from twitter data
 tiems = test_hist['created_at']
 tiems= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -87,11 +88,12 @@ print(flat[154])
 print(flat)
 
 
-ax.plot(week_nums, flat)
+ax.plot(week_nums, flat[:len(week_nums)])
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
 
-plt.savefig('tweets_per_week_2006_and_up.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('fig/tweet_per_week_no_sentiment.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+
 
 
 

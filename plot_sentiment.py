@@ -42,6 +42,12 @@ for i, row in data.iterrows():
 data.drop(data.index[delete_rows]) # delete rows with nan indexes
 data['labels'] = bool_label
 
+data.to_csv('final_dataset_bolllabel.csv', index = False) 
+
+print(np.sum(bool_label)) 
+print(len(bool_label))
+
+
 def plot_uncertainty_diff():
     plt.hist(label_diff)
     plt.legend()
@@ -67,9 +73,11 @@ def norway_plot():
 
     #dispersion = np.random.normal( scale = 10 ,size = (len(gdf['labels']), len(gdf['labels'])))
     for i,row in gdf.iterrows():
-        row['latitude'] += np.random.normal(scale=10, size = (2)) 
-        row['longitude'] += np.random.normal(scale=100, size = (2))
-
+        print(row['latitude'])
+        print('add')
+        row['latitude'] += np.random.normal(scale=100) 
+        row['longitude'] += np.random.normal(scale=100)
+        print(row['latitude'])
 
     gdf[gdf['labels'] == 0].plot(ax = ax, markersize = 20, color = 'red', marker = 'o', label = 'neg')
     #print(gdf.iloc[bool_label])
@@ -78,6 +86,12 @@ def norway_plot():
     plt.title('distribution of positive and negative sentiment across the country')
     plt.savefig('fig/geo_distribution.png')
 
+
+def district_bar_plot():
+
+    print(data.head())
+
 if __name__ == '__main__':
     #plot_uncertainty_diff()
-    norway_plot()
+    #norway_plot()
+    pass
