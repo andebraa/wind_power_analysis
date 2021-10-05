@@ -5,3 +5,5 @@
 *.dcox
 *.json
 *.csv 
+data/* 
+
