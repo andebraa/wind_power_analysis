@@ -35,7 +35,8 @@ def apply_model():
         sentences = [
             "Nei til vindkraft!!!",
             "Jeg elsker vindkraft!!",
-        ]
+            "@abjartnes @Klimastiftelsen @VVandvik Sett fra mitt ståsted så er folk mer opptatt av naturvern, ref vindmøller, enn de er opptatt av klima. \n Etter mitt syn, burde det vært motsatt. \n Det viktigste må være klima, men naturvern må også vektlegges.",
+"RT @LaNaturenLeve: Ordføreropprøret mot vindkraft brer seg, @www_ks_no, @HoyreTina, @Rotevatn. \n https://t.co/7G9m2Kw7ut"]
         path_to_winddir = '~/wind_power_analysis/'
         data = pd.read_csv(path_to_winddir+ 'full_geodata_longlat_noforeign.csv',
                             usecols = ['text']
@@ -57,6 +58,7 @@ def apply_model():
             attention_mask = encoding["attention_mask"]
             outputs = model(input_ids, attention_mask=attention_mask)
             #logger.info(outputs)
+        """
         labels = []
         print('starting work on dataset')
         for i, line in data.iterrows():
@@ -80,6 +82,6 @@ def apply_model():
         with open('labels_output.csv','w') as f:
             writer = csv.writer(f)
             writer.writerows(labels)
-
+        """
 if __name__ == '__main__':
     apply_model() 
