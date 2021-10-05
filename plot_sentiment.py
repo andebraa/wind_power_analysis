@@ -42,11 +42,12 @@ for i, row in data.iterrows():
 data.drop(data.index[delete_rows]) # delete rows with nan indexes
 
 def plot_uncertainty_diff():
-    n = 30
+    n = 300
     print(label_diff)
     bins = np.linspace(np.min(labels), np.max(labels), n)
     #bins = math.ceil((np.max(labels) - np.min(labels))/w) 
-    plt.hist(label_diff, bins=bins)
+    hist = np.histogram(label_diff, bins = bins)
+    plt.hist(hist)
     plt.legend()
     plt.title('difference between positive and negative label')
     plt.savefig('fig/uncertainty_diff.png')
