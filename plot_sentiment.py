@@ -65,7 +65,7 @@ def norway_plot():
     fig, ax = plt.subplots() 
     norway.plot(ax = ax)#, alpha = 0.4)
 
-    dispersion = np.random.normal(size = (len(gdf['labels']), len(gdf['labels'])))
+    dispersion = np.random.normal( scale = 10 ,size = (len(gdf['labels']), len(gdf['labels'])))
     gdf['latitude'] += dispersion[0] 
     gdf['longitude'] += dispersion[1]
 
