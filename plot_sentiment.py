@@ -49,7 +49,7 @@ print(len(bool_label))
 
 
 def plot_uncertainty_diff():
-    plt.hist(label_diff)
+    plt.hist(label_diff, bins=30)
     plt.legend()
     plt.title('difference between positive and negative label')
     plt.savefig('fig/uncertainty_diff.png')
