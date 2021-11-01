@@ -1,8 +1,8 @@
 # WIND POWER ANALYSIS #
 
--[] Gather data with search.py by looping over dates in the script
--[] convert data to csv using lese_txt.py
--[] read the location attribute of users using geo_locating.py. produces tweets all from norway and with a city and longitude and latitude.
+- [ ] Gather data with search.py by looping over dates in the script
+- [ ] convert data to csv using lese_txt.py
+- [ ] read the location attribute of users using geo_locating.py. produces tweets all from norway and with a city and longitude and latitude.
 
 
 
