@@ -1,5 +1,11 @@
 # WIND POWER ANALYSIS #
 
+-[] Gather data with search.py by looping over dates in the script
+-[] convert data to csv using lese_txt.py
+-[] read the location attribute of users using geo_locating.py. produces tweets all from norway and with a city and longitude and latitude.
+
+
+
 ## search.py ##
 script for searching twitter API with a bearer token and a search query. Max number of tweets at a time is 500, and it will not loop. Thus one has to do 500 tweets at a time, and manually update the search period.
 
@@ -30,6 +36,10 @@ outputs a .json of keys and usernames, a .csv of anonymized data and a histogram
 Attempts to read location elements in the user metadata. This info is written by the user themselves, so a lot of them are not valid locations, and simply 'the couch' or something similar.
 
 uses GeoText to identify actual place names, then uses nominatim to fetch the coordinates to these. Nominatim has a 1 request per second, meaning this takes a lot of time.
+
+In reading location data it would simply take too long to loop through tens of thousands of tweets. This script therefore manually assigns locations to Oslo, Bergen and Trondheim. In my case this reduces number of searches from 44 to 14 thousand.
+
+Produces csv with only norwegian and geolocated tweets with longitude and lattidude.
 
 ## trainingdata_maker.py ## 
 
