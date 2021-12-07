@@ -12,30 +12,34 @@ def fulfill_retweets(filename):
     sentiment.
     """
     data = pd.read_csv(filename) 
+    data['indx'] = np.arange(len(data))
     
     #make two different datasets with and without retweets  
    
-    retweets_mask = data['text'].str.startswith('RT')
-    
-    unfulfilled_mask = data['text'].str.endswith('…')#this will bring a lot of false positives on its own
+    #retweets_mask = data['text'].str.startswith('RT @')
+    #unfulfilled_mask = data['text'].str.endswith('...') #is it ... or … ?
+    #unfulfilled_retweets = data[retweets_mask | unfulfilled_mask] # tweets starts with RT and ends with ...
+    unfulfilled_mask = data['text'].str.match(f'RT @.+\.\.\.$')
+    unfulfilled_retweets= data[unfulfilled_mask]
 
-    unfulfilled_retweets = data[retweets_mask | unfulfilled_mask] # tweets starts with RT and ends with ...
-   
-    
-
-    non_retweets = data[~retweets_mask | ~unfulfilled_mask]
+    non_retweets = data[ ~unfulfilled_mask]
     non_retweets['text'].drop_duplicates(keep=False) 
 
 
     itera= 0
     for i, row in unfulfilled_retweets.iterrows():
-        #RT (.*(?:\n.*){0,1})(?:$|…)
-        string = row['text'][3:-1]
-
-        print(string) 
-        print(row['text'])
+         
         print('-'*10)
-        if itera == 10:
+        #extract unfulfilled tweet. match this with the fulfilled one, replace
+        stripped_string = row.str.extract(f'RT @(?:\w{1,15})\b(?::){0,1}(.+)\.\.\.') #finds username, captures everything after.
+        print(stripped_string)
+        match_mask = non_retweets['text'].str.match(row['text'])
+        match_case = non_retweets[non_retweets['text'].str.match(row['text'])]
+        data.iloc[row['indx']]['text'] = match_case
+        print(data.iloc[row['indx']]['text'])
+        print(print(match_case))
+
+        if itera == 2:
             break
         itera += 1
 
