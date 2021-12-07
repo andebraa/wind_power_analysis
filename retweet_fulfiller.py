@@ -17,14 +17,14 @@ def fulfill_retweets(filename):
    
     retweets_mask = data['text'].str.startswith('RT')
     
+    unfulfilled_mask = data['text'].str.endswith('…')#this will bring a lot of false positives on its own
 
-    retweets = data[retweets_mask]
-    unfulfilled_mask = retweets['text'].str.endswith('…')
+    unfulfilled_retweets = data[retweets_mask | unfulfilled_mask] # tweets starts with RT and ends with ...
+   
+    
 
-    unfulfilled_retweets = retweets[unfulfilled_mask] 
-    unfulfilled_retweets['text'].drop_duplicates(keep=False) 
-
-    non_retweets = data[~retweets_mask]
+    non_retweets = data[~retweets_mask | ~unfulfilled_mask]
+    non_retweets['text'].drop_duplicates(keep=False) 
 
 
     itera= 0
@@ -40,4 +40,4 @@ def fulfill_retweets(filename):
         itera += 1
 
 if __name__ == '__main__':
-    fulfill_retweets('final_dataset.csv')
+    fulfill_retweets('data/first_rendition_data/final_dataset.csv')
