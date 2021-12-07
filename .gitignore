@@ -6,4 +6,4 @@
 *.json
 *.csv 
 data/* 
-
+backup/*
