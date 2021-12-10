@@ -30,11 +30,17 @@ def fulfill_retweets(filename):
     for i, row in unfulfilled_retweets.iterrows():
          
         print('-'*10)
+        print(type(row['text']))
         #extract unfulfilled tweet. match this with the fulfilled one, replace
-        stripped_string = row.str.extract(f'RT @(?:\w{1,15})\b(?::){0,1}(.+)\.\.\.') #finds username, captures everything after.
+        #stripped_string = row.iloc['text'].str.extract(f'RT @(?:\w{1,15})\b(?::){0,1}(.+)\.\.\.') #finds username, captures everything after.
+        
+        stripped_string = re.search(f'RT @(?:\w{1,15})\b(?::){0,1}(.+)\.\.\.', row['text'])
         print(stripped_string)
-        match_mask = non_retweets['text'].str.match(row['text'])
-        match_case = non_retweets[non_retweets['text'].str.match(row['text'])]
+
+        print(non_retweets['text'])        
+        match_mask = non_retweets['text'].str.match(stripped_string) 
+        print('here')
+        match_case = non_retweets[match_mask]
         data.iloc[row['indx']]['text'] = match_case
         print(data.iloc[row['indx']]['text'])
         print(print(match_case))
