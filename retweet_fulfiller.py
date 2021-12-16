@@ -1,6 +1,9 @@
 import re
 import numpy as np
 import pandas as pd
+#note, following supresses possibly vital warnings
+pd.options.mode.chained_assignment = None  # default='warn'
+
 
 def fulfill_retweets(filename):
     """
@@ -16,9 +19,6 @@ def fulfill_retweets(filename):
     
     #make two different datasets with and without retweets  
    
-    #retweets_mask = data['text'].str.startswith('RT @')
-    #unfulfilled_mask = data['text'].str.endswith('...') #is it ... or … ?
-    #unfulfilled_retweets = data[retweets_mask | unfulfilled_mask] # tweets starts with RT and ends with ...
     unfulfilled_mask = data['text'].str.match(f'RT @.+\.\.\.$')
     unfulfilled_retweets= data[unfulfilled_mask]
 
@@ -28,26 +28,42 @@ def fulfill_retweets(filename):
 
     itera= 0
     for i, row in unfulfilled_retweets.iterrows():
-         
-        print('-'*10)
-        print(type(row['text']))
-        #extract unfulfilled tweet. match this with the fulfilled one, replace
-        #stripped_string = row.iloc['text'].str.extract(f'RT @(?:\w{1,15})\b(?::){0,1}(.+)\.\.\.') #finds username, captures everything after.
-        
-        stripped_string = re.search(f'RT @(?:\w{1,15})\b(?::){0,1}(.+)\.\.\.', row['text'])
-        print(stripped_string)
 
-        print(non_retweets['text'])        
-        match_mask = non_retweets['text'].str.match(stripped_string) 
-        print('here')
-        match_case = non_retweets[match_mask]
+        print('original retweet: ',row['text'])
+        #extract unfulfilled tweet. match this with the fulfilled one, replace
+        #stripped string is everything but the username and dots
+        res  = re.findall(r'RT @(\w{1,15})\b(?::){0,1}(.+)\.\.\.', row['text'])
+        uname = res[0][0]
+        stripped_string = res[0][1]
+        print('-------------------')
+
+        #finding the original tweet based on the stripped retweet
+        for _i, _row in non_retweets.iterrows():
+            print('LOOPING \n')
+            print('RT', row['text'])
+            print('original',_row['text'])
+            preamble = 5 + len(uname) +1 #RT @<uname>:
+            print(row['text'][preamble:preamble+len(stripped_string)])
+            print(_row['text'][preamble:preamble+len(stripped_string)])
+
+            print(row['text'][preamble:preamble+len(stripped_string)] == _row['text'][preamble:preamble+len(stripped_string)])
+            if re.findall(re.escape(stripped_string), _row['text']):
+                print('match')
+        match_case = non_retweets[non_retweets['text'].str.contains(re.escape(stripped_string), na=False)==True]
+        #match_mask = non_retweets['text'].str.contains(stripped_string)
+        #print(non_retweets[match_mask])
+        #match_case = non_retweets[match_mask]
+        print('original tweet: \n', match_case)
+        #setting the text row in dataset to be the original tweet
         data.iloc[row['indx']]['text'] = match_case
-        print(data.iloc[row['indx']]['text'])
-        print(print(match_case))
+
+        print('--------w----------')
+#        print(data.iloc[row['indx']]['text'])
 
         if itera == 2:
             break
         itera += 1
 
 if __name__ == '__main__':
-    fulfill_retweets('data/first_rendition_data/final_dataset.csv')
+    fulfill_retweets('test_sett.csv')
+    #fulfill_retweets('data/first_rendition_data/final_dataset.csv')

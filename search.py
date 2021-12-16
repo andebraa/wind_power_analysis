@@ -26,7 +26,7 @@ config = {
     "place_fields": "country,full_name,geo,name",
     "expansions": "author_id,geo.place_id"
   },
-  "write_path": "all_data_all_time.txt"
+  "write_path": "data/all_data_all_time.txt"
 }
 
 
@@ -139,6 +139,10 @@ def write_to_file(file_name, tweets):
 
 
 def search_tweets(next_token=None):
+    """
+    
+    """
+
     tweet_params = {'max_results': 500}  #THIS IS PER REQUEST! YOU CAN'T HAVE MORE THAN THIS PER REQUEST
 
     if 'params' in config:
