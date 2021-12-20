@@ -11,7 +11,7 @@ import numpy as np
 
 test_hist = pd.read_csv('second_rendition_output.csv', parse_dates=True)
 
-test_hist = test_hist[test_hist['labels'] == 1] 
+#test_hist = test_hist[test_hist['labels'] == 1] 
 #reading, parsing and sorting time elements from twitter data
 tiems = test_hist['created_at']
 tiems= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
