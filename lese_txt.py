@@ -1,3 +1,9 @@
+"""
+Script that takes the txt formated output data of search.py and converts it to a csv.
+later this is read by the script reading_csv.py
+yes, our script names are creative and informative
+"""
+
 import re
 import json
 import csv
@@ -6,7 +12,7 @@ import datetime
 import pandas as pd
 import numpy as np
 
-file = open('all_data_all_time.txt')
+file = open('data/second_rendition_data/all_data_all_time.txt')
 tekst = file.read()
 
 
@@ -19,7 +25,7 @@ no_tweetinfo = 0
 no_geodata = 0
 lost_tweets = 0
 tot_tweets = 0
-with open('all_data_all_time_edited.csv', 'w+', encoding='UTF8', newline='') as file_2:
+with open('second_rendition_output.csv', 'w+', encoding='UTF8', newline='') as file_2:
     print('open')
     writer = csv.writer(file_2)
     writer.writerow(header)
