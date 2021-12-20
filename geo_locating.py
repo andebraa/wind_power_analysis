@@ -18,7 +18,7 @@ cty=[]
 for i, line in enumerate(data['loc']):
     #extracting the place names that make sense, in string form
     
-    city = GeoText(str(line)).cities
+    city = GeoText(str(line)).cities #fuck geotext, change this for manual search through kartverket
     #unsure how well this geotext functions. may be better alternatives somewhere
     if city:
         #r",*\s*'*(\w*)'*" captures ", 'Oslo'". If it's there. allowes regex to extract the multiple places.
