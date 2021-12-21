@@ -20,8 +20,8 @@ NOTE user geo element is self attributed, meaning you can write anything.
 
 outpus a .csv file with the specified elements from the tweet.
 
-## reading_csv.py ##
-Reads the output of lese_txt to plot a timeline of weekly tweets.
+## plot_histogram_tweet_time.py ##
+Reads the .csv output of lese_txt to plot a timeline of weekly tweets.
 output is a jpg saved in the script location:w
 
 ## anon_identifier.py ##
