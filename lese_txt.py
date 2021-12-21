@@ -1,7 +1,12 @@
 """
 Script that takes the txt formated output data of search.py and converts it to a csv.
 later this is read by the script reading_csv.py
-yes, our script names are creative and informative
+
+If the tweet element doesn't have element['place']['name'], then it is attempted
+to access the element['user']['location']. 
+i.e. If the tweet element doesn't have geo location, then we look at the geo location
+of the user instead. This is manual input and does not have to be a real place. This
+is handled in geo_locating. 
 """
 
 import re

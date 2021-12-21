@@ -15,8 +15,8 @@ loop_request and connect_to_endpoint functions are non functional as twitter doe
 
 ## lese_txt.py ##
 reads the lines of the search.py txt file, and organizes this into a csv.
-If Has:geo is not a search query it will look for wether the tweet element or user element has a geo attribute. Thus all elements returned from lese_txt will have some sort of geo tag.
-NOTE user geo element is self attributed, meaning you can write anything.
+First we look for a geo tag in the tweet element. If this is lacking then we fetch the geo tag of the user.
+NOTE user geo element is self attributed, meaning you can write anything. This is handled in geo_locating.
 
 outpus a .csv file with the specified elements from the tweet.
 
@@ -41,6 +41,7 @@ In reading location data it would simply take too long to loop through tens of t
 
 Produces csv with only norwegian and geolocated tweets with longitude and lattidude.
 
+Note; if multiple place names are found in the users geo tag then we assume the first one is the main one.
 ## trainingdata_maker.py ## 
 
 Script for anotating tweets. Takes a full_geodata_longlat_noforeign csv file and prints out the text. 
