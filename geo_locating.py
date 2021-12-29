@@ -1,7 +1,8 @@
 """
-Script for reading location data from csv. Uses geotex and regex to extract names of places, then uses nomatim
-geo API to fetch longitude and latitude. The nomatim api has a 1 call per second limitation, so this takes time.
-I manually remove Oslo, Bergen and Trondheim occurences, reducing the number of calls from 44423 to 14152.
+Take the user inputted location in either the tweet element or user location, and return an actual place
+
+NOTE: Kartverket's API is not flexible enough, Bergen, norge is not recognized etc.
+Asked jessica for help finding location csv, and looking into google developers
 """
 import re
 import os
