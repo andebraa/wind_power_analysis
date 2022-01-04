@@ -14,14 +14,15 @@ import numpy as np
 import pandas as pd
 from geopy.geocoders import Nominatim
 
-places = pd.read_csv('places_norway.csv', usecols = ['places'], index_col = False)
+places = pd.read_csv('data/places_norway.csv', usecols = ['places'], index_col = False)
 places = places.places.str[1:-1] #remove first and last element in all rows. i.e. removing quotes
 def geolocate(user_input):
-    elems = user_input.split() 
+    elems = user_input.split(',')
     for elem in elems: #assume the first place it recognizes is the main place
         #add capitalization and other features
         #TODO manually handle cases such as 'Jorden' and 'Norge'?
         #TODO handle edge cases where user_input messes with regex pattern search
+        print(elem)
         potential_place = places.str.contains(str(elem), case=False)
         if potential_place.any():
             print('--------------------')
