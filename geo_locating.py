@@ -3,8 +3,11 @@ Take the user inputted location in either the tweet element or user location, an
 
 NOTE: Kartverket's API is not flexible enough, Bergen, norge is not recognized etc.
 Asked jessica for help finding location csv, and looking into google developers
+
+Removed counties from places norway. Maybe add theese again?
+
+NOTE: we assume the first recognizable place in user bio is the main place
 """
-# NOTE: we assume the first recognizable place in user bio is the main place
 import re
 import os
 import time
@@ -12,27 +15,53 @@ import requests
 import json
 import numpy as np
 import pandas as pd
+from tqdm import trange
 from geopy.geocoders import Nominatim
+from difflib import SequenceMatcher
 
 places = pd.read_csv('data/places_norway.csv', usecols = ['places'], index_col = False)
 places = places.places.str[1:-1] #remove first and last element in all rows. i.e. removing quotes
 def geolocate(user_input):
-    elems = user_input.split(',')
+    """
+    Script that compares a user input (user selected place) and compares it to a list of 
+    places in norway based on the following list from wikipedia. 
+    https://no.wikipedia.org/wiki/Liste_over_Norges_st%C3%B8rste_tettsteder
+
+    The counties are removed, as well as multiple variations of Oslo
+
+    The first place in the user input that is a match is picked to be the location.
+    i.e. it is assumed this is the main place of the user.
+
+    If multiple places in the list are a match, the difflib function sequence matcher
+    is used to pick the most similar one. 
+    """
+    #Some users don't split with comma, but rather spaces. this tries to handle this
+    if ',' in user_input: 
+        elems = user_input.split(',')
+    else:
+        elems = user_input.split()
     for elem in elems: #assume the first place it recognizes is the main place
         #add capitalization and other features
         #TODO manually handle cases such as 'Jorden' and 'Norge'?
         #TODO handle edge cases where user_input messes with regex pattern search
         print(elem)
-        potential_place = places.str.contains(str(elem), case=False)
+        #potential_place = places.str.contains(str(elem), case=False)
+        
+        try:
+            potential_place = places.str.contains(str(elem), case=False)
+        except:
+            print('lost case: ', elem)
+            return False, '_'
         if potential_place.any():
-            print('--------------------')
-            print('user_input',user_input)
-            print('potential place', potential_place)
             pot_places = places[potential_place].tolist() 
-            print('potentail places', pot_places)
-            print('--------------------')
             if len(pot_places) > 1:
-                return True, pot_places[0]
+                #If multiple places fulfill the sequence criteria we use
+                #SequenceMatcher to select the one which fits the best.
+                ratios = []
+                for i in range(len(pot_places)): #loop over all matches
+                        ratios.append(SequenceMatcher(None, elem, pot_places[i]).ratio())
+                best_match = np.argmax(ratios)
+                return True, pot_places[best_match]
             else:
                 return True, pot_places
 
@@ -47,8 +76,7 @@ orig_len = len(data)
 
 print('length before removing "norge" and "Norway', len(data))
 #we wish to remove the known larges occurences of locations, i.e. oslo, bergen etc
-data = data[data['loc'] != 'Norge']
-data = data[data['loc'] != 'Norway']
+data = data[data['loc'] != 'Jorden']
 
 print('length after removing norge and norway', len(data))
 
@@ -59,9 +87,10 @@ i = 0
 for i, line in enumerate(data['loc']):
     #extracting the place names that make sense, in string form
     print(line, i)
-    if geolocate(line):
-        cty.append(line)
-    else:
+    try:
+        bol, place = geolocate(line)
+        cty.append(place)
+    except:
         cty.append('')
 
     #if i == 5:
@@ -75,7 +104,18 @@ data_out = data[data.city != ''].copy()
 alt_len = len(data_out) 
 print('original length: ', orig_len)
 print('len geodata: ', alt_len)
-print('percentage: ', orig_len/alt_len)
+print('percentage: ', alt_len/orig_len)
+
+
+#removing mentions of Oslo and Bergen, as there are a fuck ton of them which takes time
+working_data = data_out[data_out['loc'] != 'Oslo, Norge']
+working_data = working_data[working_data['loc'] != 'Oslo, Norway']
+working_data = working_data[working_data['loc'] != 'Bergen, Norway']
+working_data = working_data[working_data['loc'] != 'Oslo']
+working_data = working_data[working_data['loc'] != 'Bergen']
+working_data = working_data[working_data['loc'] != 'Trondheim, Norge']
+working_data = working_data[working_data['loc'] != 'Trondheim, Norway']
+#this reduces from 44423 to 14152
 
 
 
@@ -103,7 +143,49 @@ data_out.loc[data['loc'] == 'Trondheim, Norway', 'longitude'] = trondheim_coords
 data_out.loc[data['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.latitude
 data_out.loc[data['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
 
-#TODO: start loop over 1 second requests here
+
+i = 0
+fin = len(working_data['city'])
+
+for line in working_data['city']:
+    
+    if isinstance(line, list):
+        line = line[0] 
+    print(line)
+    print(i, fin)
+    line += ', Norway'
+    try:
+        getLoc = nom_instance.geocode(line, timeout = 10)
+        country = getLoc.address
+    except:
+
+        print('----------------------------------------------------------------------------')
+        print('location could not be geolocated ', line)
+        country = '------------------'
+    
+    print('line: ', line)
+    print('res: ', getLoc)
+    print('country:')
+    print(country[-5:])
+    if country[-5:] != 'Norge': #Shouldn't be any occurances of this
+        print('-'*20)
+        latitude.append('') 
+        longitude.append('')
+    else:
+
+        latitude.append(getLoc.latitude)
+        longitude.append(getLoc.longitude)
+    time.sleep(1) 
+    
+    i += 1
+
+
+
+data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
+data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
+data_out = data_out[data_out['latitude'] != ''] 
+
+print('size after nominatim: ', len(data_out))
 
 print(data_out)
 data_out.to_csv('second_rendition_test_geolocate.csv')
