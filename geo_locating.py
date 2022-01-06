@@ -10,6 +10,7 @@ NOTE: we assume the first recognizable place in user bio is the main place
 """
 import re
 import os
+import sys
 import time
 import requests
 import json
@@ -40,10 +41,8 @@ def geolocate(user_input):
         elems = user_input.split(',')
     else:
         elems = user_input.split()
+    
     for elem in elems: #assume the first place it recognizes is the main place
-        #add capitalization and other features
-        #TODO manually handle cases such as 'Jorden' and 'Norge'?
-        #TODO handle edge cases where user_input messes with regex pattern search
         print(elem)
         #potential_place = places.str.contains(str(elem), case=False)
         
@@ -77,11 +76,14 @@ orig_len = len(data)
 print('length before removing "norge" and "Norway', len(data))
 #we wish to remove the known larges occurences of locations, i.e. oslo, bergen etc
 data = data[data['loc'] != 'Jorden']
+data = data[data['loc'] != 'New York, NY'] #don't want new yark 
 
 print('length after removing norge and norway', len(data))
 
 
 cty=[]
+
+
 
 i = 0
 for i, line in enumerate(data['loc']):
@@ -96,18 +98,23 @@ for i, line in enumerate(data['loc']):
     #if i == 5:
         #break
 data['city']=cty
-data = data[data['loc'] != 'New York, NY'] #don't want new yark 
 
 #note, data_out is now all the data with geo locations
 data_out = pd.DataFrame()
-data_out = data[data.city != ''].copy()  
+
+data_out = data[data.city != ''].copy() #removing tweets without location
 alt_len = len(data_out) 
 print('original length: ', orig_len)
 print('len geodata: ', alt_len)
 print('percentage: ', alt_len/orig_len)
 
+print('-----------')
+print(len(data_out))
+print(len(data))
+
 
 #removing mentions of Oslo and Bergen, as there are a fuck ton of them which takes time
+#working data is only used to place the non bergen oslo trondheim places on the map
 working_data = data_out[data_out['loc'] != 'Oslo, Norge']
 working_data = working_data[working_data['loc'] != 'Oslo, Norway']
 working_data = working_data[working_data['loc'] != 'Bergen, Norway']
@@ -121,32 +128,36 @@ working_data = working_data[working_data['loc'] != 'Trondheim, Norway']
 
 #getting geografical data from nominatim. NOTE max 1 request per second
 nom_instance = Nominatim(user_agent = 'GetLoc')
-latitude = []
-longitude = []
 
 oslo_coords = nom_instance.geocode('Oslo, Norway') 
 bergen_coords = nom_instance.geocode('Bergen, Norway')
 trondheim_coords = nom_instance.geocode('Trondheim, Norway') 
 
-data_out.loc[data['loc'] == 'Oslo, Norway', 'latitude'] = oslo_coords.latitude  
-data_out.loc[data['loc'] == 'Oslo, Norway', 'longitude'] = oslo_coords.longitude
-data_out.loc[data['loc'] == 'Oslo, Norge', 'latitude'] = oslo_coords.latitude
-data_out.loc[data['loc'] == 'Oslo, Norge', 'longitude'] = oslo_coords.longitude
-data_out.loc[data['loc'] == 'Oslo', 'latitude'] = oslo_coords.latitude
-data_out.loc[data['loc'] == 'Oslo', 'longitude'] = oslo_coords.longitude
-data_out.loc[data['loc'] == 'Bergen, Norway', 'latitude'] = bergen_coords.latitude
-data_out.loc[data['loc'] == 'Bergen, Norway', 'longitude'] = bergen_coords.longitude
-data_out.loc[data['loc'] == 'Bergen', 'latitude'] = bergen_coords.latitude
-data_out.loc[data['loc'] == 'Bergen', 'longitude'] = bergen_coords.longitude
-data_out.loc[data['loc'] == 'Trondheim, Norway', 'latitude'] = trondheim_coords.latitude
-data_out.loc[data['loc'] == 'Trondheim, Norway', 'longitude'] = trondheim_coords.longitude
-data_out.loc[data['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.latitude
-data_out.loc[data['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
+data_out.loc[data_out['loc'] == 'Oslo, Norway', 'latitude'] = oslo_coords.latitude  
+data_out.loc[data_out['loc'] == 'Oslo, Norway', 'longitude'] = oslo_coords.longitude
+data_out.loc[data_out['loc'] == 'Oslo, Norge', 'latitude'] = oslo_coords.latitude
+data_out.loc[data_out['loc'] == 'Oslo, Norge', 'longitude'] = oslo_coords.longitude
+data_out.loc[data_out['loc'] == 'Oslo', 'latitude'] = oslo_coords.latitude
+data_out.loc[data_out['loc'] == 'Oslo', 'longitude'] = oslo_coords.longitude
+data_out.loc[data_out['loc'] == 'Bergen, Norway', 'latitude'] = bergen_coords.latitude
+data_out.loc[data_out['loc'] == 'Bergen, Norway', 'longitude'] = bergen_coords.longitude
+data_out.loc[data_out['loc'] == 'Bergen', 'latitude'] = bergen_coords.latitude
+data_out.loc[data_out['loc'] == 'Bergen', 'longitude'] = bergen_coords.longitude
+data_out.loc[data_out['loc'] == 'Trondheim, Norway', 'latitude'] = trondheim_coords.latitude
+data_out.loc[data_out['loc'] == 'Trondheim, Norway', 'longitude'] = trondheim_coords.longitude
+data_out.loc[data_out['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.latitude
+data_out.loc[data_out['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
 
+
+
+
+longitude = []
+latitude = []
 
 i = 0
-fin = len(working_data['city'])
 
+fin = len(working_data['city'])
+"""
 for line in working_data['city']:
     
     if isinstance(line, list):
@@ -179,7 +190,13 @@ for line in working_data['city']:
     
     i += 1
 
+"""
 
+for i in range(len(working_data['city'])):
+    latitude.append(np.random.randint(1000))
+    longitude.append(np.random.randint(1000))
+print(len(latitude))
+print(data_out.latitude.value_counts())
 
 data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
 data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
