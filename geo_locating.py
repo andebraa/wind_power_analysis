@@ -113,8 +113,17 @@ print(len(data_out))
 print(len(data))
 
 
+data_out['indx'] = np.arange(len(data_out)) #manually make index collumn. fuck pandas
+data_out['indx'] = data_out['indx'].astype(int)
 #removing mentions of Oslo and Bergen, as there are a fuck ton of them which takes time
 #working data is only used to place the non bergen oslo trondheim places on the map
+
+#woorking_data = data_out.mask((data_out['loc'] != 'Oslo, Norge')|(data_out['loc'] != 'Oslo, Norway')|\
+#                              (data_out['loc'] != 'Bergen, Norway') | (data_out['loc'] != 'Oslo') |\
+#                              (data_out['loc'] != 'Bergen') | (data_out['loc'] != 'Trondheim, Norge') |\
+#                              (data_out['loc'] != 'Trondheim, Norway')) 
+
+
 working_data = data_out[data_out['loc'] != 'Oslo, Norge']
 working_data = working_data[working_data['loc'] != 'Oslo, Norway']
 working_data = working_data[working_data['loc'] != 'Bergen, Norway']
@@ -150,16 +159,14 @@ data_out.loc[data_out['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coo
 
 
 
-
 longitude = []
 latitude = []
 
 i = 0
 
 fin = len(working_data['city'])
-"""
+
 for line in working_data['city']:
-    
     if isinstance(line, list):
         line = line[0] 
     print(line)
@@ -177,30 +184,36 @@ for line in working_data['city']:
     print('line: ', line)
     print('res: ', getLoc)
     print('country:')
-    print(country[-5:])
+    workdata_indx = str(line['indx'])
     if country[-5:] != 'Norge': #Shouldn't be any occurances of this
         print('-'*20)
-        latitude.append('') 
-        longitude.append('')
+        latitude.append('drop') 
+        longitude.append('drop')
+        print(workdata_indx)
+        print(type(workdata_indx))
+        data_out.iloc[data_out.index[workdata_indx], 'latitude'] = 'drop'
+        data_out.iloc[data_out.index[workdata_indx], 'longitude'] = 'drop'
     else:
 
-        latitude.append(getLoc.latitude)
-        longitude.append(getLoc.longitude)
+        data_out.iloc[data_out.index[workdata_indx], 'latitude'] = latitude
+        data_out.iloc[data_out.index[workdata_indx], 'longitude'] = longitude
     time.sleep(1) 
     
     i += 1
 
-"""
 
-for i in range(len(working_data['city'])):
-    latitude.append(np.random.randint(1000))
-    longitude.append(np.random.randint(1000))
-print(len(latitude))
-print(data_out.latitude.value_counts())
 
-data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
-data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
-data_out = data_out[data_out['latitude'] != ''] 
+#for i in range(len(working_data['city'])):
+#    latitude.append(np.random.randint(1000))
+#    longitude.append(np.random.randint(1000))
+#print(len(latitude))
+#print(data_out.latitude.value_counts())
+data_out[~data_out.latitude.str.contains('drop')]
+data_out[~data_out.longitude.str.contains('drop')]
+
+#data_out.loc[data_out['latitude'] == '', 'latitude'] = latitude
+#data_out.loc[data_out['longitude'] == '', 'longitude'] = longitude
+#data_out = data_out[data_out['latitude'] != ''] 
 
 print('size after nominatim: ', len(data_out))
 
