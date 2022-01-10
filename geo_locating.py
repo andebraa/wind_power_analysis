@@ -115,6 +115,10 @@ print(len(data))
 
 data_out['indx'] = np.arange(len(data_out)) #manually make index collumn. fuck pandas
 data_out['indx'] = data_out['indx'].astype(int)
+data_out['latitude'] = ''
+data_out['longitude'] = '' #initialixing empty latitude longitude collumn
+
+print(data_out['latitude'])
 #removing mentions of Oslo and Bergen, as there are a fuck ton of them which takes time
 #working data is only used to place the non bergen oslo trondheim places on the map
 
@@ -157,46 +161,43 @@ data_out.loc[data_out['loc'] == 'Trondheim, Norway', 'longitude'] = trondheim_co
 data_out.loc[data_out['loc'] == 'Trondheim, Norge', 'latitude'] = trondheim_coords.latitude
 data_out.loc[data_out['loc'] == 'Trondheim, Norge', 'longitude'] = trondheim_coords.longitude
 
-
-
-longitude = []
-latitude = []
+print(data_out['latitude'])
 
 i = 0
 
 fin = len(working_data['city'])
 
-for line in working_data['city']:
-    if isinstance(line, list):
-        line = line[0] 
-    print(line)
+for i, row in working_data.iterrows():
+    place = row['city']
+    if isinstance(place, list):
+        place = place[0] 
+    print(place)
     print(i, fin)
-    line += ', Norway'
+    place += ', Norway'
     try:
-        getLoc = nom_instance.geocode(line, timeout = 10)
+        getLoc = nom_instance.geocode(place, timeout = 10)
         country = getLoc.address
     except:
 
         print('----------------------------------------------------------------------------')
-        print('location could not be geolocated ', line)
+        print('location could not be geolocated ', place)
         country = '------------------'
     
-    print('line: ', line)
+    print('place: ', place)
     print('res: ', getLoc)
     print('country:')
-    workdata_indx = str(line['indx'])
+    workdata_indx = int(row['indx'])
     if country[-5:] != 'Norge': #Shouldn't be any occurances of this
         print('-'*20)
-        latitude.append('drop') 
-        longitude.append('drop')
-        print(workdata_indx)
-        print(type(workdata_indx))
-        data_out.iloc[data_out.index[workdata_indx], 'latitude'] = 'drop'
-        data_out.iloc[data_out.index[workdata_indx], 'longitude'] = 'drop'
+        #data_out.iloc[data_out.index[workdata_indx], 'latitude'] = 'drop'
+        data_out.loc[workdata_indx, 'latitude'] = 'drop'
+        data_out.loc[workdata_indx, 'longitude'] = 'drop'
     else:
 
-        data_out.iloc[data_out.index[workdata_indx], 'latitude'] = latitude
-        data_out.iloc[data_out.index[workdata_indx], 'longitude'] = longitude
+        print(workdata_indx)
+        print(type(workdata_indx))
+        data_out.loc[workdata_indx, 'latitude'] = getLoc.latitude
+        data_out.loc[workdata_indx, 'longitude'] = getLoc.longitude
     time.sleep(1) 
     
     i += 1
@@ -216,6 +217,8 @@ data_out[~data_out.longitude.str.contains('drop')]
 #data_out = data_out[data_out['latitude'] != ''] 
 
 print('size after nominatim: ', len(data_out))
+
+del data_out['indx']
 
 print(data_out)
 data_out.to_csv('second_rendition_test_geolocate.csv')
