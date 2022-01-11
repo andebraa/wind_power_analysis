@@ -20,8 +20,8 @@ from tqdm import trange
 from geopy.geocoders import Nominatim
 from difflib import SequenceMatcher
 
-places = pd.read_csv('data/places_norway.csv', usecols = ['places'], index_col = False)
-places = places.places.str[1:-1] #remove first and last element in all rows. i.e. removing quotes
+places_longlat = pd.read_csv('data/places_norway.csv', usecoils = ['places', 'longitude', 'latitude'], index_col = False)
+places_longlat = places_longlat.places.str[1:-1] #remove first and last element in all rows. i.e. removing quotes
 def geolocate(user_input):
     """
     Script that compares a user input (user selected place) and compares it to a list of 
@@ -42,10 +42,11 @@ def geolocate(user_input):
     else:
         elems = user_input.split()
     
+    places = places_longlat['places']
     for elem in elems: #assume the first place it recognizes is the main place
         print(elem)
         #potential_place = places.str.contains(str(elem), case=False)
-        
+        #TODO: make this function return longitude and latitude and be done with it
         try:
             potential_place = places.str.contains(str(elem), case=False)
         except:
@@ -173,20 +174,7 @@ for i, row in working_data.iterrows():
         place = place[0] 
     print(place)
     print(i, fin)
-    place += ', Norway'
-    try:
-        getLoc = nom_instance.geocode(place, timeout = 10)
-        country = getLoc.address
-    except:
-
-        print('----------------------------------------------------------------------------')
-        print('location could not be geolocated ', place)
-        country = '------------------'
-    
-    print('place: ', place)
-    print('res: ', getLoc)
-    print('country:')
-    workdata_indx = int(row['indx'])
+    if place in places_longlat['places']
     if country[-5:] != 'Norge': #Shouldn't be any occurances of this
         print('-'*20)
         #data_out.iloc[data_out.index[workdata_indx], 'latitude'] = 'drop'
