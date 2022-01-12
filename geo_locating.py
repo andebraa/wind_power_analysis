@@ -65,7 +65,7 @@ def geolocate(user_input):
         #    return False, False, False, False
         print('pot_mask', potential_place_mask.any())
         if potential_place_mask.any():
-            pot_places = places_longlat.loc[potential_place_mask]
+            pot_places = places_longlat.loc[potential_place_mask].astype('string')
             print('-'*10)
             print('pot_places: ',pot_places)
             
