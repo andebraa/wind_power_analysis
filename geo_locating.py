@@ -20,8 +20,7 @@ from tqdm import trange
 from geopy.geocoders import Nominatim
 from difflib import SequenceMatcher
 
-places_longlat = pd.read_csv('data/places_norway.csv', usecoils = ['places', 'longitude', 'latitude'], index_col = False)
-places_longlat = places_longlat.places.str[1:-1] #remove first and last element in all rows. i.e. removing quotes
+places_longlat = pd.read_csv('data/places_norway_longlat.csv', usecols = ['places','latitude', 'longitude'], index_col = False)
 def geolocate(user_input):
     """
     Script that compares a user input (user selected place) and compares it to a list of 
@@ -37,69 +36,107 @@ def geolocate(user_input):
     is used to pick the most similar one. 
     """
     #Some users don't split with comma, but rather spaces. this tries to handle this
-    if ',' in user_input: 
-        elems = user_input.split(',')
-    else:
-        elems = user_input.split()
+    #if ' ' in user_input:
+    elems = user_input.split()
+    #elif ',' in user_input: 
+    #    elems = user_input.split(',')
+    #elif '/' in user_input:
+    #    elems = user_input.split('/')
+    #elif '-' in user_input:
+    #    elems = user_input.split('-')
+    #else:
+    #    elems = user_input.split()
     
-    places = places_longlat['places']
+    #places = places_longlat['places']
+    #if user has input_list of multiple places
     for elem in elems: #assume the first place it recognizes is the main place
-        print(elem)
         #potential_place = places.str.contains(str(elem), case=False)
-        #TODO: make this function return longitude and latitude and be done with it
+        
         try:
-            potential_place = places.str.contains(str(elem), case=False)
+            elem = elem.replace(',', '')
         except:
-            print('lost case: ', elem)
-            return False, '_'
-        if potential_place.any():
-            pot_places = places[potential_place].tolist() 
+            print('pass')
+            pass
+        
+        #try:
+        potential_place_mask = places_longlat['places'].str.contains(str(elem), case=False)
+        #except:
+        #    print('lost case: ', elem) 
+        #    return False, False, False, False
+        print('pot_mask', potential_place_mask.any())
+        if potential_place_mask.any():
+            pot_places = places_longlat.loc[potential_place_mask]
+            print('-'*10)
+            print('pot_places: ',pot_places)
+            
+           
+            #if len(pot_places['places']) > 1: #more than one place matches 
+                
+
+            
             if len(pot_places) > 1:
+                print('********************************')
                 #If multiple places fulfill the sequence criteria we use
                 #SequenceMatcher to select the one which fits the best.
                 ratios = []
                 for i in range(len(pot_places)): #loop over all matches
                         ratios.append(SequenceMatcher(None, elem, pot_places[i]).ratio())
                 best_match = np.argmax(ratios)
-                return True, pot_places[best_match]
-            else:
-                return True, pot_places
+                best_place = pot_places[best_match]
+                print(places_longlat.loc[potential_place].longitude)
 
+                return True, best_place, places_longlat.loc[potential_place_mask].longitude, \
+                             places_longlat.loc[potential_place_mask].latitude 
+            else:
+                return True, pot_places, places_longlat[potential_place_mask].longitude, \
+                             places_longlat[potential_place_mask].latitude
+
+        else:
+            print('lost case: ', elem)
+            return False, False, False, False
 
 data = pd.read_csv('data/second_rendition_data/second_rendition_output.csv',
                     usecols = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
                     )
 
-orig_len = len(data)
-#extract rows that has a valid place name
 
-
-print('length before removing "norge" and "Norway', len(data))
 #we wish to remove the known larges occurences of locations, i.e. oslo, bergen etc
 data = data[data['loc'] != 'Jorden']
 data = data[data['loc'] != 'New York, NY'] #don't want new yark 
 
 print('length after removing norge and norway', len(data))
 
-
 cty=[]
+longitude = []
+latitude = [] 
+data['city'] = ''
+data['latitude'] = ''
+data['longitude'] = ''
 
-
-
-i = 0
-for i, line in enumerate(data['loc']):
+drops = 0
+for i, line_ in data.iterrows():
     #extracting the place names that make sense, in string form
-    print(line, i)
-    try:
-        bol, place = geolocate(line)
-        cty.append(place)
-    except:
-        cty.append('')
+    line = line_['loc']
+    print(i, line)    
+    #try:
+    bol, place, _longitude, _latitude = geolocate(line)
+    print(bol, place, _longitude, _latitude) 
+    if bol:
+        data.loc[i, 'city'] = place
+        data.loc[i, 'latitude'] = _latitude
+        data.loc[i, 'longitude'] = _longitude
+    else:
+        print('drop')
+    #except:
+    #    drops += 1
+    #    data.drop(i, inplace=True)
+    #    print('drops: ',drops)
 
-    #if i == 5:
-        #break
-data['city']=cty
 
+print('length after: ', len(data)) 
+print('drops: ', drops)
+data.to_csv('second_rendition_test_geolocate.csv')
+"""
 #note, data_out is now all the data with geo locations
 data_out = pd.DataFrame()
 
@@ -210,4 +247,4 @@ del data_out['indx']
 
 print(data_out)
 data_out.to_csv('second_rendition_test_geolocate.csv')
-
+"""
