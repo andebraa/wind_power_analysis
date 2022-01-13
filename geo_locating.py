@@ -41,7 +41,7 @@ def ratio_finder(user_input, matches):
     """
     ratios = []
     for i in range(len(matches)):
-        ratios.append(SequenceMatcher(None, user_input, matches[i]))
+        ratios.append(SequenceMatcher(None, user_input, matches[i]).ratio())
     
     best_indx = np.argmax(ratios)
     best_match = matches[best_indx] 
@@ -92,6 +92,7 @@ def geolocate(user_input):
         print('pot_mask', potential_place_mask.any())
         if potential_place_mask.any():
             pot_places = places_longlat.loc[potential_place_mask].astype('string')
+            pot_places.index = pd.RangeIndex(len(pot_places.index)) #reset index of pot_places 
             print('-'*10)
             print('pot_places: \n',pot_places)
             print('len pot places ', len(pot_places))            
@@ -101,13 +102,17 @@ def geolocate(user_input):
 
             
             if len(pot_places) > 1:
-                print('********************************')
+                print('\n ******************************** \n ')
                 #If multiple places fulfill the sequence criteria we use
                 #SequenceMatcher to select the one which fits the best.
-                best_match, best_indx = ratio_finder(pot_places.tolist())
-                
-                return True, best_place, places_longlat.loc[potential_place_mask].longitude, \
-                             places_longlat.loc[potential_place_mask].latitude 
+                best_match, best_indx = ratio_finder(user_input, pot_places['places'].tolist())
+                print('after ratio finder')
+                print(best_match, best_indx)
+                best_long = pot_places.loc[best_indx, 'longitude']
+                best_lat = pot_places.loc[best_indx, 'latitude']
+                print(best_long)
+                print(best_lat)
+                return True, best_match, best_long, best_lat 
             else:
                 return True, pot_places, places_longlat[potential_place_mask].longitude, \
                              places_longlat[potential_place_mask].latitude
@@ -148,16 +153,23 @@ for i, line_ in data.iterrows():
     print('lat: \n', _latitude)
     
     if bol:
-        print(place.places.astype('string'))
-        data.loc[i, 'city'] = place.places.astype('string')
-        data.loc[i, 'latitude'] = place.latitude
-        data.loc[i, 'longitude'] = place.longitude
+        cty.append(place)
+        longitude.append(_longitude)
+        latitude.append(_latitude)
+
     else:
-        print('drop')
-    #except:
-    #    drops += 1
-    #    data.drop(i, inplace=True)
-    #    print('drops: ',drops)
+        cty.append('drop')
+        longitude.append(0)
+        latitude.append(0)
+        print('drop; ', drops)
+        drops += 1
+data['loc'] = cty
+data['latitude'] = latitude
+data['longitude'] = longitude 
+
+data = data.drop(data['loc'] == 'drop')
+data = data.drop(data['longitude'] == 0)
+data = data.drop(data['latitude'] == 0)
 
 
 print('length after: ', len(data)) 
