@@ -21,6 +21,32 @@ from geopy.geocoders import Nominatim
 from difflib import SequenceMatcher
 
 places_longlat = pd.read_csv('data/places_norway_longlat.csv', usecols = ['places','latitude', 'longitude'], index_col = False)
+
+def ratio_finder(user_input, matches):
+    """
+
+    function that takes a list of strings, and applies sequence matcher
+    on all possible matches and the user input
+
+    args:
+    user_input: str
+        the inputed user location
+    matches: list of str
+        the list of possible matches from places_longlat
+
+    returns:
+    best_match: str
+        place with hightest ratio
+
+    """
+    ratios = []
+    for i in range(len(matches)):
+        ratios.append(SequenceMatcher(None, user_input, matches[i]))
+    
+    best_indx = np.argmax(ratios)
+    best_match = matches[best_indx] 
+    return best_match, best_indx
+
 def geolocate(user_input):
     """
     Script that compares a user input (user selected place) and compares it to a list of 
@@ -67,8 +93,8 @@ def geolocate(user_input):
         if potential_place_mask.any():
             pot_places = places_longlat.loc[potential_place_mask].astype('string')
             print('-'*10)
-            print('pot_places: ',pot_places)
-            
+            print('pot_places: \n',pot_places)
+            print('len pot places ', len(pot_places))            
            
             #if len(pot_places['places']) > 1: #more than one place matches 
                 
@@ -78,13 +104,8 @@ def geolocate(user_input):
                 print('********************************')
                 #If multiple places fulfill the sequence criteria we use
                 #SequenceMatcher to select the one which fits the best.
-                ratios = []
-                for i in range(len(pot_places)): #loop over all matches
-                        ratios.append(SequenceMatcher(None, elem, pot_places[i]).ratio())
-                best_match = np.argmax(ratios)
-                best_place = pot_places[best_match]
-                print(places_longlat.loc[potential_place].longitude)
-
+                best_match, best_indx = ratio_finder(pot_places.tolist())
+                
                 return True, best_place, places_longlat.loc[potential_place_mask].longitude, \
                              places_longlat.loc[potential_place_mask].latitude 
             else:
@@ -120,11 +141,17 @@ for i, line_ in data.iterrows():
     print(i, line)    
     #try:
     bol, place, _longitude, _latitude = geolocate(line)
-    print(bol, place, _longitude, _latitude) 
+    print('after call \n \n')
+    print('bol: \n', bol)
+    print('place: \n', place)
+    print('long: \n', _longitude)
+    print('lat: \n', _latitude)
+    
     if bol:
-        data.loc[i, 'city'] = place
-        data.loc[i, 'latitude'] = _latitude
-        data.loc[i, 'longitude'] = _longitude
+        print(place.places.astype('string'))
+        data.loc[i, 'city'] = place.places.astype('string')
+        data.loc[i, 'latitude'] = place.latitude
+        data.loc[i, 'longitude'] = place.longitude
     else:
         print('drop')
     #except:
