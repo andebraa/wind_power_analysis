@@ -39,14 +39,13 @@ def fulfill_retweets(filename):
 
         #finding the original tweet based on the stripped retweet
         for _i, _row in non_retweets.iterrows():
-            print('LOOPING \n')
-            print('RT', row['text'])
-            print('original',_row['text'])
+            print('\nRT ', row['text'])
+            print('\noriginal',_row['text'])
             preamble = 5 + len(uname) +1 #RT @<uname>:
-            print(row['text'][preamble:preamble+len(stripped_string)])
-            print(_row['text'][preamble:preamble+len(stripped_string)])
+            #print(row['text'][preamble:preamble+len(stripped_string)])
+            #print(_row['text'][preamble:preamble+len(stripped_string)])
 
-            print(row['text'][preamble:preamble+len(stripped_string)] == _row['text'][preamble:preamble+len(stripped_string)])
+            #print(row['text'][preamble:preamble+len(stripped_string)] == _row['text'][preamble:preamble+len(stripped_string)])
             if re.findall(re.escape(stripped_string), _row['text']):
                 print('match')
         match_case = non_retweets[non_retweets['text'].str.contains(re.escape(stripped_string), na=False)==True]
@@ -63,7 +62,8 @@ def fulfill_retweets(filename):
         if itera == 2:
             break
         itera += 1
+    data.to_csv('no_unfulfilled_retweets.csv')
 
 if __name__ == '__main__':
-    fulfill_retweets('test_sett.csv')
+    fulfill_retweets('second_rendition_data/second_rendition_geolocated.csv')
     #fulfill_retweets('data/first_rendition_data/final_dataset.csv')

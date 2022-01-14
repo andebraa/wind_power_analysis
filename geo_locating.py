@@ -83,12 +83,7 @@ def geolocate(user_input):
         except:
             pass
         
-        #try:
         potential_place_mask = places_longlat['places'].str.contains(str(elem), case=False)
-        #except:
-        #    print('lost case: ', elem) 
-        #    return False, False, False, False
-        print('pot_mask', potential_place_mask.any())
         if potential_place_mask.any():
             pot_places = places_longlat.loc[potential_place_mask].astype('string')
             pot_places.index = pd.RangeIndex(len(pot_places.index)) #reset index of pot_places 
@@ -103,14 +98,13 @@ def geolocate(user_input):
 
                 return True, best_match, float(best_long), float(best_lat) #best match is string 
             else:
-                print('-----------else---------')
-                print(pot_places)
-                print(type(pot_places))
                 return True, pot_places.places.to_string(index=False), float(places_longlat[potential_place_mask].longitude), \
                              float(places_longlat[potential_place_mask].latitude)
 
         else:
+            
             print('lost case: ', elem)
+            print('user_input: ', user_input)
             return False, False, False, False
 
 data = pd.read_csv('data/second_rendition_data/second_rendition_output.csv',
@@ -137,7 +131,6 @@ j = 0
 for i, line_ in data.iterrows():
     #extracting the place names that make sense, in string form
     line = line_['loc']
-    print(i, line)    
     try:
         bol, _place_, _longitude, _latitude = geolocate(line)
     except:
@@ -148,19 +141,6 @@ for i, line_ in data.iterrows():
         continue 
     
     if bol:
-
-        
-        print('\n \n after call')
-        print(type(_place_))
-        print(_place_)
-        #print('place: \n', _place_.places.to_string(index=False))
-        print('long: \n', _longitude)
-        print('lat: \n', _latitude)
-
-
-
-        print(type(_place_))
-        #cty.append(_place_['places'].to_string(index=False))
         cty.append(_place_)
         longitude.append(_longitude)
         latitude.append(_latitude)
@@ -168,8 +148,8 @@ for i, line_ in data.iterrows():
 
     else:
         cty.append('drop')
-        longitude.append(0)
-        latitude.append(0)
+        longitude.append(0.0)
+        latitude.append(0.0)
         print('drop; ', drops)
         drops += 1
         j += 1
@@ -186,9 +166,9 @@ print(data.head())
 print('here \n')
 print(data.tail())
 data.to_csv('test_data.csv')
-data = data.drop(data[data['loc'] != 'drop'].index)
-data = data.drop(data[data['latitude'] != 0].index)
-data = data.drop(data[data['longitude'] != 0].index)
+data = data.drop(data.index[data['loc'] == 'drop'])
+data = data.drop(data.index[data['latitude'] == 0.0])
+data = data.drop(data.index[data['longitude'] == 0.0])
 
 print('length after: ', len(data)) 
 data.to_csv('second_rendition_test_geolocate.csv')

@@ -9,14 +9,14 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Rectangle
 
-data = pd.read_csv('second_rendition_data/second_rendition_output.csv', parse_dates = True)# , usecols = [''])
+data = pd.read_csv('second_rendition_data/second_rendition_geolocated.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
 tweet_occurances = {} #keep track of number of tweets per user
 
 def generate_ID(ID):
     """
     should recursively loop through random numbers until a unique value is found.
-    NOTE; don't use with a too large dataset, as it will bottom out at 10000
+    NOTE; don't use with a too large dataset, as it will bottom out at 100000
     """
     new_ID = np.random.randint(0, 100000)
     if new_ID not in ID:
@@ -35,7 +35,8 @@ for i, elem in enumerate(data['username']):
         new_ID = generate_ID(ID)
         tweet_occurances[elem] = 1 #first tweet by user elem 
     ID[new_ID] = elem
-    data['username'][i] = new_ID
+    data.loc[i, 'username'] = new_ID
+    #data['username'][i] = new_ID
 
 print("number of unique users: {}".format(len(ID)))
 
@@ -45,7 +46,7 @@ for elem in tweet_occurances.values():
     num_of_tweets[elem] += 1 
 
 
-print("max number of tweets:{}".format(max_number_of_tweets)) 
+print("highest number of tweets by single user:{}".format(max_number_of_tweets)) 
 fig, ax = plt.subplots()
 
 for label in (ax.get_xticklabels() + ax.get_yticklabels()):
@@ -65,9 +66,9 @@ plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2007 -2021')
 
-plt.savefig('second_rendition_allgeo_userhist.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('second_rendition_geolocated.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-outfile_ID = open('second_rendition_allgeo_translator.json', 'w')
+outfile_ID = open('second_rendition_geolocated_translator.json', 'w')
 json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
-data.to_csv('second_rendition_allgeo_anonymous.csv', index=False)
+data.to_csv('second_rendition_geolocated_anonymous.csv', index=False)
