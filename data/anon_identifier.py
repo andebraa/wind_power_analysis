@@ -59,16 +59,16 @@ max_key = max(tweet_occurances, key=tweet_occurances.get)
 print(max_key)
 print(tweet_occurances[max_key]) 
 
-ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 50))
+ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 1000))
 plt.yscale('log')
 plt.xscale('linear')
 plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2007 -2021')
 
-plt.savefig('second_rendition_geolocated.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('second_rendition_data/second_rendition_geolocated.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-outfile_ID = open('second_rendition_geolocated_translator.json', 'w')
+outfile_ID = open('second_rendition_data/second_rendition_geolocated_translator.json', 'w')
 json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
-data.to_csv('second_rendition_geolocated_anonymous.csv', index=False)
+data.to_csv('second_rendition_data/second_rendition_geolocated_anonymous.csv', index=False)
