@@ -59,7 +59,7 @@ max_key = max(tweet_occurances, key=tweet_occurances.get)
 print(max_key)
 print(tweet_occurances[max_key]) 
 
-ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 1000))
+ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 500))
 plt.yscale('log')
 plt.xscale('linear')
 plt.ylabel('number of users')
