@@ -39,16 +39,16 @@ def fulfill_retweets(filename):
         print('stripped string :\n', stripped_string)
         print(uname)
         
-        #Some original tweets might not occur in the dataset (user might not have geo tag, or 
-        # not directly mention wind energy). if so we skip to the next one
+        #Some original tweets might not occur in the dataset (user might not have geo tag,). 
+        #if so we skip to the next one
 
-        user_tweets = data.loc[data['username']==uname] 
+        user_tweets = non_retweets.loc[non_retweets['username']==uname] 
         print(user_tweets)
         if user_tweets.empty:
             continue #skips to next iteration of loo#skips to next iteration of loopp
-        stop
+        
         #finding the original tweet based on the stripped retweet
-        for _i, _row in non_retweets.iterrows():
+        for _i, _row in user_tweets.iterrows():
             #print('\nRT ', row['text'])
             #print('\noriginal',_row['text'])
             preamble = 5 + len(uname) +1 #RT @<uname>:
@@ -60,9 +60,11 @@ def fulfill_retweets(filename):
                 print('twat')
             if re.findall(re.escape(stripped_string), _row['text']):
                 print('match')
-        match_case = non_retweets[non_retweets['text'].str.contains(re.escape(stripped_string), na=False)==True]
-        match_mask = non_retweets['text'].str.contains(stripped_string)
-        print(non_retweets[match_mask])
+        match_case = user_tweets[user_tweets['text'].str.contains(stripped_string)]
+        print(match_case)
+        match_mask = user_tweets['text'].str.contains(stripped_string)
+        print(user_tweets[match_case])
+        stop
         #match_case = non_retweets[match_mask]
         print('original tweet: \n', match_case)
         #setting the text row in dataset to be the original tweet
