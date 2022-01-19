@@ -1,19 +1,22 @@
 import re
+import os
 import pandas as pd
 import numpy as np
 
 data = pd.read_csv('second_rendition_data/second_rendition_geolocated.csv') 
 
-
 #RE_EMOJI = re.compile('[\U00010000-\U0010ffff]', flags=re.UNICODE)
 
 file_path = os.path.dirname(os.path.abspath(__file__))
-emoji_key = pd.read_csv(file_path + '/data/' + 'emoji_table.txt', encoding='utf-8', index_col=0)
+emoji_key = pd.read_csv(file_path  + '/emoji_table.txt', usecols=['emoji'])#, encoding='utf-8', index_col=0)
+print(emoji_key.head())
+print(emoji_key.tail())
+#emoji_dict = emoji_key['count'].to_dict()
 
-emoji_dict = emoji_key['count'].to_dict()
+#dictionary = emoji_dict
 
-dictionary = emoji_dict
-emoji_list = emoji_dict.keys()
+#emoji_list = emoji_dict.keys()
+emoji_list = emoji_key['emoji'].to_list()
 
 RE_EMOJI = re.compile(
     "["
@@ -32,15 +35,24 @@ RE_EMOJI = re.compile(
     "]+",
     flags=re.UNICODE)
 
-def strip_emoji(text):
-    return RE_EMOJI.sub(r'', text)
 
+def strip_emoji(text):
+    res = RE_EMOJI.sub(r'', text)
+    return res
+
+emoji_lines = 0
 for i, line in data.iterrows():
     prev = line['text']
     line['text'] = strip_emoji(line['text'])
+    for j in emoji_list:
+        if j in line['text']:
+            line['text'].strip(j) 
+
     if line['text'] != prev:
+        emoji_lines += 1
         print(prev)
         print(line['text'])
         print('\n \n')
+    
 
 data.to_csv('test_no_emoji.csv')
