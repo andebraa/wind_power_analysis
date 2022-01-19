@@ -51,3 +51,9 @@ NOTE does not handle other integers than 0 or 1.
 ## rename_collumn.py ## 
 
 The NorBert algorithm accepts trainingdata on the form [labels, text]. I work with label instead of the plural labels. this scripts looks for any collumn named label and renames it labels. not very complicated. 
+
+## emoji_remover.py ##
+Script that runs through the dataset, and matches characters in a regex search, and then loops over a list of emojis emoji_table.txt
+https://github.com/seandolinar/socialmediaparse/blob/master/data/emoji_table.txt
+
+

@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Rectangle
 
-data = pd.read_csv('second_rendition_data/second_rendition_geolocated.csv', parse_dates = True)# , usecols = [''])
+data = pd.read_csv('second_rendition_data/second_rendition_geolocated_noemoji.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
 tweet_occurances = {} #keep track of number of tweets per user
 
@@ -66,9 +66,9 @@ plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2007 -2021')
 
-plt.savefig('second_rendition_data/second_rendition_geolocated.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('second_rendition_data/second_rendition_noemoji_geolocated.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-outfile_ID = open('second_rendition_data/second_rendition_geolocated_translator.json', 'w')
+outfile_ID = open('second_rendition_data/second_rendition_geolocated_noemoji_translator.json', 'w')
 json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
-data.to_csv('second_rendition_data/second_rendition_geolocated_anonymous.csv', index=False)
+data.to_csv('second_rendition_data/second_rendition_geolocated_noemoji_anonymous.csv', index=False)
