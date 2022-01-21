@@ -42,13 +42,18 @@ def plot_user_freq(data):
     """
     user_dict = make_json(data)
 
-    user_freq = np.zeros((len(user_dict),2)) 
+    users = len(user_dict)
+    user_freq = np.zeros((users,2)) 
     for i,user in enumerate(user_dict):
         user_freq[i,0] = len(user_dict[user])
-    user_freq[:,1] = np.arange(len(user_dict)) #make a sort of index collumn
+    user_freq[:,1] = np.arange(users) #make a sort of index collumn
     print(user_freq)
     sort_userfreq = user_freq[user_freq[:,0].argsort()] 
+    plt.plot(sort_userfreq[:,0])
+    plt.savefig('test_sortuserfreq.png')
     print(sort_userfreq)
+    top_80 = sort_userfreq[:int(users*0.8), :int(users*0.8)]
+
     
 
 
