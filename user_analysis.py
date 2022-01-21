@@ -49,7 +49,7 @@ def plot_user_freq(data):
     user_freq[:,1] = np.arange(users) #make a sort of index collumn
     print(user_freq)
     sort_userfreq = user_freq[user_freq[:,0].argsort()] 
-    plt.plot(sort_userfreq[:,0])
+    plt.plot(sort_userfreq[:,0], np.arange(len(sort_userfreq[:,1])))
     plt.savefig('test_sortuserfreq.png')
     print(sort_userfreq)
     top_80 = sort_userfreq[:int(users*0.8), :int(users*0.8)]
