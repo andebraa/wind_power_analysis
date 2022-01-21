@@ -6,37 +6,52 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-data = pd.read_csv('data/second_rendition_data/second_rendition_geolocated.csv')
+data = pd.read_csv('data/second_rendition_data/second_rendition_geolocated_noemoji_anonymous.csv')
 #username,text,loc,created_at,like_count,quote_count,city,latitude,longitude
 user_dict = {} 
 
 def make_json(data, save=False):
 
     for i, elem in data.iterrows():
-        if elem['username'] not in user_dict.keys:
-            user_dict[elem['username'].to_string()] = [[elem['text'], 
-                                                       elem['loc'],
-                                                       elem['created_at'],
-                                                       elem['like_count'],
-                                                       elem['quote_count'],
-                                                       elem['city'],
-                                                       elem['latitude'],
-                                                       elem['longitude']]]
+        if elem['username'] not in user_dict:
+            user_dict[elem['username']] = [[elem['text'], 
+                                            elem['loc'],
+                                            elem['created_at'],
+                                            elem['like_count'],
+                                            elem['quote_count'],
+                                            elem['latitude'],
+                                            elem['longitude']]]
         else:
             user_dict[elem['username']].append([elem['text'],
-                                                       elem['loc'],
-                                                       elem['created_at'],
-                                                       elem['like_count'],
-                                                       elem['quote_count'],
-                                                       elem['city'],
-                                                       elem['latitude'],
-                                                       elem['longitude']])
+                                                elem['loc'],
+                                                elem['created_at'],
+                                                elem['like_count'],
+                                                elem['quote_count'],
+                                                elem['latitude'],
+                                                elem['longitude']])
     if save:
-        with open('second_rendition_geolocated_usernamedict.json' ,'w') as fp:
+        with open('second_rendition_geolocated_noemoji_anonymous_usernamedict.json' ,'w') as fp:
             json.dump(user_dict, fp) 
 
     return user_dict 
 
+
+def plot_user_freq(data):
+    """
+    make a github green dot type plot over users and tweets on each axis.
+    """
+    user_dict = make_json(data)
+
+    user_freq = np.zeros((len(user_dict),2)) 
+    for i,user in enumerate(user_dict):
+        user_freq[i,0] = len(user_dict[user])
+    user_freq[:,1] = np.arange(len(user_dict)) #make a sort of index collumn
+    print(user_freq)
+    sort_userfreq = user_freq[user_freq[:,0].argsort()] 
+    print(sort_userfreq)
+    
+
+
 if __name__ == '__main__':
-    make_json(data, save=True)
+    plot_user_freq(data)
 

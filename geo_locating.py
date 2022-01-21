@@ -121,7 +121,6 @@ print('length after removing norge and norway', len(data))
 cty=[]
 longitude = []
 latitude = [] 
-data['city'] = ''
 data['latitude'] = ''
 data['longitude'] = ''
 
