@@ -60,11 +60,12 @@ def fulfill_retweets(filename):
             
             curr_line = _row['text'].to_string(index=False)
             curr_line_reg = '.*(' + curr_line + ').*'
-            if re.search(curr_line_reg, 
+            if re.search(curr_line_reg, _row['text']):
+                print('here')
             print('\n\n _row ', curr_line)
             print(type(curr_line))
             if _row['text'].str.contains(stripped_string, regex=False).any():
-                print('twat')
+                print('success 1')
             if re.findall(re.escape(stripped_string), _row['text']):
                 print('match')
         
@@ -75,7 +76,7 @@ def fulfill_retweets(filename):
         print('orig_tweet', orig_tweet)
         match_mask = user_tweets['text'].str.contains(stripped_string)
         if match_mask.any():
-            print('cunt')
+            print('sucess 2')
         print(match_mask)
         stop
         #match_case = non_retweets[match_mask]
