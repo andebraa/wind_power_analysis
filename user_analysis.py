@@ -1,9 +1,8 @@
+
 """
 script that analyses the users and the frequency of tweets etc
 """
-import json
-import calmap
-import pandas as pd
+
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime, timedelta
@@ -57,13 +56,21 @@ def plot_user_freq(data):
 
     users = len(user_dict)
     user_freq = np.zeros((users,2))
+    user_freq_names = []
     for i,user in enumerate(user_dict):
         user_freq[i,0] = len(user_dict[user])
+        user_freq_names.append(user)
 
 
-
-    user_freq[:,1] = np.arange(users) #make a sort of index collumn
+    user_freq[:,1] = np.arange(users).astype('int') #make a sort of index collumn
     sort_userfreq = user_freq[user_freq[:,0].argsort()]
+    top_80 = sort_userfreq[int(users*0.8):,0]
+
+    top_80_users = [user_freq_names[int(i)] for i in sort_userfreq[int(users*0.8):,0]]
+    print(top_80_users)
+    tweet_threshold = sort_userfreq[int(users*0.8):,1] #the amount of tweets the 80% has 
+
+
     """
     plt.subplot(3,1,1)
     plt.plot(user_freq[:,0])
@@ -71,24 +78,26 @@ def plot_user_freq(data):
     plt.yscale('log')
     plt.plot(sort_userfreq[:,0])
     print(sort_userfreq)
-    top_80 = sort_userfreq[int(users*0.8):,0]
     plt.subplot(3,1,3)
     plt.yscale('log')
     plt.plot(top_80)
     plt.show()
+    
     """
-    image = np.zeros((num_weeks+1, users))
+    image = np.zeros((num_weeks+1, top_80_users))
 
     week_dict = {}
     for i, date_i in enumerate(start_date + timedelta(n*7) for n in range(num_weeks+1)):
         week_dict[date_i.isocalendar()[:-1]] = i #year and week of date
 
     for i, user in enumerate(user_dict):
+        if len(user_dict[user] > user_threshold):
+            continue
         for j, tweet in enumerate(user_dict[user]):
             #.isocalendar returns (year, week, day) and we only want year, week
             image[week_dict[pd.to_datetime(tweet[2]).isocalendar()[:-1]],i] +=1
 
-    plt.imshow(image)
+    plt.imshow(np.transpose(image))
     plt.show()
 
 
