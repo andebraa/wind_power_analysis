@@ -1,10 +1,12 @@
-
 """
 script that analyses the users and the frequency of tweets etc
 """
-
+import json
+import calmap
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
 from datetime import datetime, timedelta
 
 data = pd.read_csv('data/second_rendition_data/second_rendition_geolocated_noemoji_anonymous.csv',
@@ -15,6 +17,7 @@ user_dict = {}
 def make_json(data, save=False):
 
     for i, elem in data.iterrows():
+        assert elem['username'] != '' and not np.isnan(elem['username'])
         if elem['username'] not in user_dict:
             user_dict[elem['username']] = [[elem['text'],
                                             elem['loc'],
@@ -38,7 +41,8 @@ def make_json(data, save=False):
     return user_dict
 
 
-def plot_user_freq(data):
+
+def plot_user_freq(data, percentage = 0.90):
     """
     make a github green dot type plot over users and tweets on each axis.
     """
@@ -54,24 +58,20 @@ def plot_user_freq(data):
     date_range = pd.date_range(start_date, end_date, freq = 'w')
 
 
-    users = len(user_dict)
-    user_freq = np.zeros((users,2))
-    user_freq_names = []
+    num_users = len(user_dict)
+    user_freq_dict = {}
+    user_freq = np.zeros((num_users, 2))
     for i,user in enumerate(user_dict):
+        user_freq_dict[user] = len(user_dict[user])
+        user_freq[i, 1] = user #NOTE asumes the uname is int
         user_freq[i,0] = len(user_dict[user])
-        user_freq_names.append(user)
 
 
-    user_freq[:,1] = np.arange(users).astype('int') #make a sort of index collumn
     sort_userfreq = user_freq[user_freq[:,0].argsort()]
-    top_80 = sort_userfreq[int(users*0.8):,0]
-
-    top_80_users = [user_freq_names[int(i)] for i in sort_userfreq[int(users*0.8):,0]]
-    print(top_80_users)
-    tweet_threshold = sort_userfreq[int(users*0.8):,1] #the amount of tweets the 80% has 
+    top_percent = sort_userfreq[int(num_users*percentage):,:]
 
 
-    """
+    """ 
     plt.subplot(3,1,1)
     plt.plot(user_freq[:,0])
     plt.subplot(3,1,2)
@@ -80,29 +80,45 @@ def plot_user_freq(data):
     print(sort_userfreq)
     plt.subplot(3,1,3)
     plt.yscale('log')
-    plt.plot(top_80)
+    plt.plot(top_percent)
     plt.show()
-    
     """
-    image = np.zeros((num_weeks+1, top_80_users))
+
+    image = np.zeros((num_weeks+1, len(top_percent)))
 
     week_dict = {}
+
+    #for i in range(num_weeks):
+    #    ts = start_date + timedelta(days=7*i)
+    #    week_dict[ts.year, ts.weekofyear] = i
+    #print(week_dict)
     for i, date_i in enumerate(start_date + timedelta(n*7) for n in range(num_weeks+1)):
         week_dict[date_i.isocalendar()[:-1]] = i #year and week of date
-
-    for i, user in enumerate(user_dict):
-        if len(user_dict[user] > user_threshold):
-            continue
+    for i, user in enumerate(top_percent[:,1]):
         for j, tweet in enumerate(user_dict[user]):
-            #.isocalendar returns (year, week, day) and we only want year, week
             image[week_dict[pd.to_datetime(tweet[2]).isocalendar()[:-1]],i] +=1
 
-    plt.imshow(np.transpose(image))
+    """
+    for i, user in enumerate(user_dict):
+        if user not in top_80[:,1]:
+            continue
+        for j, tweet in enumerate(user_dict[user]):
+             
+            #.isocalendar returns (year, week, day) and we only want year, week
+            image[week_dict[pd.to_datetime(tweet[2]).isocalendar()[:-1]],i] +=1
+    """
+    fig, ax = plt.subplots()
+
+    cax = ax.imshow(np.transpose(image), cmap = cm.seismic)
+    ax.set_title(f'Tweets per week of top {percentage} users over time')
+    ax.set_xticks(np.arange(len(week_dict)))
+    ax.set_xticklabels(week_dict.keys())
+    cbar = fig.colorbar(cax)
+    #plt.imshow(np.transpose(image))
     plt.show()
 
 
 if __name__ == '__main__':
-    make_json(data, save=True)
-    plot_user_freq(data)
-
+    #make_json(data, save=True)
+    plot_user_freq(data, percentage = 0.97)
 

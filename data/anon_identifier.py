@@ -18,11 +18,11 @@ def generate_ID(ID):
     should recursively loop through random numbers until a unique value is found.
     NOTE; don't use with a too large dataset, as it will bottom out at 100000
     """
-    new_ID = np.random.randint(0, 100000)
+    new_ID = np.random.randint(0, 10000)
     if new_ID not in ID:
         return new_ID
     else:
-        generate_ID(ID)
+        return generate_ID(ID)
 
 for i, elem in enumerate(data['username']):
     #If the element (username) has already been given a anon value, 
@@ -33,6 +33,8 @@ for i, elem in enumerate(data['username']):
         tweet_occurances[elem] += 1 #another tweet from user elem
     else:
         new_ID = generate_ID(ID)
+        print(new_ID)
+        assert not np.isnan(new_ID)
         tweet_occurances[elem] = 1 #first tweet by user elem 
     ID[new_ID] = elem
     data.loc[i, 'username'] = new_ID
