@@ -34,9 +34,9 @@ def fulfill_retweets(filename):
         print('index ',i)
         #extract unfulfilled tweet. match this with the fulfilled one, replace
         #stripped string is everything but the username and dots
-        res  = re.findall(r'RT @(\w{1,15})\b(?::){0,1}(.+)\.\.\.', row['text'])
+        res  = re.findall(r'RT @(\w{1,15})\b(?::){0,1} (.+)\.\.\.', row['text'])
         uname = res[0][0]
-        stripped_string = res[0][1]
+        stripped_string = res[0][1].strip()
         
         curr_line_reg = '.*(?:' + stripped_string + ').*'
         
@@ -53,14 +53,21 @@ def fulfill_retweets(filename):
     
         for _i, _row in user_tweets.iterrows():
             preamble = 5 + len(uname) +1 #RT @<uname>:
-            print('_row: ', _row['text'])
-            test = _row['text'][preamble:len(stripped_string)] 
+            print('_row: ', repr(_row['text']))
+            test = _row['text'][:len(stripped_string)] 
             print('test ', test)
-            
-            print('stripped string ', stripped_string)
+            print(type(_row['text']))
+            print('stripped type',type(stripped_string))
+            print('stripped string ', repr(stripped_string))
             #if _row.str.contains(stripped_string, regex=False).any():
             #    print('yeah, here---------------------------------------------------------------')
-           
+            print(' row contsina', stripped_string in _row["text"]) 
+            if stripped_string == _row['text'][:len(stripped_string)]: 
+                print('match OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
+
+            if stripped_string in _row['text']:
+                print('match __________________________________________________________________')
+            
             print(_row.str.contains(curr_line_reg, regex=True).any())
             if _row.str.contains(curr_line_reg, regex=True).any():
                 print('yeah, here***************************************************************')
