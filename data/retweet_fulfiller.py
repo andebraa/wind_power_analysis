@@ -21,22 +21,21 @@ def fulfill_retweets(filename, drop_unfulfilled = False):
     #make two different datasets with and without retweets  
    
     #unfulfilled_mask = data['text'].str.match(f'RT @.+\.\.\.$')
-    unfulfilled_mask = data['text'].str.match(r'RT @(?:\w{1,15})\b(?::){0,1} (?:.|\n)+(?:\.\.\.|…)')
-    unfulfilled_retweets= data[unfulfilled_mask]
+    unfulfilled_mask = data['text'].str.match(r'RT @(?:\w{1,15})\b(?::){0,1} (?:(?:.|\n)+)(?:\.\.\.|…)')
+    unfulfilled_retweets= data[unfulfilled_mask] #14000 tweets
 
-    non_retweets = data[ ~unfulfilled_mask]
+    non_retweets = data[ ~unfulfilled_mask] # 40000 tweets
     non_retweets['text'].drop_duplicates(keep=False) 
 
-    
-    
+    data_drops = [] #list of row indexes to drop
+    drops = 0
     for i, row in unfulfilled_retweets.iterrows():
    
         tweet_found = False
-        print('\n \n original retweet: ',row['text'])
-        print('index ',i)
+        print('\n \n original retweet: ',i,row['text'])
         #extract unfulfilled tweet. match this with the fulfilled one, replace
         #stripped string is everything but the username and dots
-        res  = re.findall(r'RT @(?:\w{1,15})\b(?::){0,1} (?:.|\n)+(?:\.\.\.|…)', row['text'])
+        res  = re.findall(r'RT @(\w{1,15})\b(?::){0,1} ((?:.|\n)+)(?:\.\.\.|…)', row['text'])
         uname = res[0][0]
         stripped_string = res[0][1].strip()
         
@@ -47,15 +46,18 @@ def fulfill_retweets(filename, drop_unfulfilled = False):
         #if so we skip to the next one
 
         user_tweets = non_retweets.loc[non_retweets['username']==uname] 
+        print('user tweets  ', user_tweets)
         if user_tweets.empty:
             print('empty')
+            drops += 1
             if drop_unfulfilled:
-                data = data.drop(row['indx'])
+                data_drops.append(row['indx'])
             continue #skips to next iteration of loo#skips to next iteration of loopp
         #finding the original tweet based on the stripped retweet
-    
+   
+        print('stripped string ', stripped_string)
         for _i, _row in user_tweets.iterrows():
-
+            print('_ row ', _row['text'])
             if stripped_string in _row['text']:
                 
                 print('match __________________________________________________________________')
@@ -64,51 +66,24 @@ def fulfill_retweets(filename, drop_unfulfilled = False):
                 break
 
 
-            """
-            print(_row.str.contains(curr_line_reg, regex=True).any())
-            if _row.str.contains(curr_line_reg, regex=True).any():
-                print('yeah, here***************************************************************')
-            
-            if re.match(curr_line_reg, _row['text']):
-                print('here')
-                match_case = _row['text']
-                print('MATCH ',match_case)
-                tweet_found = True
-                break
-            
-            
-            print(' row contsina', stripped_string in _row["text"]) 
-            if stripped_string == _row['text'][:len(stripped_string)]: 
-                print('match OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
-            """
-        #match_case = user_tweets[user_tweets['text'].str.contains(stripped_string)]
-        #print(match_case)
-        """
-        orig_tweet = user_tweets['text'][user_tweets['text'].str.contains(stripped_string)].to_string(index=False)
-
-        print('orig_tweet', orig_tweet)
-        match_mask = user_tweets['text'].str.contains(stripped_string)
-        if match_mask.any():
-            print('sucess 2')
-        print(match_mask)
-        stop
-        #match_case = non_retweets[match_mask]
-        print('original tweet: \n', match_case)
-        #setting the text row in dataset to be the original tweet
-        """
         
         print('match, ', match_case)
         if tweet_found:
             print('tweet found')
             data.iloc[row['indx']]['text'] = match_case
         elif not tweet_found:
+            drops +=1
             print('no match?')
-            data.drop(row['indx'])
+            if drop_unfulfilled:
+                data_drops.append(row['indx'])
         print('--------w----------')
 #        print(data.iloc[row['indx']]['text'])
-
-    data.to_csv('no_unfulfilled_retweets.csv')
+    print(drops)
+    print(len(data))
+    for indx in data_drops:
+        data.drop(indx)
+    data.to_csv('no_unfulfilled_retweets_dropped.csv')
 
 if __name__ == '__main__':
-    fulfill_retweets('second_rendition_data/second_rendition_geolocated.csv')
+    fulfill_retweets('second_rendition_data/second_rendition_geolocated.csv', drop_unfulfilled = True)
     #fulfill_retweets('data/first_rendition_data/final_dataset.csv')
