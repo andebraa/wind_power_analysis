@@ -1,4 +1,5 @@
 import re
+import time 
 import numpy as np
 import pandas as pd
 #note, following supresses possibly vital warnings
@@ -24,6 +25,9 @@ def fulfill_retweets(filename, drop_unfulfilled = False):
     unfulfilled_mask = data['text'].str.match(r'RT @(?:\w{1,15})\b(?::){0,1} (?:(?:.|\n)+)(?:\.\.\.|…)')
     unfulfilled_retweets= data[unfulfilled_mask] #14000 tweets
 
+    for i, line in unfulfilled_retweets.iterrows():
+        print('line, ', line['text'])
+
     non_retweets = data[ ~unfulfilled_mask] # 40000 tweets
     non_retweets['text'].drop_duplicates(keep=False) 
 
@@ -38,8 +42,6 @@ def fulfill_retweets(filename, drop_unfulfilled = False):
         res  = re.findall(r'RT @(\w{1,15})\b(?::){0,1} ((?:.|\n)+)(?:\.\.\.|…)', row['text'])
         uname = res[0][0]
         stripped_string = res[0][1].strip()
-        
-        curr_line_reg = '.*(?:' + stripped_string + ').*'
         
         match_case = 0
         #Some original tweets might not occur in the dataset (user might not have geo tag,). 
@@ -81,6 +83,11 @@ def fulfill_retweets(filename, drop_unfulfilled = False):
     print(drops)
     print(len(data))
     for indx in data_drops:
+        if not re.findall(r'RT @(\w{1,15})\b(?::){0,1} ((?:.|\n)+)(?:\.\.\.|…)', row['text']):
+            print('tweet not unfuffilled \n \n ******************************** \n \n *************************')
+            print(' ************************************************************** \n \n *****************************************')
+            print(row['text'])
+            time.sleep(10)
         data.drop(indx)
     data.to_csv('no_unfulfilled_retweets_dropped.csv')
 
