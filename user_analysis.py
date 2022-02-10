@@ -121,4 +121,4 @@ def plot_user_freq(data, percentage = 0.90):
 if __name__ == '__main__':
     #make_json(data, save=True)
     plot_user_freq(data, percentage = 0.97)
-
+    #TODO: 
