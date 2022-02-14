@@ -23,7 +23,8 @@ def fulfill_retweets(filename, outname, drop_unfulfilled = False):
     """
     data = pd.read_csv(filename, index_col = False) 
     data['indx'] = np.arange(len(data))
-    
+   
+    print(data.columns)
     orig_len = len(data)
     #make two different datasets with and without retweets  
    
@@ -50,9 +51,9 @@ def fulfill_retweets(filename, outname, drop_unfulfilled = False):
         #Some original tweets might not occur in the dataset (user might not have geo tag,). 
         #if so we skip to the next one
 
-        user_tweets = data.loc[data['username']==uname] 
-        for i, row in user_tweets.iterrows():
-            print(row['text'])
+        #user_tweets = data.loc[data['username']==uname] 
+        user_tweets = non_retweets.loc[non_retweets['username']==uname] 
+            
         if user_tweets.empty:
             #print('empty')
             drops += 1
@@ -76,6 +77,8 @@ def fulfill_retweets(filename, outname, drop_unfulfilled = False):
         #print('match, ', match_case)
         if tweet_found:
             #print('tweet found')
+            print('orig tweet', data.iloc[unfulfilled_row['indx']]['text'])
+            print('match case', match_case)
             data.iloc[unfulfilled_row['indx']]['text'] = match_case
         elif not tweet_found:
             drops +=1
@@ -99,7 +102,7 @@ def test_no_unfilled_retweet():
     data = pd.read_csv(outname)
     wrong_data = pd.DataFrame()
     for i, row in data.iterrows():
-        res = re.findall(r'RT @(\w{1,15})\b(?::){0,1} ((?:.|\n)+)(?:\.\.\.|…)', row['text'])
+        res = re.findall(r'RT @(?:\w{1,15})\b(?::){0,1} (?:(?:.|\n)+)(?:\.\.\.|…)', row['text'])
         if res:
             print(row['text'])
             wrong_data.append(row)

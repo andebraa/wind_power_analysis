@@ -6,10 +6,13 @@ This temporary script removed the first few collumnss
 
 import pandas as pd
 import re
+infile = input('infile: ')
 
-data = pd.read_csv('second_rendition_data/second_rendition_geolocated_noemoji_anonymous.csv')
+data = pd.read_csv(infile)
 
-data = data.drop(columns=data.columns[:2])
-data.to_csv('second_rendition_data/second_rendition_geolocated_noemoji_anonymous.csv', index = False)
-print(data)
-~             
+print(data.columns)
+col = int(input('index of collumn to remove '))
+
+data = data.drop(columns=col)
+data.to_csv(infile, index = False)
+print(data)             
