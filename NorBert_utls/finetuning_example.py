@@ -40,7 +40,9 @@ if __name__ == "__main__":
     )
     arg("--dataset", "-d", help="Path to a document classification dataset", required=True)
     arg("--gpu", "-g", help="Use GPU?", action="store_true")
-    arg("--epochs", "-e", type=int, help="Number of epochs", default=50)
+    arg("--epochs", "-e", type=int, help="Number of epochs", default=50) # set ephocks
+    
+
 
     args = parser.parse_args()
     modelname = args.model
@@ -53,16 +55,17 @@ if __name__ == "__main__":
         model = BertForSequenceClassification.from_pretrained(modelname, num_labels=3)
     model.train()
 
-    optimizer = AdamW(model.parameters(), lr=1e-4)
+    optimizer = AdamW(model.parameters(), lr=1e-4) # set learning rate
 
     logger.info("Reading train data...")
-    train_data = pd.read_csv(dataset)
-    print(train_data.head())
-    train_data.columns = ["text", "labels"]
+    full_data = pd.read_csv(dataset)
+    print(full_data.head())
+    full_data.columns = ["text", "labels"]
     logger.info("Train data reading complete.")
 
-    texts = train_data.text.to_list()
-    text_labels = train_data.labels.to_list()
+    texts = full_data.text.to_list()
+    text_labels = full_data.labels.to_list()
+    print(type(texts))
 
     # We can freeze the base model and optimize only the classifier on top of it:
     freeze_model = True
@@ -86,9 +89,26 @@ if __name__ == "__main__":
     attention_mask = encoding["attention_mask"]
     logger.info("Tokenizing finished.")
 
-    train_dataset = data.TensorDataset(input_ids, attention_mask, labels)
-    train_iter = data.DataLoader(train_dataset, batch_size=32, shuffle=True)
+    #https://stackoverflow.com/questions/50544730/how-do-i-split-a-custom-dataset-into-training-and-test-datasets
+    batch_size = 40
+    training_split = 0.2
+    shuffle_dataset = True
 
+    dataset_size = len(full_data)
+    indices = list(range(dataset_size))
+    split = int(np.floor(validation_split * dataset_size))
+    
+    train_indices, val_indices = indices[split:], indices[:split]
+
+    train_sampler = SubsetRandomSampler(train_indices)
+    test_sampler = SubsetRandomSampler(test_indices)
+
+    train_dataset = data.TensorDataset(input_ids, attention_mask, labels)
+    train_iter = data.DataLoader(full_dataset, batch_size=batch_size, shuffle=True,
+                                 sampler = train_sampler) #set batch size
+
+    test_iter = data.DataLoader(full_dataset, batch_size=batch_size, shuffle=True,
+                                 sampler = test_sampler) #set batch size
     for epoch in range(args.epochs):
         losses = 0
         total_train_acc = 0
@@ -107,6 +127,10 @@ if __name__ == "__main__":
         logger.info(f"Epoch: {epoch}, Loss: {train_loss:.4f}, Accuracy: {train_acc:.4f}")
     model.save_pretrained(f'ltgoslo/norbert_accuracy{train_acc:.4f}')
     
+
+    for i, (text, mask, label) in enumerate(test_iter):
+
+
 
     # We can try the fine-tuned model on a couple of sentences:
     predict = False
