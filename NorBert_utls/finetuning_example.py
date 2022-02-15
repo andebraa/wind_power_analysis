@@ -1,15 +1,16 @@
 #! /bin/env python3
 # coding: utf-8
 
+import argparse
+import logging
+import csv 
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils import data
 from transformers import AdamW
 from transformers import BertForSequenceClassification, AutoTokenizer
-import argparse
-import logging
-import csv 
+from sklearn.model_selection import train_test_split
 
 # This is an example of fine-tuning NorBert for the sentence classification task
 # A Norwegian sentiment classification dataset is available at
@@ -21,6 +22,52 @@ def multi_acc(y_pred, y_test):
     correctness = batch_predictions == y_test
     acc = torch.sum(correctness).item() / y_test.size(0)
     return acc
+
+def f1_loss(y_true:torch.Tensor, y_pred:torch.Tensor, is_training=False) -> torch.Tensor:
+    #https://gist.github.com/SuperShinyEyes/dcc68a08ff8b615442e3bc6a9b55a354
+    '''Calculate F1 score. Can work with gpu tensors
+    
+    The original implmentation is written by Michal Haltuf on Kaggle.
+    
+    Returns
+    -------
+    torch.Tensor
+        `ndim` == 1. 0 <= val <= 1
+    
+    Reference
+    ---------
+    - https://www.kaggle.com/rejpalcz/best-loss-function-for-f1-score-metric
+    - https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+    - https://discuss.pytorch.org/t/calculating-precision-recall-and-f1-score-in-case-of-multi-label-classification/28265/6
+    
+    '''
+    assert y_true.ndim == 1
+    assert y_pred.ndim == 1 or y_pred.ndim == 2
+    
+    if y_pred.ndim == 2:
+        y_pred = y_pred.argmax(dim=1)
+        
+    
+    tp = (y_true * y_pred).sum().to(torch.float32)
+    tn = ((1 - y_true) * (1 - y_pred)).sum().to(torch.float32)
+    fp = ((1 - y_true) * y_pred).sum().to(torch.float32)
+    fn = (y_true * (1 - y_pred)).sum().to(torch.float32)
+    
+    epsilon = 1e-7
+    
+    precision = tp / (tp + fp + epsilon)
+    recall = tp / (tp + fn + epsilon)
+    
+    f1 = 2* (precision*recall) / (precision + recall + epsilon)
+    f1.requires_grad = is_training
+    return f1
+
+def gen_train_test(dataset, train_split = 0.2):
+    #https://discuss.pytorch.org/t/how-to-split-dataset-into-test-and-validation-sets/33987/4
+    train_idx, test_idx = train_test_split(list(range(len(dataset))), test_size=train_split)
+    train_data = data.Subset(dataset, train_idx)
+    test_data = data.Subset(dataset, test_idx)
+    return train_data, test_data
 
 
 if __name__ == "__main__":
@@ -40,7 +87,7 @@ if __name__ == "__main__":
     )
     arg("--dataset", "-d", help="Path to a document classification dataset", required=True)
     arg("--gpu", "-g", help="Use GPU?", action="store_true")
-    arg("--epochs", "-e", type=int, help="Number of epochs", default=50) # set ephocks
+    arg("--epochs", "-e", type=int, help="Number of epochs", default=10) # set ephocks
     
 
 
@@ -63,8 +110,11 @@ if __name__ == "__main__":
     full_data.columns = ["text", "labels"]
     logger.info("Train data reading complete.")
 
-    texts = full_data.text.to_list()
-    text_labels = full_data.labels.to_list()
+    test_size = 0.2
+    train_data, test_data = gen_train_test(full_data, test_size)
+
+    texts = train_data.text.to_list()
+    text_labels = train_data.labels.to_list()
     print(type(texts))
 
     # We can freeze the base model and optimize only the classifier on top of it:
@@ -90,25 +140,13 @@ if __name__ == "__main__":
     logger.info("Tokenizing finished.")
 
     #https://stackoverflow.com/questions/50544730/how-do-i-split-a-custom-dataset-into-training-and-test-datasets
-    batch_size = 40
-    training_split = 0.2
-    shuffle_dataset = True
-
-    dataset_size = len(full_data)
-    indices = list(range(dataset_size))
-    split = int(np.floor(validation_split * dataset_size))
     
-    train_indices, val_indices = indices[split:], indices[:split]
 
-    train_sampler = SubsetRandomSampler(train_indices)
-    test_sampler = SubsetRandomSampler(test_indices)
 
     train_dataset = data.TensorDataset(input_ids, attention_mask, labels)
-    train_iter = data.DataLoader(full_dataset, batch_size=batch_size, shuffle=True,
-                                 sampler = train_sampler) #set batch size
+    train_iter = data.DataLoader(train_dataset, batch_size=batch_size,shuffle=True)
 
-    test_iter = data.DataLoader(full_dataset, batch_size=batch_size, shuffle=True,
-                                 sampler = test_sampler) #set batch size
+    
     for epoch in range(args.epochs):
         losses = 0
         total_train_acc = 0
@@ -128,7 +166,7 @@ if __name__ == "__main__":
     model.save_pretrained(f'ltgoslo/norbert_accuracy{train_acc:.4f}')
     
 
-    for i, (text, mask, label) in enumerate(test_iter):
+    #for i, (text, mask, label) in enumerate(test_iter):
 
 
 
