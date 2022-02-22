@@ -111,8 +111,8 @@ def test_no_unfilled_retweet():
 
 
 if __name__ == '__main__':
-    fulfill_retweets('second_rendition_data/second_rendition_geolocated.csv', 
-                      'no_unfulfilled_retweets_dropped.csv',  
-                      drop_unfulfilled = True)
+    #fulfill_retweets('second_rendition_data/second_rendition_geolocated.csv', 
+    #                  'no_unfulfilled_retweets_dropped.csv',  
+    #                  drop_unfulfilled = True)
     #test_no_unfilled_retweet()
-    #fulfill_retweets('data/first_rendition_data/final_dataset.csv')
+    fulfill_retweets('annotaion_3000_012label.csv', 'annotated_fulfilled_3000.csv', True)

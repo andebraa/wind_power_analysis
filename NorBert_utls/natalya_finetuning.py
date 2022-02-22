@@ -27,7 +27,7 @@ else:
     print('No GPU available, using the CPU instead.')
     device = torch.device("cpu")
 
-df = pd.read_csv('~/annotaion_3000_012label.csv',delimiter=",", usecols=['text', 'label'])
+df = pd.read_csv('~/wind_power_analysis/data/3000cleaned.csv',delimiter=",", usecols=['text', 'label'])
 df = df.reset_index(drop=True)
 #df = df.loc[1:1934,['text', 'label']]
 
@@ -75,7 +75,7 @@ for sent in sentences:
     encoded_dict = tokenizer.encode_plus(
                         sent,                      # Sentence to encode.
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                        max_length = 120,          # Pad & truncate all sentences.NOTE: what does this do
+                        max_length = 150,          # Pad & truncate all sentences.NOTE: what does this do
                         pad_to_max_length = True,
                         return_attention_mask = True,   # Construct attn. masks.
                         return_tensors = 'pt',     # Return pytorch tensors.
@@ -114,7 +114,7 @@ print('{:>5,} validation samples'.format(val_size))
 # The DataLoader needs to know our batch size for training, so we specify it
 # here. For fine-tuning BERT on a specific task, the authors recommend a batch
 # size of 16 or 32.
-batch_size = 16
+batch_size = 32
 
 # Create the DataLoaders for our training and validation sets.
 # We'll take training samples in random order.
@@ -142,19 +142,23 @@ model = BertForSequenceClassification.from_pretrained(
     output_hidden_states = False, # Whether the model returns all hidden-states.
 )
 
+# Tell pytorch to run this model on the GPU.
+model.cuda()
+lr = 5e-5
+eps = 1e-8
 
 # Note: AdamW is a class from the huggingface library (as opposed to pytorch)
 # I believe the 'W' stands for 'Weight Decay fix"
 optimizer = AdamW(model.parameters(),
-                  lr = 2e-5, # args.learning_rate - default is 5e-5, our notebook had 2e-5
-                  eps = 1e-8 # args.adam_epsilon  - default is 1e-8.
+                  lr = lr, # args.learning_rate - default is 5e-5, our notebook had 2e-5
+                  eps = eps # args.adam_epsilon  - default is 1e-8.
                 )
 
 
 # Number of training epochs. The BERT authors recommend between 2 and 4.
 # We chose to run for 4, but we'll see later that this may be over-fitting the
 # training data.
-epochs = 35
+epochs = 25
 
 # Total number of training steps is [number of batches] x [number of epochs].
 # (Note that this is not the same as the number of training samples).
@@ -394,11 +398,11 @@ print("Training complete!")
 
 print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
-pd.set_option('precision', 2)
+#pd.set_option('precision', 2)
 df_stats = pd.DataFrame(data=training_stats)
 df_stats = df_stats.set_index('epoch')
 # A hack to force the column headers to wrap.
 #df = df.style.set_table_styles([dict(selector="th",props=[('max-width', '70px')])])
 print(df_stats)
-df_stats.to_csv('norbert_accuracy_midnightrun.csv')
-model.save_pretrained(f'ltgoslo/norbert_accuracy_midnightrun')
+df_stats.to_csv(f'norbert_accuracy_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}.csv')
+model.save_pretrained(f'ltgoslo/norbert_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}')
