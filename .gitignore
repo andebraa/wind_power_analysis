@@ -9,3 +9,4 @@ data/*.csv
 data/*.txt
 data/NUTS*
 backup/*
+*/*.bin
