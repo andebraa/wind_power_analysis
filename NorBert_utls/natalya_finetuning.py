@@ -154,7 +154,7 @@ optimizer = AdamW(model.parameters(),
 # Number of training epochs. The BERT authors recommend between 2 and 4.
 # We chose to run for 4, but we'll see later that this may be over-fitting the
 # training data.
-epochs = 2
+epochs = 35
 
 # Total number of training steps is [number of batches] x [number of epochs].
 # (Note that this is not the same as the number of training samples).
@@ -400,3 +400,5 @@ df_stats = df_stats.set_index('epoch')
 # A hack to force the column headers to wrap.
 #df = df.style.set_table_styles([dict(selector="th",props=[('max-width', '70px')])])
 print(df_stats)
+df_stats.to_csv('norbert_accuracy_midnightrun.csv')
+model.save_pretrained(f'ltgoslo/norbert_accuracy_midnightrun')

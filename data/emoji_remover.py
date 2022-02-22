@@ -10,8 +10,19 @@ import os
 import pandas as pd
 import numpy as np
 import requests
+import emoji
+
+def strip_emoji(text):
+    count = emoji.emoji_count(text)
+    return re.sub(emoji.get_emoji_regexp(), r'', text), count  
 
 data = pd.read_csv('second_rendition_data/second_rendition_geolocated.csv') 
+
+for i, line in data.iterrows():
+   data.iloc[[i]]['text'] = strip_emoji(data['text'].to_string())  
+print(data['text'])
+data.to_csv('noemoji_test.csv')
+stop
 
 #RE_EMOJI = re.compile('[\U00010000-\U0010ffff]', flags=re.UNICODE)
 
@@ -39,9 +50,9 @@ RE_EMOJI = re.compile(
     "]+",
     flags=re.UNICODE)
 
-def strip_emoji(text):
-    res = RE_EMOJI.sub(r'', text)
-    return res
+#def strip_emoji(text):
+#    res = RE_EMOJI.sub(r'', text)
+#    return res
 
 emoji_lines = 0
 for i, line in data.iterrows():
