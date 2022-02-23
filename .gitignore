@@ -10,3 +10,4 @@ data/*.txt
 data/NUTS*
 backup/*
 */*.bin
+NorBert_utls/*
