@@ -18,7 +18,10 @@ from transformers import BertForSequenceClassification, AdamW, BertConfig
 from sklearn.metrics import precision_recall_fscore_support
 
 import torch
-def train_and_verify(batch_size, lr, eps, epochs):
+def train_and_verify(batch_size, lr, eps, epochs, model_path):
+    
+    model_path = f'test_runs/norbert_accuracy_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}_bool/'
+
     # If there's a GPU available...
     if torch.cuda.is_available():    
         # Tell PyTorch to use the GPU.    
@@ -30,7 +33,7 @@ def train_and_verify(batch_size, lr, eps, epochs):
         print('No GPU available, using the CPU instead.')
         device = torch.device("cpu")
 
-    df = pd.read_csv('~/wind_power_analysis/data/3000cleaned.csv',delimiter=",", usecols=['text', 'label'])
+    df = pd.read_csv('~/wind_power_analysis/data/3000cleaned_no_neutral.csv',delimiter=",", usecols=['text', 'label'])
     df = df.reset_index(drop=True)
     #df = df.loc[1:1934,['text', 'label']]
 
@@ -130,7 +133,7 @@ def train_and_verify(batch_size, lr, eps, epochs):
     # linear classification layer on top.
     model = BertForSequenceClassification.from_pretrained(
         "ltgoslo/norbert2", # Use the 12-layer BERT model, with an uncased vocab.
-        num_labels = 3, # The number of output labels--2 for binary classification.
+        num_labels = 2, # The number of output labels--2 for binary classification.
                         # You can increase this for multi-class tasks.
         output_attentions = False, # Whether the model returns attentions weights.
         output_hidden_states = False, # Whether the model returns all hidden-states.
@@ -349,7 +352,6 @@ def train_and_verify(batch_size, lr, eps, epochs):
 
     print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
-    model_path = f'test_runs/norbert_accuracy_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}/'
     
     #if folder exists, delete folder
     if os.path.exists(model_path):
@@ -368,13 +370,12 @@ def train_and_verify(batch_size, lr, eps, epochs):
     model.save_pretrained(f'ltgoslo/norbert_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}')
 
 
-    plot = True
-    if plot:
-        # Use plot styling from seaborn.
-        sns.set(style='darkgrid')
+    if True:
+        ## Use plot styling from seaborn.
+        #sns.set(style='darkgrid')
 
-        # Increase the plot size and font size.
-        sns.set(font_scale=1.5)
+        ## Increase the plot size and font size.
+        #sns.set(font_scale=1.5)
         plt.rcParams["figure.figsize"] = (12,6)
 
         # Plot the learning curve.
@@ -511,34 +512,50 @@ def train_and_verify(batch_size, lr, eps, epochs):
     return df_stats, test_set_stat
 
 if __name__ == '__main__':
-    lrs = np.linspace(1e-6, 1, 3)
-    batch_sizes = np.array((16,32)) 
-    
-    f1_scores = np.zeros((len(lrs),len(batch_sizes)))
-    val_acc_scores = np.zeros((len(lrs),len(batch_sizes)))
- 
-    epochs = 2
-    eps = 1e-8
 
+    #lrs = np.linspace(1e-6, 1, 10)
+    lrs = [1e-5]
+    batch_sizes = [16]
+
+    #batch_sizes = np.array((16, 32)) 
+    
+    #f1_scores = np.zeros((len(lrs),len(batch_sizes)))
+    #val_acc_scores = np.zeros((len(lrs),len(batch_sizes)))
+ 
+    epochs = 15
+    eps = 1e-8
+    
+    model_path = '' 
+    df_stats, test_set_stat = train_and_verify(batch_sizes[0], lrs[0], eps, epochs, model_path) 
+
+    '''
     for i,batch_size in enumerate(batch_sizes):
         print('batch_size: ', batch_size)
         for j,lr in enumerate(lrs):
             print('learning rate ', lr)
-            df_stats, test_set_stat = train_and_verify(batch_size, lr, eps = eps, epochs = epochs)
+            df_stats, test_set_stat = train_and_verify(batch_size, lr, eps = eps, epochs = epochs, model_path=model_path)
             f1_scores[j,i] = test_set_stat['f1score'].max() 
             val_acc_scores[j,i] = df_stats['Valid_Accur'].max()
+    
 
     plt.subplot(2,1,1)
-    plt.plot(lrs,f1_scores[:,0], label = 'batch_size 16') 
-    plt.plot(lrs,f1_scores[:,1], label = 'batch_size 32')
+    plt.plot(lrs,f1_scores[:,0], '-o', label = 'batch_size 16') 
+    plt.plot(lrs,f1_scores[:,1], '-o', label = 'batch_size 32')
+    plt.ylabel('F1 score')
     plt.title(f'F1 scores as a function of LR, max of {epochs} epochs. eps: {eps}')
     plt.legend()
-    plt.subplot(2,1,2)
-    plt.plot(lrs, val_acc_scores[:,0], label = 'batch_size 16')
-    plt.plot(lrs, val_acc_scores[:,1], label = 'batch_size 32')
-    plt.title(f'highest validation accuracy over {epochs} epochs. eps: {eps}')
-    plt.legend()
-    plt.savefig('f1_acc_val.png')
 
+    plt.subplot(2,1,2)
+    plt.plot(lrs, val_acc_scores[:,0], '-o', label = 'batch_size 16')
+    plt.plot(lrs, val_acc_scores[:,1], '-o', label = 'batch_size 32')
+    plt.title(f'highest validation accuracy over {epochs} epochs. eps: {eps}')
+    plt.xlabel('learning rate')
+    plt.ylabel('validation accuracy')
+    plt.legend()
+
+    plt.subplots_adjust(wspace=0.2)
+
+    plt.savefig('f1_acc_val.png')
+    '''
 
 

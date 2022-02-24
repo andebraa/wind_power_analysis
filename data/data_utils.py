@@ -1,5 +1,11 @@
 import pandas as pd
 
+def remove_category():
+    data = pd.read_csv('3000cleaned.csv')
+    data_out = data.loc[data['label'] != 1].copy() 
+    data_out.to_csv('3000cleaned_no_neutral.csv')
+
+
 
 def rename_column():
 
@@ -76,3 +82,6 @@ def column_remover():
     data = data.drop(columns=col)
     data.to_csv(infile, index = False)
     print(data)
+
+if __name__ == '__main__':
+    remove_category()
