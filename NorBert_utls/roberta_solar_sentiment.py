@@ -10,14 +10,6 @@ import numpy as np
 import re
 
 
-# Get the GPU device name.
-device_name = tf.test.gpu_device_name()
-
-# The device name should look like the following:
-if device_name == '/device:GPU:0':
-    print('Found GPU at: {}'.format(device_name))
-else:
-    raise SystemError('GPU device not found')
 
 import torch
 
@@ -37,7 +29,7 @@ else:
     device = torch.device("cpu")
 
 
-df = pd.read_csv('3000cleaned_bool.csv', sep=',', encoding='latin-1', names=['text', 'label'], index_col=None)
+df = pd.read_csv('~/wind_power_analysis/data/3000cleaned_no_neutral.csv', sep=',', encoding='latin-1', names=['text', 'label'], index_col=None)
 
 #----------------------------------------------------------------------------------------
 df = df.iloc[1:]
@@ -46,9 +38,6 @@ df = df[df['label'] != '2']
 # df = pd.concat([df, df3], ignore_index = True)
 train = df.sample(frac = 0.9, random_state=195)
 test = df.drop(train.index)
-print(len(train),len(test))
-print(train['label'].value_counts(), '\n', test['label'].value_counts())
-print(df.head())
 
 
 def stemmingWords(sentence,dictionary):
@@ -59,7 +48,7 @@ def stemmingWords(sentence,dictionary):
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 # rm_list = ',:.";|()$1234567890-@^#!?$=%~&+*/\[]{}'
 rm_list = ''
-sentences = train.phrase.values
+sentences = train.text.values
 labels = train.label.values
 for i in range(0,len(sentences)):
   sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
@@ -75,15 +64,11 @@ for i in range(0,len(sentences)):
     else:
       sentences[i] = sentences[i][1:]
 flag = []
-print(len(sentences))
 
-for sent in sentences:
-  print(sent)
 
-from transformers import BertForSequenceClassification
+from transformers import BertForSequenceClassification, AutoTokenizer
 
 # Load the BERT tokenizer.
-print('Loading RoBERTa tokenizer...')
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
 
 max_len = 0
@@ -132,9 +117,6 @@ input_ids = torch.cat(input_ids, dim=0)
 attention_masks = torch.cat(attention_masks, dim=0)
 labels = torch.tensor(labels)
 
-# Print sentence 0, now as a list of IDs.
-print('Original: ', sentences[0])
-print('Token IDs:', input_ids[0])
 
 from torch.utils.data import TensorDataset, random_split
 
@@ -296,14 +278,14 @@ for epoch_i in range(0, epochs):
 
         model.zero_grad()
 
-        loss, logits = model(b_input_ids,
-                             token_type_ids=None,
-                             attention_mask=b_input_mask,
-                             labels=b_labels)
+        ll = model(b_input_ids,
+                     token_type_ids=None,
+                     attention_mask=b_input_mask,
+                     labels=b_labels)
 
-        total_train_loss += loss.item()
+        total_train_loss += ll.loss.item()
 
-        loss.backward()
+        ll.loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
 
         if (step + 1) % 2 == 0:
@@ -343,11 +325,13 @@ for epoch_i in range(0, epochs):
         b_labels = batch[2].to(device)
 
         with torch.no_grad():
-            (loss, logits) = model(b_input_ids,
+            ll  = model(b_input_ids,
                                    token_type_ids=None,
                                    attention_mask=b_input_mask,
                                    labels=b_labels)
 
+            loss = ll.loss
+            logits = ll.logits
         total_eval_loss += loss.item()
 
         logits = logits.detach().cpu().numpy()
@@ -414,7 +398,7 @@ df = test
 print('Number of test sentences: {:,}\n'.format(df.shape[0]))
 # print(df.head())
 # Create sentence and label lists
-sentences = df.phrase.values
+sentences = df.text.values
 labels = df.label.values
 for i in range(0,len(sentences)):
   sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
@@ -444,9 +428,9 @@ for sent in sentences:
     encoded_dict = tokenizer.encode_plus(
                         sent,                      # Sentence to encode.
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                        max_length = 128,           # Pad & truncate all sentences.
+                        max_length = 512,           # Pad & truncate all sentences.
                         truncation = True,
-                        pad_to_max_length = True,
+                        pad_to_max_length = False,
                         return_attention_mask = True,   # Construct attn. masks.
                         return_tensors = 'pt',     # Return pytorch tensors.
                    )
