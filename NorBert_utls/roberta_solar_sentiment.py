@@ -29,13 +29,13 @@ else:
     device = torch.device("cpu")
 
 
-df = pd.read_csv('~/wind_power_analysis/data/3000cleaned_no_neutral.csv', sep=',', encoding='latin-1', names=['text', 'label'], index_col=None)
+df = pd.read_csv('~/wind_power_analysis/data/annotaion_3000_012label_noneutral.csv', sep=',', encoding='utf8', usecols=['text', 'label'], index_col=None)
 
 #----------------------------------------------------------------------------------------
 df = df.iloc[1:]
 df1 = df[df['label'] == '2']
 df = df[df['label'] != '2']
-# df = pd.concat([df, df3], ignore_index = True)
+#df = pd.concat([df, df3], ignore_index = True)
 train = df.sample(frac = 0.9, random_state=195)
 test = df.drop(train.index)
 
@@ -89,8 +89,10 @@ for i in range(0,len(sentences)):
 print('Max sentence length: ', max_len)
 
 # Tokenize all of the sentences and map the tokens to thier word IDs.
+print(labels)
+print(type(labels))
 labels = labels.astype(int)
-labels = labels/4 # NOTE wtf is this
+#labels = labels/4 # NOTE wtf is this
 labels = labels.astype(int)
 input_ids = []
 attention_masks = []
@@ -101,7 +103,7 @@ for sent in sentences:
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
                         max_length = 128,          # Pad & truncate all sentences.
                         truncation = True,
-                        pad_to_max_length = True,
+                        padding = 'longest',
                         return_attention_mask = True,   # Construct attn. masks.
                         return_tensors = 'pt',     # Return pytorch tensors.
                    )

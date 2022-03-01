@@ -33,7 +33,7 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
         print('No GPU available, using the CPU instead.')
         device = torch.device("cpu")
 
-    df = pd.read_csv('~/wind_power_analysis/data/3000cleaned_no_neutral.csv',delimiter=",", usecols=['text', 'label'])
+    df = pd.read_csv('~/wind_power_analysis/data/annotaion_3000_012label.csv',delimiter=",", usecols=['text', 'label'])
     df = df.reset_index(drop=True)
     #df = df.loc[1:1934,['text', 'label']]
 
@@ -133,7 +133,7 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
     # linear classification layer on top.
     model = BertForSequenceClassification.from_pretrained(
         "ltgoslo/norbert2", # Use the 12-layer BERT model, with an uncased vocab.
-        num_labels = 2, # The number of output labels--2 for binary classification.
+        num_labels = 3, # The number of output labels--2 for binary classification.
                         # You can increase this for multi-class tasks.
         output_attentions = False, # Whether the model returns attentions weights.
         output_hidden_states = False, # Whether the model returns all hidden-states.
@@ -371,26 +371,21 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
 
 
     if True:
-        ## Use plot styling from seaborn.
-        #sns.set(style='darkgrid')
-
-        ## Increase the plot size and font size.
-        #sns.set(font_scale=1.5)
         plt.rcParams["figure.figsize"] = (12,6)
 
         # Plot the learning curve.
-        plt.plot(df_stats['Training_Loss'], 'b-o', label="Training")
-        plt.plot(df_stats['Valid_Loss'], 'g-o', label="Validation")
-
+        plt.plot(df_stats['Training_Loss'], 'b-o', label="Training loss")
+        plt.plot(df_stats['Valid_Loss'], 'g-o', label="Validation loss")
+        plt.plot(df_stats['Valid_Accur'], 'r-o', label= 'validation accuracy')
         # Label the plot.
-        plt.title("Training & Validation Loss")
+        plt.title("Training loss, Validation Loss & accuracy")
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
         plt.legend()
         plt.xticks(np.arange(epochs))
 
         plt.savefig(model_path +'train_val_loss.png')
-
+        plt.clf() #clear plots
 
     #performance on test set
     df = df_test
@@ -522,13 +517,13 @@ if __name__ == '__main__':
     #f1_scores = np.zeros((len(lrs),len(batch_sizes)))
     #val_acc_scores = np.zeros((len(lrs),len(batch_sizes)))
  
-    epochs = 15
+    epochs = 25
     eps = 1e-8
     
     model_path = '' 
     df_stats, test_set_stat = train_and_verify(batch_sizes[0], lrs[0], eps, epochs, model_path) 
 
-    '''
+    """ 
     for i,batch_size in enumerate(batch_sizes):
         print('batch_size: ', batch_size)
         for j,lr in enumerate(lrs):
@@ -556,6 +551,6 @@ if __name__ == '__main__':
     plt.subplots_adjust(wspace=0.2)
 
     plt.savefig('f1_acc_val.png')
-    '''
+    """
 
 
