@@ -507,7 +507,7 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
 
 if __name__ == '__main__':
 
-    lrs = np.linspace(1e-6, 1, 25)
+    lrs = np.linspace(1e-8, 0.001, 16)
     #lrs = [1e-5]
     batch_sizes = [16]
 
@@ -521,7 +521,7 @@ if __name__ == '__main__':
     
     #df_stats, test_set_stat = train_and_verify(batch_sizes[0], lrs[0], eps, epochs, model_path) 
     
-    fig, ax = plt.subplots(5,5)
+    fig, ax = plt.subplots(4,4)
      
     plt.suptitle("Training loss, Validation Loss & accuracy")
     ax = ax.ravel()
@@ -548,7 +548,7 @@ if __name__ == '__main__':
             figure_ += 1
 
 
-    fig.savefig('runs/loss_accuracy_validationgrid.png', dpi = 400)
+    fig.savefig('runs/loss_accuracy_validationgrid.png')
 
 
     plt.clf()
