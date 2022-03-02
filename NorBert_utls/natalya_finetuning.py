@@ -20,7 +20,6 @@ from sklearn.metrics import precision_recall_fscore_support
 import torch
 def train_and_verify(batch_size, lr, eps, epochs, model_path):
     
-    model_path = f'test_runs/norbert_accuracy_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}_bool/'
 
     # If there's a GPU available...
     if torch.cuda.is_available():    
@@ -144,7 +143,7 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
 
     # Note: AdamW is a class from the huggingface library (as opposed to pytorch)
     # I believe the 'W' stands for 'Weight Decay fix"
-    optimizer = AdamW(model.parameters(),
+    optimizer = torch.optim.AdamW(model.parameters(),
                       lr = lr, # args.learning_rate - default is 5e-5, our notebook had 2e-5
                       eps = eps # args.adam_epsilon  - default is 1e-8.
                     )
@@ -370,7 +369,7 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
     model.save_pretrained(f'ltgoslo/norbert_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}')
 
 
-    if True:
+    if False:
         plt.rcParams["figure.figsize"] = (12,6)
 
         # Plot the learning curve.
@@ -508,41 +507,68 @@ def train_and_verify(batch_size, lr, eps, epochs, model_path):
 
 if __name__ == '__main__':
 
-    #lrs = np.linspace(1e-6, 1, 10)
-    lrs = [1e-5]
+    lrs = np.linspace(1e-6, 1, 25)
+    #lrs = [1e-5]
     batch_sizes = [16]
 
     #batch_sizes = np.array((16, 32)) 
     
-    #f1_scores = np.zeros((len(lrs),len(batch_sizes)))
-    #val_acc_scores = np.zeros((len(lrs),len(batch_sizes)))
+    f1_scores = np.zeros((len(lrs),len(batch_sizes)))
+    val_acc_scores = np.zeros((len(lrs),len(batch_sizes)))
  
-    epochs = 25
+    epochs = 10
     eps = 1e-8
     
-    model_path = '' 
-    df_stats, test_set_stat = train_and_verify(batch_sizes[0], lrs[0], eps, epochs, model_path) 
-
-    """ 
+    #df_stats, test_set_stat = train_and_verify(batch_sizes[0], lrs[0], eps, epochs, model_path) 
+    
+    fig, ax = plt.subplots(5,5)
+     
+    plt.suptitle("Training loss, Validation Loss & accuracy")
+    ax = ax.ravel()
+    figure_ = 0
     for i,batch_size in enumerate(batch_sizes):
         print('batch_size: ', batch_size)
         for j,lr in enumerate(lrs):
+            model_path = f'runs/norbert_accuracy_lr{lr}_eps{eps}_batchsize{batch_size}_epochs{epochs}_bool/'
             print('learning rate ', lr)
             df_stats, test_set_stat = train_and_verify(batch_size, lr, eps = eps, epochs = epochs, model_path=model_path)
+            # Plot the learning curve.
+            print(df_stats)
+            ax[figure_].plot(df_stats['Training_Loss'], 'b-o', label="Training loss")
+            ax[figure_].plot(df_stats['Valid_Loss'], 'g-o', label="Validation loss")
+            ax[figure_].plot(df_stats['Valid_Accur'], 'r-o', label= 'validation accuracy')
+            ax[figure_].set_title(f'batch size {batch_size}, lr {lr}')
+            ax[figure_].set_xticks(np.arange(epochs))
+            ax[figure_].set_xlabel('Epochs')
+            ax[figure_].set_ylabel('Loss')
             f1_scores[j,i] = test_set_stat['f1score'].max() 
             val_acc_scores[j,i] = df_stats['Valid_Accur'].max()
-    
+            plt.legend() 
+            print(figure_)
+            figure_ += 1
+
+
+    fig.savefig('runs/loss_accuracy_validationgrid.png', dpi = 400)
+
+
+    plt.clf()
+
+
+
+
+
+
 
     plt.subplot(2,1,1)
     plt.plot(lrs,f1_scores[:,0], '-o', label = 'batch_size 16') 
-    plt.plot(lrs,f1_scores[:,1], '-o', label = 'batch_size 32')
+    #plt.plot(lrs,f1_scores[:,1], '-o', label = 'batch_size 32')
     plt.ylabel('F1 score')
     plt.title(f'F1 scores as a function of LR, max of {epochs} epochs. eps: {eps}')
     plt.legend()
 
     plt.subplot(2,1,2)
     plt.plot(lrs, val_acc_scores[:,0], '-o', label = 'batch_size 16')
-    plt.plot(lrs, val_acc_scores[:,1], '-o', label = 'batch_size 32')
+    #plt.plot(lrs, val_acc_scores[:,1], '-o', label = 'batch_size 32')
     plt.title(f'highest validation accuracy over {epochs} epochs. eps: {eps}')
     plt.xlabel('learning rate')
     plt.ylabel('validation accuracy')
@@ -551,6 +577,6 @@ if __name__ == '__main__':
     plt.subplots_adjust(wspace=0.2)
 
     plt.savefig('f1_acc_val.png')
-    """
+    
 
 
