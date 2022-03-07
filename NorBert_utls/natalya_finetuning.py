@@ -574,7 +574,7 @@ if __name__ == '__main__':
     plt.ylabel('validation accuracy')
     plt.legend()
 
-    plt.subplots_adjust(wspace=0.2)
+    plt.subplots_adjust(wspace=1)
 
     plt.savefig('f1_acc_val.png')
     

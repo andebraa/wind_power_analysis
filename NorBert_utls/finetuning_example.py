@@ -7,6 +7,7 @@ import csv
 import numpy as np
 import pandas as pd
 import torch
+import sklearn
 from torch.utils import data
 from transformers import AdamW
 from transformers import BertForSequenceClassification, AutoTokenizer
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         "-m",
         help="Path to a BERT model (/cluster/shared/nlpl/data/vectors/latest/216/ "
         "or ltgoslo/norbert are possible options)",
-        required=True,
+        required=False,
     )
     arg("--dataset", "-d", help="Path to a document classification dataset", required=True)
     arg("--gpu", "-g", help="Use GPU?", action="store_true")
@@ -95,27 +96,43 @@ if __name__ == "__main__":
     modelname = args.model
     dataset = args.dataset
 
-    tokenizer = AutoTokenizer.from_pretrained(modelname, use_fast=False)
-    if args.gpu:
-        model = BertForSequenceClassification.from_pretrained(modelname, num_labels=3).to("cuda")
-    else:
-        model = BertForSequenceClassification.from_pretrained(modelname, num_labels=3)
+
+    # Load BertForSequenceClassification, the pretrained BERT model with a single
+    # linear classification layer on top.
+    model = BertForSequenceClassification.from_pretrained(
+        "ltgoslo/norbert2", # Use the 12-layer BERT model, with an uncased vocab.
+        num_labels = 3, # The number of output labels--2 for binary classification.
+                        # You can increase this for multi-class tasks.
+        output_attentions = False, # Whether the model returns attentions weights.
+        output_hidden_states = False, # Whether the model returns all hidden-states.
+    )
+
+
+    tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
+    #tokenizer = AutoTokenizer.from_pretrained(modelname, use_fast=False)
+    #if args.gpu:
+    #    model = BertForSequenceClassification.from_pretrained(modelname, num_labels=3).to("cuda")
+    #else:
+    #    model = BertForSequenceClassification.from_pretrained(modelname, num_labels=3)
     model.train()
+    
+    print(args.gpu)
 
     optimizer = AdamW(model.parameters(), lr=1e-4) # set learning rate
 
     logger.info("Reading train data...")
-    full_data = pd.read_csv(dataset)
-    print(full_data.head())
-    full_data.columns = ["text", "labels"]
+    df = pd.read_csv(dataset)
+    df.columns = ["text", "label"]
     logger.info("Train data reading complete.")
 
     test_size = 0.2
-    train_data, test_data = gen_train_test(full_data, test_size)
 
-    texts = train_data.text.to_list()
-    text_labels = train_data.labels.to_list()
-    print(type(texts))
+    df_train, df_test = sklearn.model_selection.train_test_split(df, 
+                                                                 train_size=round(df.shape[0]*0.8), 
+                                                                 test_size=round(df.shape[0]*0.2),
+                                                                 shuffle=True)
+    sentences = df.text.values
+    labels    = df.label.values
 
     # We can freeze the base model and optimize only the classifier on top of it:
     freeze_model = True
@@ -124,29 +141,62 @@ if __name__ == "__main__":
             param.requires_grad = False
 
     logger.info("Tokenizing...")
-    if args.gpu:
-        labels = torch.tensor(text_labels).to("cuda")
-        encoding = tokenizer(
-            texts, return_tensors="pt", padding=True, truncation=True, max_length=256
-        ).to("cuda")
-    else:
-        labels = torch.tensor(text_labels)
-        encoding = tokenizer(
-            texts, return_tensors="pt", padding=True, truncation=True, max_length=256
-        )
+    '''
+    for sent in sentences:
 
-    input_ids = encoding["input_ids"]
-    attention_mask = encoding["attention_mask"]
+        # Tokenize the text and add `[CLS]` and `[SEP]` tokens.
+        input_ids = tokenizer.encode(sent, add_special_tokens=True)
+
+        # Update the maximum sentence length.
+        max_len = max(max_len, len(input_ids))
+
+    print('Max sentence length: ', max_len)
+
+    '''
+
+
+    input_ids = []
+    attention_masks = []
+    for sent in sentences:
+        # `encode_plus` will:
+        #   (1) Tokenize the sentence.
+        #   (2) Prepend the `[CLS]` token to the start.
+        #   (3) Append the `[SEP]` token to the end.
+        #   (4) Map tokens to their IDs.
+        #   (5) Pad or truncate the sentence to `max_length`
+        #   (6) Create attention masks for [PAD] tokens.
+        encoded_dict = tokenizer.encode_plus(
+                            sent,                      # Sentence to encode.
+                            add_special_tokens = True, # Add '[CLS]' and '[SEP]'
+                            max_length = 120,           # Pad & truncate all sentences.
+                            pad_to_max_length = True,
+                            return_attention_mask = True,   # Construct attn. masks.
+                            return_tensors = 'pt',     # Return pytorch tensors.
+                       )
+
+        # Add the encoded sentence to the list.
+        input_ids.append(encoded_dict['input_ids'])
+
+        # And its attention mask (simply differentiates padding from non-padding).
+        attention_masks.append(encoded_dict['attention_mask'])
+
+    # Convert the lists into tensors.
+    input_ids = torch.cat(input_ids, dim=0)
+    attention_masks = torch.cat(attention_masks, dim=0)
+    labels          = labels.astype('int')
+    labels          = torch.tensor(labels)
     logger.info("Tokenizing finished.")
 
     #https://stackoverflow.com/questions/50544730/how-do-i-split-a-custom-dataset-into-training-and-test-datasets
     
 
-
-    train_dataset = data.TensorDataset(input_ids, attention_mask, labels)
+    batch_size = 16
+    train_dataset = data.TensorDataset(input_ids, attention_masks, labels)
     train_iter = data.DataLoader(train_dataset, batch_size=batch_size,shuffle=True)
 
-    
+    losses = []
+    accuracies = [] 
+
     for epoch in range(args.epochs):
         losses = 0
         total_train_acc = 0
@@ -162,6 +212,7 @@ if __name__ == "__main__":
             optimizer.step()
         train_acc = total_train_acc / len(train_iter)
         train_loss = losses / len(train_iter)
+        
         logger.info(f"Epoch: {epoch}, Loss: {train_loss:.4f}, Accuracy: {train_acc:.4f}")
     model.save_pretrained(f'ltgoslo/norbert_accuracy{train_acc:.4f}')
     
