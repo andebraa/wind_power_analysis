@@ -29,12 +29,12 @@ else:
     device = torch.device("cpu")
 
 
-df = pd.read_csv('~/wind_power_analysis/data/annotaion_3000_012label_noneutral.csv', sep=',', encoding='utf8', usecols=['text', 'label'], index_col=None)
+df = pd.read_csv('~/wind_power_analysis/data/annotaion_3000_01label_noneutral.csv', sep=',', usecols=['text', 'label'], index_col=None)
 
 #----------------------------------------------------------------------------------------
 df = df.iloc[1:]
-df1 = df[df['label'] == '2']
-df = df[df['label'] != '2']
+#df1 = df[df['label'] == '2'] #perhaps original code had dataset with useless 2 label?
+#df = df[df['label'] != '2']
 #df = pd.concat([df, df3], ignore_index = True)
 train = df.sample(frac = 0.9, random_state=195)
 test = df.drop(train.index)
@@ -50,6 +50,7 @@ def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 rm_list = ''
 sentences = train.text.values
 labels = train.label.values
+"""
 for i in range(0,len(sentences)):
   sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
   sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
@@ -63,8 +64,7 @@ for i in range(0,len(sentences)):
       sentences[i] = sentences[i][2:]
     else:
       sentences[i] = sentences[i][1:]
-flag = []
-
+"""
 
 from transformers import BertForSequenceClassification, AutoTokenizer
 
@@ -72,8 +72,9 @@ from transformers import BertForSequenceClassification, AutoTokenizer
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
 
 max_len = 0
-temp = []
 
+print('len(sentences)')
+print(len(sentences))
 # For every sentence...
 for i in range(0,len(sentences)):
 
@@ -82,22 +83,21 @@ for i in range(0,len(sentences)):
 
     # Update the maximum sentence length.
     if (len(input_ids)>128):
-      temp.append(i)
       print(sentences[i])
     max_len = max(max_len, len(input_ids))
 
 print('Max sentence length: ', max_len)
 
 # Tokenize all of the sentences and map the tokens to thier word IDs.
-print(labels)
-print(type(labels))
 labels = labels.astype(int)
 #labels = labels/4 # NOTE wtf is this
 labels = labels.astype(int)
 input_ids = []
 attention_masks = []
 
+old_len = 0
 for sent in sentences:
+  
     encoded_dict = tokenizer.encode_plus(
                         sent,                      # Sentence to encode.
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
@@ -110,12 +110,17 @@ for sent in sentences:
 
     # Add the encoded sentence to the list.
     input_ids.append(encoded_dict['input_ids'])
-
+    _len = len(encoded_dict['input_ids'])
+    if _len != old_len:
+        print(_len)
+        print(old_len)
+    old_len = _len
     # And its attention mask (simply differentiates padding from non-padding).
     attention_masks.append(encoded_dict['attention_mask'])
-
+print(len(input_ids))
+print(len(input_ids[0]))
 # Convert the lists into tensors.
-input_ids = torch.cat(input_ids, dim=0)
+input_ids = torch.cat(input_ids, dim=0)###################################################################33
 attention_masks = torch.cat(attention_masks, dim=0)
 labels = torch.tensor(labels)
 
