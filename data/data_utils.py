@@ -1,9 +1,12 @@
 import pandas as pd
 
+
 def remove_category():
     data = pd.read_csv('annotaion_3000_012label.csv')
-    data_out = data.loc[data['label'] != 1].copy() 
-    data_out.to_csv('annotaion_3000_012label_noneutral.csv')
+    data_out = data.loc[data['label'] != 1] 
+    data_out.loc[data_out['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
+    data_out.to_csv('annotaion_3000_01label_noneutral.csv', index = False)
+
 
 
 
