@@ -75,7 +75,6 @@ max_len = 0
 
 print('len(sentences)')
 print(len(sentences))
-# For every sentence...
 for i in range(0,len(sentences)):
 
     # Tokenize the text and add `[CLS]` and `[SEP]` tokens.
@@ -83,9 +82,8 @@ for i in range(0,len(sentences)):
 
     # Update the maximum sentence length.
     if (len(input_ids)>128):
-      print(sentences[i])
-    max_len = max(max_len, len(input_ids))
-
+        print(sentences[i])
+        max_len = max(max_len, len(input_ids))
 print('Max sentence length: ', max_len)
 
 # Tokenize all of the sentences and map the tokens to thier word IDs.
@@ -95,7 +93,7 @@ labels = labels.astype(int)
 input_ids = []
 attention_masks = []
 
-old_len = 0
+
 for sent in sentences:
   
     encoded_dict = tokenizer.encode_plus(
@@ -103,18 +101,13 @@ for sent in sentences:
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
                         max_length = 128,          # Pad & truncate all sentences.
                         truncation = True,
-                        padding = 'longest',
+                        pad_to_max_length = True,
                         return_attention_mask = True,   # Construct attn. masks.
                         return_tensors = 'pt',     # Return pytorch tensors.
                    )
 
     # Add the encoded sentence to the list.
     input_ids.append(encoded_dict['input_ids'])
-    _len = len(encoded_dict['input_ids'])
-    if _len != old_len:
-        print(_len)
-        print(old_len)
-    old_len = _len
     # And its attention mask (simply differentiates padding from non-padding).
     attention_masks.append(encoded_dict['attention_mask'])
 print(len(input_ids))
@@ -124,12 +117,52 @@ input_ids = torch.cat(input_ids, dim=0)#########################################
 attention_masks = torch.cat(attention_masks, dim=0)
 labels = torch.tensor(labels)
 
+"""
+def _tokenize(text, MAX_SEQ_LEN= False):
+    '''
+    https://github.com/huggingface/transformers/issues/1490
+    '''
+    all_input_ids = []
+    all_input_mask = []
 
+    for sentence in text:
+        tokens = tokenizer.tokenize(sentence)
+
+        # limit size to make room for special tokens
+        if MAX_SEQ_LEN:
+            tokens = tokens[0:(MAX_SEQ_LEN - 2)]
+
+        # add special tokens
+        tokens = [tokenizer.cls_token, *tokens, tokenizer.sep_token]
+
+        # convert tokens to IDs
+        input_ids = tokenizer.convert_tokens_to_ids(tokens)
+        # create mask same size of input
+        input_mask = [1] * len(input_ids)
+
+        all_input_ids.append(input_ids)
+        all_input_mask.append(input_mask)
+
+    # pad up to max length
+    # up to max_seq_len if provided, otherwise the max of current batch
+    max_length = MAX_SEQ_LEN if MAX_SEQ_LEN else max([len(ids) for ids in all_input_ids])
+
+    all_input_ids = torch.LongTensor([i + [tokenizer.pad_token_id] * (max_length - len(i))
+                                      for i in all_input_ids])
+    all_input_mask = torch.FloatTensor([m + [0] * (max_length - len(m)) for m in all_input_mask])
+    
+    return all_input_ids, all_input_mask
+
+input_ids, attention_masks = _tokenize(sentences)
+"""
+
+#labels = torch.Tensor(labels)
 from torch.utils.data import TensorDataset, random_split
 
 # Combine the training inputs into a TensorDataset.
 dataset = TensorDataset(input_ids, attention_masks, labels)
 
+print(dataset)
 # Create a 90-10 train-validation split.
 
 # Calculate the number of samples to include in each set.
