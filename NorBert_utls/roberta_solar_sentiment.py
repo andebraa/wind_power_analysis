@@ -8,10 +8,29 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 import re
-
-
-
 import torch
+import numpy as np
+import datetime
+import time
+import random
+from transformers import BertForSequenceClassification, AutoTokenizer
+
+# Function to calculate the accuracy of our predictions vs labels
+def flat_accuracy(preds, labels):
+    pred_flat = np.argmax(preds, axis=1).flatten()
+    labels_flat = labels.flatten()
+    return np.sum(pred_flat == labels_flat) / len(labels_flat)
+
+
+def format_time(elapsed):
+    '''
+    Takes a time in seconds and returns a string hh:mm:ss
+    '''
+    # Round to the nearest second.
+    elapsed_rounded = int(round((elapsed)))
+
+    # Format as hh:mm:ss
+    return str(datetime.timedelta(seconds=elapsed_rounded))
 
 # If there's a GPU available...
 if torch.cuda.is_available():
@@ -66,7 +85,6 @@ for i in range(0,len(sentences)):
       sentences[i] = sentences[i][1:]
 """
 
-from transformers import BertForSequenceClassification, AutoTokenizer
 
 # Load the BERT tokenizer.
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
@@ -197,29 +215,6 @@ scheduler = get_cosine_schedule_with_warmup(optimizer,
 # scheduler = get_constant_schedule_with_warmup(optimizer,
 #                                             num_warmup_steps = 0)
 
-import numpy as np
-
-# Function to calculate the accuracy of our predictions vs labels
-def flat_accuracy(preds, labels):
-    pred_flat = np.argmax(preds, axis=1).flatten()
-    labels_flat = labels.flatten()
-    return np.sum(pred_flat == labels_flat) / len(labels_flat)
-
-import time
-import datetime
-
-def format_time(elapsed):
-    '''
-    Takes a time in seconds and returns a string hh:mm:ss
-    '''
-    # Round to the nearest second.
-    elapsed_rounded = int(round((elapsed)))
-
-    # Format as hh:mm:ss
-    return str(datetime.timedelta(seconds=elapsed_rounded))
-
-import random
-import numpy as np
 
 # This training code is based on the `run_glue.py` script here:
 # https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py#L128
@@ -381,22 +376,18 @@ df_stats = df_stats.set_index('epoch')
 # Display the table.
 df_stats
 
-import pandas as pd
-from torch.utils.data import TensorDataset, random_split
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+################################################################################################################################
+################################################ TEST ##########################################################################
 
-# Load the dataset into a pandas dataframe.
-# df = pd.read_csv('1.csv', sep='\t', encoding='utf-8', names=['sentence', 'phraseid', 'sentid', 'sentiment'])
-# df = df.iloc[1:]
-# df = df[df['sentiment'] != '2']
-# print(df[2:3]['sentence'])
-# Report the number of sentences.
 df = test
 print('Number of test sentences: {:,}\n'.format(df.shape[0]))
-# print(df.head())
+print(df.head())
 # Create sentence and label lists
 sentences = df.text.values
 labels = df.label.values
+
+print(labels)
+"""
 for i in range(0,len(sentences)):
   sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
   sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
@@ -410,10 +401,8 @@ for i in range(0,len(sentences)):
       sentences[i] = sentences[i][2:]
     else:
       sentences[i] = sentences[i][1:]
+"""
 
-
-labels = labels.astype(int)
-labels = labels/4
 labels = labels.astype(int)
 
 # Tokenize all of the sentences and map the tokens to thier word IDs.
@@ -425,7 +414,7 @@ for sent in sentences:
     encoded_dict = tokenizer.encode_plus(
                         sent,                      # Sentence to encode.
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                        max_length = 512,           # Pad & truncate all sentences.
+                        max_length = 128,           # Pad & truncate all sentences.
                         truncation = True,
                         pad_to_max_length = True,
                         return_attention_mask = True,   # Construct attn. masks.
@@ -446,8 +435,11 @@ labels = torch.tensor(labels)
 # Set the batch size.
 batch_size = 16
 
+print(input_ids)
 # Create the DataLoader.
+print(labels)
 prediction_data = TensorDataset(input_ids, attention_masks, labels)
+print(prediction_data)
 prediction_sampler = SequentialSampler(prediction_data)
 prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
 
@@ -468,6 +460,7 @@ for batch in prediction_dataloader:
     # Add batch to GPU
     batch = tuple(t.to(device) for t in batch)
 
+    
     # Unpack the inputs from our dataloader
     b_input_ids, b_input_mask, b_labels = batch
 
