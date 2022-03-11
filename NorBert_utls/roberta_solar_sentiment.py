@@ -115,13 +115,14 @@ labels = torch.tensor(labels)
 
 #labels = torch.Tensor(labels)
 from torch.utils.data import TensorDataset, random_split
-print(tf.reduce_sum(labels))
+print('sum')
+#print(tf.reduce_sum(labels))
+print('sum')
 # Combine the training inputs into a TensorDataset.
 dataset = TensorDataset(input_ids, attention_masks, labels)
 
 
 # Create a 90-10 train-validation split.
-stop
 # Calculate the number of samples to include in each set.
 train_size = int(0.9 * len(dataset))
 val_size = len(dataset) - train_size
@@ -260,7 +261,6 @@ for epoch_i in range(0, epochs):
     model.train()
 
     for step, batch in enumerate(train_dataloader):
-
         # Progress update every 40 batches.
         if step % 40 == 0 and not step == 0:
             # Calculate elapsed time in minutes.
