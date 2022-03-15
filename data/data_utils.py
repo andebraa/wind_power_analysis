@@ -7,8 +7,12 @@ def remove_category():
     data_out.loc[data_out['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
     data_out.to_csv('annotaion_3000_01label_noneutral.csv', index = False)
 
-
-
+def rename_category():
+    data = pd.read_csv('annotaion_3000_012label.csv')
+    data.loc[data['label'] == 1, 'label'] = 2 # set label 2 to 1, so we have 0,1
+    data.loc[data['label'] == 2, 'label'] = 1 #positive now 1
+    data.to_csv('annotaion_3000_01label_comb_posneutral_0neg_1pos.csv', index = False)
+    
 
 def rename_column():
 
@@ -87,4 +91,4 @@ def column_remover():
     print(data)
 
 if __name__ == '__main__':
-    remove_category()
+    rename_category()

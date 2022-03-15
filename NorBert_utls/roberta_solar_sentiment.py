@@ -6,7 +6,6 @@ https://github.com/SerenaYKim/Solar-Sentiment-BERT
 
 import tensorflow as tf
 import pandas as pd
-import numpy as np
 import re
 import torch
 import numpy as np
@@ -14,6 +13,9 @@ import datetime
 import time
 import random
 from transformers import BertForSequenceClassification, AutoTokenizer
+from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
+from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
+from sklearn.metrics import f1_score
 
 # Function to calculate the accuracy of our predictions vs labels
 def flat_accuracy(preds, labels):
@@ -48,7 +50,8 @@ else:
     device = torch.device("cpu")
 
 
-df = pd.read_csv('~/wind_power_analysis/data/annotaion_3000_01label_noneutral.csv', sep=',', usecols=['text', 'label'], index_col=None)
+df = pd.read_csv('~/wind_power_analysis/data/annotaion_3000_01label_comb_posneutral_0neg_1pos.csv', 
+                 sep=',', usecols=['text', 'label'], index_col=None)
 
 #----------------------------------------------------------------------------------------
 df = df.iloc[1:]
@@ -85,6 +88,9 @@ for i in range(0,len(sentences)):
       sentences[i] = sentences[i][1:]
 """
 
+batch_size = 16
+max_length = 300
+epochs = 9
 
 # Load the BERT tokenizer.
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
@@ -113,7 +119,7 @@ for sent in sentences:
     encoded_dict = tokenizer.encode_plus(
                         sent,                      # Sentence to encode.
                         add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                        max_length = 128,          # Pad & truncate all sentences.
+                        max_length = max_length,          # Pad & truncate all sentences.
                         truncation = True,
                         pad_to_max_length = True,
                         return_attention_mask = True,   # Construct attn. masks.
@@ -132,11 +138,6 @@ labels = torch.tensor(labels)
 
 
 #labels = torch.Tensor(labels)
-from torch.utils.data import TensorDataset, random_split
-print('sum')
-#print(tf.reduce_sum(labels))
-print('sum')
-# Combine the training inputs into a TensorDataset.
 dataset = TensorDataset(input_ids, attention_masks, labels)
 
 
@@ -151,12 +152,6 @@ train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 print('{:>5,} training samples'.format(train_size))
 print('{:>5,} validation samples'.format(val_size))
 
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
-
-# The DataLoader needs to know our batch size for training, so we specify it
-# here. For fine-tuning BERT on a specific task, the authors recommend a batch
-# size of 16 or 32.
-batch_size = 16
 
 # Create the DataLoaders for our training and validation sets.
 # We'll take training samples in random order.
@@ -172,11 +167,6 @@ validation_dataloader = DataLoader(
             sampler = SequentialSampler(val_dataset), # Pull out batches sequentially.
             batch_size = batch_size # Evaluate with this batch size.
         )
-
-from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW
-
-# Load BertForSequenceClassification, the pretrained BERT model with a single
-# linear classification layer on top.
 
 model = BertForSequenceClassification.from_pretrained(
     "ltgoslo/norbert2", # Use the 12-layer BERT model, with an uncased vocab.
@@ -196,13 +186,7 @@ optimizer = AdamW(model.parameters(),
                   eps = 1e-8 # args.adam_epsilon  - default is 1e-8.
                 )
 
-from transformers import get_cosine_schedule_with_warmup
 # from transformers import get_linear_schedule_with_warmup
-
-# Number of training epochs. The BERT authors recommend between 2 and 4.
-# We chose to run for 4, but we'll see later that this may be over-fitting the
-# training data.
-epochs = 10
 
 # Total number of training steps is [number of batches] x [number of epochs].
 # (Note that this is not the same as the number of training samples).
@@ -231,7 +215,6 @@ torch.cuda.manual_seed_all(seed_val)
 # validation accuracy, and timings.
 training_stats = []
 
-# Measure the total training time for the whole run.
 total_t0 = time.time()
 
 # For each epoch...
@@ -360,10 +343,6 @@ print("Training complete!")
 
 print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
-import pandas as pd
-
-# Display floats with two decimal places.
-
 # Create a DataFrame from our training statistics.
 df_stats = pd.DataFrame(data=training_stats)
 
@@ -372,9 +351,6 @@ df_stats = df_stats.set_index('epoch')
 
 # A hack to force the column headers to wrap.
 #df = df.style.set_table_styles([dict(selector="th",props=[('max-width', '70px')])])
-
-# Display the table.
-df_stats
 
 ################################################################################################################################
 ################################################ TEST ##########################################################################
@@ -386,7 +362,6 @@ print(df.head())
 sentences = df.text.values
 labels = df.label.values
 
-print(labels)
 """
 for i in range(0,len(sentences)):
   sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
@@ -432,21 +407,15 @@ input_ids = torch.cat(input_ids, dim=0)
 attention_masks = torch.cat(attention_masks, dim=0)
 labels = torch.tensor(labels)
 
-# Set the batch size.
-batch_size = 16
 
-print(input_ids)
 # Create the DataLoader.
-print(labels)
 prediction_data = TensorDataset(input_ids, attention_masks, labels)
-print(prediction_data)
 prediction_sampler = SequentialSampler(prediction_data)
 prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
 
 pd.options.display.max_colwidth = 400
 
 # Prediction on test set
-from sklearn.metrics import f1_score
 print('Predicting labels for {:,} test sentences...'.format(len(input_ids)))
 
 # Put model in evaluation mode
