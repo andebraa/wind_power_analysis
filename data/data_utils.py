@@ -91,4 +91,4 @@ def column_remover():
     print(data)
 
 if __name__ == '__main__':
-    rename_category()
+    remove_category()

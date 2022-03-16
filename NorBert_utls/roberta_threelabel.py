@@ -41,7 +41,7 @@ else:
     print('No GPU available, using the CPU instead.')
     device = torch.device("cpu")
 
-infile = 'annotaion_3000_01label_noneutral'
+infile = 'annotaion_3000_012label'
 df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                  sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -148,7 +148,7 @@ validation_dataloader = DataLoader(
 
 model = BertForSequenceClassification.from_pretrained(
     "ltgoslo/norbert2", # Use the 12-layer BERT model, with an uncased vocab.
-    num_labels = 2, # The number of output labels--2 for binary classification.
+    num_labels = 3, # The number of output labels--2 for binary classification.
                     # You can increase this for multi-class tasks.
     output_attentions = False, # Whether the model returns attentions weights.
     output_hidden_states = False, # Whether the model returns all hidden-states.
@@ -429,13 +429,15 @@ for batch in prediction_dataloader:
 
 predictions = [item for sublist in predictions for item in sublist]
 true_labels= [item for sublist in true_labels for item in sublist]
-f1 = f1_score(y_true=true_labels, y_pred=predictions)
+f1 = f1_score(y_true=true_labels, y_pred=predictions, average=None)
+print(f1)
 avg_val_accuracy = total_eval_accuracy / len(prediction_dataloader)
 print(predictions)
 print(true_labels)
 print("  Accuracy: {0:.3f}".format(avg_val_accuracy))
-print("  F1: {0:.3f}".format(f1))
+print("  F1: {f1}")
 print('    DONE.')
+
 
 epochs = np.arange(epochs)
 plt.plot(epochs, validation_accuracy, label = 'val acc')
@@ -444,7 +446,7 @@ plt.plot(epochs, validation_loss, label = 'val loss')
 plt.xticks(epochs)
 plt.xlabel('epochs')
 plt.legend()
-plt.title(f'batch length {batch_size}, final f1 {f1:.2f}, test accuracy {avg_val_accuracy:.2f}')
+plt.title(f'batch length {batch_size}, final f1; neg {f1[0]:.2f}, neut {f1[1]:.2f}, pos {f1[2]:.2f}, test accuracy {avg_val_accuracy:.2f}')
 plt.savefig(infile+'.png')
 plt.show()
 
