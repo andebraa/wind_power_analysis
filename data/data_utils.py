@@ -90,5 +90,25 @@ def column_remover():
     data.to_csv(infile, index = False)
     print(data)
 
+def skewed_data():
+    '''
+    looks at the percentage of negative and positive tweets in combined datasets
+    '''
+    data_negneut = pd.read_csv('annotaion_3000_01label_comb_negneutral_0neg_1pos.csv') 
+    data_posneut = pd.read_csv('annotaion_3000_01label_comb_posneutral_0neg_1pos.csv') 
+
+    neg0 = len(data_negneut.loc[data_negneut['label'] ==0, 'label'])
+    neg1 = len(data_negneut.loc[data_negneut['label'] ==1, 'label'])
+    neg_tot = len(data_negneut)
+
+    pos0 = len(data_posneut.loc[data_posneut['label'] ==0, 'label'])
+    pos1 = len(data_posneut.loc[data_posneut['label'] ==1, 'label'])
+    pos_tot = len(data_posneut)
+
+    print(f'neg0: {neg0/neg_tot}, neg1: {neg1/neg_tot}')
+    print(f'pos0: {pos0/pos_tot}, pos1: {pos1/pos_tot}')
+    
+
 if __name__ == '__main__':
-    remove_category()
+    #remove_category()
+    skewed_data()
