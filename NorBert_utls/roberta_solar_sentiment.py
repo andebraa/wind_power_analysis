@@ -42,8 +42,8 @@ else:
     device = torch.device("cpu")
 
 
-def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False):
-    infile = 'annotaion_3000_01label_noneutral'
+def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
+    infile = 'annotaion_3000_01label_comb_posneutral_0neg_1pos'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -455,121 +455,120 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False):
         #               Prediction
         # ========================================
 
-    """
-    from itertools import chain
-    import os
+    if predict:
+        from itertools import chain
+        import os
 
-    for filename in os.listdir('...'):
-      print("predicting file :", filename, '\n')
-      with open('/.../'+filename) as f:
-        df = pd.read_csv('/.../'+filename, sep=',', encoding='latin-1', names=['phrase', 'phraseid', 'state'])
-        df = df[1:]
-        df.insert(0, "label", [k for k in range(0,len(df))], True)
-        print('Number of test sentences: {:,}\n'.format(df.shape[0]))
-        print(df.head())
-        # Create sentence and label lists
-        df['phraseid'] = df['phraseid'].astype(int)
-        sentences = df.phrase.values
-        phraseids = df.phraseid.values
-        labels = df.label.values
-        for i in range(0,len(sentences)):
-          sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-          sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-          sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-          sentences[i] = _removeNonAscii(sentences[i])
-          for j in rm_list:
-            sentences[i] = sentences[i].replace(j,' ')
-          sentences[i] = ' '.join(sentences[i].split())
-          if sentences[i][0] == ':':
-            if sentences[i][1] == ' ':
-              sentences[i] = sentences[i][2:]
-            else:
-              sentences[i] = sentences[i][1:]
+        for filename in os.listdir('...'):
+          print("predicting file :", filename, '\n')
+          with open('/.../'+filename) as f:
+            df = pd.read_csv('/.../'+filename, sep=',', encoding='latin-1', names=['phrase', 'phraseid', 'state'])
+            df = df[1:]
+            df.insert(0, "label", [k for k in range(0,len(df))], True)
+            print('Number of test sentences: {:,}\n'.format(df.shape[0]))
+            print(df.head())
+            # Create sentence and label lists
+            df['phraseid'] = df['phraseid'].astype(int)
+            sentences = df.phrase.values
+            phraseids = df.phraseid.values
+            labels = df.label.values
+            for i in range(0,len(sentences)):
+              sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
+              sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
+              sentences[i] = re.sub('https?://\S+',' ',sentences[i])
+              sentences[i] = _removeNonAscii(sentences[i])
+              for j in rm_list:
+                sentences[i] = sentences[i].replace(j,' ')
+              sentences[i] = ' '.join(sentences[i].split())
+              if sentences[i][0] == ':':
+                if sentences[i][1] == ' ':
+                  sentences[i] = sentences[i][2:]
+                else:
+                  sentences[i] = sentences[i][1:]
 
-          # Tokenize all of the sentences and map the tokens to thier word IDs.
-        input_ids = []
-        attention_masks = []
+              # Tokenize all of the sentences and map the tokens to thier word IDs.
+            input_ids = []
+            attention_masks = []
 
-    # For every sentence...
-        for sent in sentences:
-            encoded_dict = tokenizer.encode_plus(
-                            sent,                      # Sentence to encode.
-                            add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                            max_length = 128,           # Pad & truncate all sentences.
-                            truncation = True,
-                            pad_to_max_length = True,
-                            return_attention_mask = True,   # Construct attn. masks.
-                            return_tensors = 'pt',     # Return pytorch tensors.
-                       )
+        # For every sentence...
+            for sent in sentences:
+                encoded_dict = tokenizer.encode_plus(
+                                sent,                      # Sentence to encode.
+                                add_special_tokens = True, # Add '[CLS]' and '[SEP]'
+                                max_length = 128,           # Pad & truncate all sentences.
+                                truncation = True,
+                                pad_to_max_length = True,
+                                return_attention_mask = True,   # Construct attn. masks.
+                                return_tensors = 'pt',     # Return pytorch tensors.
+                           )
 
-        # Add the encoded sentence to the list.
-            input_ids.append(encoded_dict['input_ids'])
+            # Add the encoded sentence to the list.
+                input_ids.append(encoded_dict['input_ids'])
 
-        # And its attention mask (simply differentiates padding from non-padding).
-            attention_masks.append(encoded_dict['attention_mask'])
+            # And its attention mask (simply differentiates padding from non-padding).
+                attention_masks.append(encoded_dict['attention_mask'])
 
-    # Convert the lists into tensors.
-        input_ids = torch.cat(input_ids, dim=0)
-        attention_masks = torch.cat(attention_masks, dim=0)
-        # print(labels, phraseids)
-        labels = torch.tensor(labels)
-        phraseids = torch.tensor(phraseids)
-    # Set the batch size.
-        batch_size = 16
+        # Convert the lists into tensors.
+            input_ids = torch.cat(input_ids, dim=0)
+            attention_masks = torch.cat(attention_masks, dim=0)
+            # print(labels, phraseids)
+            labels = torch.tensor(labels)
+            phraseids = torch.tensor(phraseids)
+        # Set the batch size.
+            batch_size = 16
 
-    # Create the DataLoader.
-        prediction_data = TensorDataset(input_ids, attention_masks, labels, phraseids)
-        prediction_sampler = SequentialSampler(prediction_data)
-        prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
+        # Create the DataLoader.
+            prediction_data = TensorDataset(input_ids, attention_masks, labels, phraseids)
+            prediction_sampler = SequentialSampler(prediction_data)
+            prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
 
-    # Prediction on test set
+        # Prediction on test set
 
-        print('Predicting labels for {:,} test sentences...'.format(len(input_ids)))
+            print('Predicting labels for {:,} test sentences...'.format(len(input_ids)))
 
-    # Put model in evaluation mode
-        model.eval()
+        # Put model in evaluation mode
+            model.eval()
 
-    # Tracking variables
-        predictions , true_labels, phrase_id1 = [], [], []
-    # Predict
-        for batch in prediction_dataloader:
-      # Add batch to GPU
-          batch = tuple(t.to(device) for t in batch)
+        # Tracking variables
+            predictions , true_labels, phrase_id1 = [], [], []
+        # Predict
+            for batch in prediction_dataloader:
+          # Add batch to GPU
+              batch = tuple(t.to(device) for t in batch)
 
-      # Unpack the inputs from our dataloader
-          b_input_ids, b_input_mask, b_labels, b_phraseids = batch
+          # Unpack the inputs from our dataloader
+              b_input_ids, b_input_mask, b_labels, b_phraseids = batch
 
-      # Telling the model not to compute or store gradients, saving memory and
-      # speeding up prediction
-          with torch.no_grad():
-          # Forward pass, calculate logit predictions
-              outputs = model(b_input_ids, token_type_ids=None,
-                          attention_mask=b_input_mask)
+          # Telling the model not to compute or store gradients, saving memory and
+          # speeding up prediction
+              with torch.no_grad():
+              # Forward pass, calculate logit predictions
+                  outputs = model(b_input_ids, token_type_ids=None,
+                              attention_mask=b_input_mask)
 
-          logits = outputs[0]
+              logits = outputs[0]
 
-      # Move logits and labels to CPU
-          logits = logits.detach().cpu().numpy()
-          label_ids = b_labels.to('cpu').numpy()
-          phrase_ids = b_phraseids.to('cpu').numpy()
+          # Move logits and labels to CPU
+              logits = logits.detach().cpu().numpy()
+              label_ids = b_labels.to('cpu').numpy()
+              phrase_ids = b_phraseids.to('cpu').numpy()
 
-          pred_flat = np.argmax(logits, axis=1).flatten()
-          labels_flat = label_ids.flatten()
-          phrase_ids_flat = phrase_ids.flatten()
-      # Store predictions and true labels
-          predictions.append(pred_flat)
-          true_labels.append(labels_flat)
-          phrase_id1.append(phrase_ids_flat)
+              pred_flat = np.argmax(logits, axis=1).flatten()
+              labels_flat = label_ids.flatten()
+              phrase_ids_flat = phrase_ids.flatten()
+          # Store predictions and true labels
+              predictions.append(pred_flat)
+              true_labels.append(labels_flat)
+              phrase_id1.append(phrase_ids_flat)
 
-        predictions = list(chain.from_iterable(predictions))
-        phrase_id1 = list(chain.from_iterable(phrase_id1))
-        true_labels = list(chain.from_iterable(true_labels))
-        df1 = pd.DataFrame(list(zip(sentences, predictions, phrase_id1)), columns=['text', 'label'])
-        df1.to_csv('/.../'+filename)
-    print('    DONE.')
-    """
+            predictions = list(chain.from_iterable(predictions))
+            phrase_id1 = list(chain.from_iterable(phrase_id1))
+            true_labels = list(chain.from_iterable(true_labels))
+            df1 = pd.DataFrame(list(zip(sentences, predictions, phrase_id1)), columns=['text', 'label'])
+            df1.to_csv('/.../'+filename)
+        print('    DONE.')
+def gridsearch():
 
-if __name__ == '__main__':
     lrs = np.linspace(1e-8, 0.01, 8)
     batch_sizes = [16, 32]
 
@@ -595,4 +594,10 @@ if __name__ == '__main__':
             
             _figure += 1
 
-    plt.savefig('roberta_gridsearch.png', dpi = 500)  
+    plt.savefig('roberta_gridsearch.png', dpi = 500) 
+
+if __name__ == '__main__':
+        
+
+    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 15, plot=True, predict = False)
+
