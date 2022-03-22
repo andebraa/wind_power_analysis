@@ -449,17 +449,17 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         plt.savefig(infile+'.png')
         plt.show()
     
-    return epochs, validation_accuracy, training_loss, validation_loss
 
         # ========================================
         #               Prediction
         # ========================================
 
+    predit_dataset = '~/wind_energy_norway/data/secondary_dataset' 
     if predict:
         from itertools import chain
         import os
 
-        for filename in os.listdir('...'):
+        for filename in os.listdir(''):
           print("predicting file :", filename, '\n')
           with open('/.../'+filename) as f:
             df = pd.read_csv('/.../'+filename, sep=',', encoding='latin-1', names=['phrase', 'phraseid', 'state'])
@@ -567,6 +567,11 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             df1 = pd.DataFrame(list(zip(sentences, predictions, phrase_id1)), columns=['text', 'label'])
             df1.to_csv('/.../'+filename)
         print('    DONE.')
+    
+    return epochs, validation_accuracy, training_loss, validation_loss
+
+
+
 def gridsearch():
 
     lrs = np.linspace(1e-8, 0.01, 8)
@@ -599,5 +604,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 15, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 3, plot=True, predict = True)
 
