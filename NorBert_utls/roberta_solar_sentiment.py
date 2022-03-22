@@ -3,7 +3,7 @@
 based on Serena Y Kims code for sentiment in USA.
 https://github.com/SerenaYKim/Solar-Sentiment-BERT
 '''
-
+import os
 import re
 import time
 import torch
@@ -17,7 +17,6 @@ from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
 from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
 from sklearn.metrics import f1_score
-
 # Function to calculate the accuracy of our predictions vs labels
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 def stemmingWords(sentence,dictionary):
@@ -454,24 +453,25 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         #               Prediction
         # ========================================
 
-    predit_dataset = '~/wind_energy_norway/data/secondary_dataset' 
+    predict_dataset = '/home/andebraa/wind_power_analysis/data/second_rendition_data/'
+    #second_rendition_geolocated_anonymous.csv' 
     if predict:
         from itertools import chain
-        import os
 
-        for filename in os.listdir(''):
+        for filename in os.listdir(predict_dataset):
           print("predicting file :", filename, '\n')
-          with open('/.../'+filename) as f:
-            df = pd.read_csv('/.../'+filename, sep=',', encoding='latin-1', names=['phrase', 'phraseid', 'state'])
+          with open(predict_dataset+filename) as f: #NOTE:wtf are phrase ids
+            df = pd.read_csv(predict_dataset+filename, sep=',', encoding='utf-8', names=['phrase', 'state'])
             df = df[1:]
             df.insert(0, "label", [k for k in range(0,len(df))], True)
             print('Number of test sentences: {:,}\n'.format(df.shape[0]))
             print(df.head())
             # Create sentence and label lists
-            df['phraseid'] = df['phraseid'].astype(int)
+            #df['phraseid'] = df['phraseid'].astype(int)
             sentences = df.phrase.values
-            phraseids = df.phraseid.values
+            #phraseids = df.phraseid.values
             labels = df.label.values
+            '''
             for i in range(0,len(sentences)):
               sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
               sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
@@ -485,12 +485,11 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                   sentences[i] = sentences[i][2:]
                 else:
                   sentences[i] = sentences[i][1:]
-
+            '''
               # Tokenize all of the sentences and map the tokens to thier word IDs.
             input_ids = []
             attention_masks = []
 
-        # For every sentence...
             for sent in sentences:
                 encoded_dict = tokenizer.encode_plus(
                                 sent,                      # Sentence to encode.
@@ -502,10 +501,8 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                                 return_tensors = 'pt',     # Return pytorch tensors.
                            )
 
-            # Add the encoded sentence to the list.
                 input_ids.append(encoded_dict['input_ids'])
 
-            # And its attention mask (simply differentiates padding from non-padding).
                 attention_masks.append(encoded_dict['attention_mask'])
 
         # Convert the lists into tensors.
@@ -513,12 +510,11 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             attention_masks = torch.cat(attention_masks, dim=0)
             # print(labels, phraseids)
             labels = torch.tensor(labels)
-            phraseids = torch.tensor(phraseids)
-        # Set the batch size.
+            #phraseids = torch.tensor(phraseids)
+            
             batch_size = 16
 
-        # Create the DataLoader.
-            prediction_data = TensorDataset(input_ids, attention_masks, labels, phraseids)
+            prediction_data = TensorDataset(input_ids, attention_masks, labels)
             prediction_sampler = SequentialSampler(prediction_data)
             prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
 
@@ -529,15 +525,14 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         # Put model in evaluation mode
             model.eval()
 
-        # Tracking variables
-            predictions , true_labels, phrase_id1 = [], [], []
+            predictions , true_labels = [], []
         # Predict
             for batch in prediction_dataloader:
           # Add batch to GPU
               batch = tuple(t.to(device) for t in batch)
 
           # Unpack the inputs from our dataloader
-              b_input_ids, b_input_mask, b_labels, b_phraseids = batch
+              b_input_ids, b_input_mask, b_labels = batch
 
           # Telling the model not to compute or store gradients, saving memory and
           # speeding up prediction
@@ -551,21 +546,21 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
           # Move logits and labels to CPU
               logits = logits.detach().cpu().numpy()
               label_ids = b_labels.to('cpu').numpy()
-              phrase_ids = b_phraseids.to('cpu').numpy()
+              #phrase_ids = b_phraseids.to('cpu').numpy()
 
               pred_flat = np.argmax(logits, axis=1).flatten()
               labels_flat = label_ids.flatten()
-              phrase_ids_flat = phrase_ids.flatten()
+              #phrase_ids_flat = phrase_ids.flatten()
           # Store predictions and true labels
               predictions.append(pred_flat)
               true_labels.append(labels_flat)
-              phrase_id1.append(phrase_ids_flat)
+              #phrase_id1.append(phrase_ids_flat)
 
             predictions = list(chain.from_iterable(predictions))
-            phrase_id1 = list(chain.from_iterable(phrase_id1))
+            #phrase_id1 = list(chain.from_iterable(phrase_id1))
             true_labels = list(chain.from_iterable(true_labels))
-            df1 = pd.DataFrame(list(zip(sentences, predictions, phrase_id1)), columns=['text', 'label'])
-            df1.to_csv('/.../'+filename)
+            df1 = pd.DataFrame(list(zip(sentences, predictions)), columns=['text', 'label'])
+            df1.to_csv(predict_dataset+filename)
         print('    DONE.')
     
     return epochs, validation_accuracy, training_loss, validation_loss
