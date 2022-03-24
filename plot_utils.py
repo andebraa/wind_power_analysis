@@ -87,8 +87,10 @@ def logits_to_bool():
 
 if __name__ == '__main__':
     norway = geopandas.read_file('kommuner_komprimert.json')
+    path = '/home/andebraa/wind_power_analysis/data/second_rendition_data/second_rendition_geolocated_noemoji_anonymous_predict.csv'
 
-    data = pd.read_csv('final_dataset.csv',
+
+    data = pd.read_csv(path,
                       usecols = ['username','text','loc','created_at',
                                  'like_count','quote_count','latitude',
                                  'longitude', 'labels', 'logits0', 'logits1']
