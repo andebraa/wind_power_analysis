@@ -14,17 +14,31 @@ import math
 
 def plot_uncertainty_hist(data: pd.DataFrame) -> None:
 
-    bool_label = data['labels'].values()
-    logits = data['logits0', 'logits1'] 
-    print(bool_label)
-    print(logits) 
+    bool_label = data['label'].values
+    print(len(bool_label[bool_label == 1]))
+    print(len(bool_label[bool_label == 0]))
 
-    binwidth = 0.2
-    plt.hist(max_label, bins=np.arange(min(max_label), max(max_label) + binwidth, binwidth))
+    logits = data[['logits0', 'logits1']]
 
+    #max_logits = logits.max(axis=1) 
+    #min_logits = logits.min(axis=1) 
+
+    binwidth = 0.005
+    #plt.hist(max_logits, bins=np.arange(min(max_logits), max(max_logits) + binwidth, binwidth), 
+    #         alpha = 0.5, label = 'highest values')
+    #plt.hist(min_logits, bins=np.arange(min(max_logits), max(max_logits) + binwidth, binwidth), 
+    #         alpha = 0.5, label = 'lowest values')
+    logits0 = data['logits0'] 
+    logits1 = data['logits1'] 
+    plt.hist(logits0, bins=np.arange(min(logits0), max(logits0) + binwidth, binwidth), 
+             alpha = 0.5, label = 'negative logits')
+    plt.hist(logits1, bins=np.arange(min(logits1), max(logits1) + binwidth, binwidth), 
+             alpha = 0.5, label = 'positive logits')
+    
     plt.legend()
-    plt.title('Distribution of non boolean values returned by NorBert')
-    plt.savefig('fig/uncertainty_hist.png')
+    plt.title('Distribution of positive and negative logits')
+    plt.show()
+    #plt.savefig('fig/uncertainty_hist.png')
 
 
 
@@ -93,11 +107,11 @@ if __name__ == '__main__':
     data = pd.read_csv(path,
                       usecols = ['username','text','loc','created_at',
                                  'like_count','quote_count','latitude',
-                                 'longitude', 'labels', 'logits0', 'logits1']
+                                 'longitude', 'label', 'logits0', 'logits1']
                       )
 
     print(data.head())
     #plot_uncertainty_diff()
-    plot_uncertainty_hist()
+    plot_uncertainty_hist(data)
     #norway_plot()
     #pass

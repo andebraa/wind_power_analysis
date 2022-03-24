@@ -18,7 +18,7 @@ from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSamp
 from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
 from sklearn.metrics import f1_score
 # Function to calculate the accuracy of our predictions vs labels
-def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)# ord() returns integer unicode. ascii is 7 bytes, 128 long
 def stemmingWords(sentence,dictionary):
     return " ".join([dictionary.get(w,w) for w in sentence.split()])
 def flat_accuracy(preds, labels):
@@ -31,6 +31,25 @@ def format_time(elapsed):
     '''
     elapsed_rounded = int(round((elapsed)))
     return str(datetime.timedelta(seconds=elapsed_rounded))
+def preprocess(sentences):
+    '''
+    remove usernames, urls and ": " from retweets
+    '''
+    for i in range(0,len(sentences)):
+      sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
+      sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
+      sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
+      #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
+      #for j in rm_list:
+      #  sentences[i] = sentences[i].replace(j,' ')
+      sentences[i] = ' '.join(sentences[i].split()) #insert space
+      if sentences[i][0] == ':':
+        if sentences[i][1] == ' ':
+            sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
+        else:
+          sentences[i] = sentences[i][1:]
+    return sentences
+
 if torch.cuda.is_available():
     # Tell PyTorch to use the GPU.
     device = torch.device("cuda")
@@ -41,8 +60,10 @@ else:
     device = torch.device("cpu")
 
 
+
+
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
-    infile = 'annotaion_3000_01label_comb_posneutral_0neg_1pos'
+    infile = 'annotaion_3000_01label_comb_negneutral_0neg_1pos'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -55,21 +76,9 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     rm_list = ''
     sentences = train.text.values
     labels = train.label.values
-    """
-    for i in range(0,len(sentences)):
-      sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-      sentences[i] = _removeNonAscii(sentences[i])
-      for j in rm_list:
-        sentences[i] = sentences[i].replace(j,' ')
-      sentences[i] = ' '.join(sentences[i].split())
-      if sentences[i][0] == ':':
-        if sentences[i][1] == ' ':
-          sentences[i] = sentences[i][2:]
-        else:
-          sentences[i] = sentences[i][1:]
-    """
+    
+
+    sentences = preprocess(sentences) 
 
     max_length = 300
 
@@ -337,22 +346,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     sentences = df.text.values
     labels = df.label.values
 
-    """
-    for i in range(0,len(sentences)):
-      sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-      sentences[i] = _removeNonAscii(sentences[i])
-      for j in rm_list:
-        sentences[i] = sentences[i].replace(j,' ')
-      sentences[i] = ' '.join(sentences[i].split())
-      if sentences[i][0] == ':':
-        if sentences[i][1] == ' ':
-          sentences[i] = sentences[i][2:]
-        else:
-          sentences[i] = sentences[i][1:]
-    """
-
+    sentences = preprocess(sentences)
     labels = labels.astype(int)
 
     # Tokenize all of the sentences and map the tokens to thier word IDs.
@@ -474,22 +468,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             print(df.head())
             # Create sentence and label lists
             sentences = df.text.values
-            
-            '''
-            for i in range(0,len(sentences)):
-              sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-              sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-              sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-              sentences[i] = _removeNonAscii(sentences[i])
-              for j in rm_list:
-                sentences[i] = sentences[i].replace(j,' ')
-              sentences[i] = ' '.join(sentences[i].split())
-              if sentences[i][0] == ':':
-                if sentences[i][1] == ' ':
-                  sentences[i] = sentences[i][2:]
-                else:
-                  sentences[i] = sentences[i][1:]
-            '''
+            sentences = preprocess(sentences) 
               # Tokenize all of the sentences and map the tokens to thier word IDs.
             input_ids = []
             attention_masks = []
@@ -575,14 +554,13 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             #true_labels = list(chain.from_iterable(true_labels))
             df1 = pd.DataFrame(list(zip(sentences, predictions, logits0, logits1)), 
                                columns=['text', 'label', 'logits0', 'logits1'])
-            out_filename = 'second_rendition_geolocated_noemoji_anonymous_predict.csv'
+            out_filename = 'second_rendition_geolocated_noemoji_anonymous_negneutral_predict.csv'
             
             df['label'] = df1.label.copy() 
             df['logits0'] = df1.logits0.copy() 
             df['logits1'] = df1.logits1.copy() 
             
-            df.to_csv('test_full_dataset.csv')
-            df1.to_csv(predict_dataset+out_filename)
+            df.to_csv(predict_dataset+out_filename)
             print('    DONE.')
         
     return epochs, validation_accuracy, training_loss, validation_loss
@@ -621,5 +599,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 4, plot=True, predict = True)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 6, plot=True, predict = False)
 
