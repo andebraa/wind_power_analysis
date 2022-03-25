@@ -13,10 +13,10 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
 from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
-from sklearn.metrics import f1_score
 # Function to calculate the accuracy of our predictions vs labels
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)# ord() returns integer unicode. ascii is 7 bytes, 128 long
 def stemmingWords(sentence,dictionary):
