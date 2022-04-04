@@ -107,7 +107,7 @@ def geolocate(user_input):
             print('user_input: ', user_input)
             return False, False, False, False
 
-data = pd.read_csv('data/second_rendition_data/second_rendition_output.csv',
+data = pd.read_csv('data/third_rendition_data/third_rendition_output.csv',
                     usecols = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
                     )
 
@@ -164,13 +164,13 @@ data['longitude'] = longitude
 print(data.head())
 print('here \n')
 print(data.tail())
-data.to_csv('test_data.csv')
+data.to_csv('third_rendition_geolocated.csv')
 data = data.drop(data.index[data['loc'] == 'drop'])
 data = data.drop(data.index[data['latitude'] == 0.0])
 data = data.drop(data.index[data['longitude'] == 0.0])
 
 print('length after: ', len(data)) 
-data.to_csv('second_rendition_test_geolocate.csv')
+data.to_csv('third_rendition_test_geolocate.csv')
 
 
 
