@@ -3,7 +3,7 @@
 based on Serena Y Kims code for sentiment in USA.
 https://github.com/SerenaYKim/Solar-Sentiment-BERT
 '''
-
+import os
 import re
 import time
 import torch
@@ -13,13 +13,12 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
 from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
-from sklearn.metrics import f1_score
-
 # Function to calculate the accuracy of our predictions vs labels
-def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
+def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)# ord() returns integer unicode. ascii is 7 bytes, 128 long
 def stemmingWords(sentence,dictionary):
     return " ".join([dictionary.get(w,w) for w in sentence.split()])
 def flat_accuracy(preds, labels):
@@ -32,6 +31,25 @@ def format_time(elapsed):
     '''
     elapsed_rounded = int(round((elapsed)))
     return str(datetime.timedelta(seconds=elapsed_rounded))
+def preprocess(sentences):
+    '''
+    remove usernames, urls and ": " from retweets
+    '''
+    for i in range(0,len(sentences)):
+      sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
+      sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
+      sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
+      #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
+      #for j in rm_list:
+      #  sentences[i] = sentences[i].replace(j,' ')
+      sentences[i] = ' '.join(sentences[i].split()) #insert space
+      if sentences[i][0] == ':':
+        if sentences[i][1] == ' ':
+            sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
+        else:
+          sentences[i] = sentences[i][1:]
+    return sentences
+
 if torch.cuda.is_available():
     # Tell PyTorch to use the GPU.
     device = torch.device("cuda")
@@ -42,12 +60,17 @@ else:
     device = torch.device("cpu")
 
 
+
+
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
     infile = 'annotaion_3000_01label_comb_posneutral_0neg_1pos'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
     #----------------------------------------------------------------------------------------
+    print(df.iloc[1:])
+    print(df.skew().sort_values(ascending=False))
+    stop
     df = df.iloc[1:]
     train = df.sample(frac = 0.9, random_state=195)
     test = df.drop(train.index)
@@ -56,21 +79,9 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     rm_list = ''
     sentences = train.text.values
     labels = train.label.values
-    """
-    for i in range(0,len(sentences)):
-      sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-      sentences[i] = _removeNonAscii(sentences[i])
-      for j in rm_list:
-        sentences[i] = sentences[i].replace(j,' ')
-      sentences[i] = ' '.join(sentences[i].split())
-      if sentences[i][0] == ':':
-        if sentences[i][1] == ' ':
-          sentences[i] = sentences[i][2:]
-        else:
-          sentences[i] = sentences[i][1:]
-    """
+    
+
+    sentences = preprocess(sentences) 
 
     max_length = 300
 
@@ -338,22 +349,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     sentences = df.text.values
     labels = df.label.values
 
-    """
-    for i in range(0,len(sentences)):
-      sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-      sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-      sentences[i] = _removeNonAscii(sentences[i])
-      for j in rm_list:
-        sentences[i] = sentences[i].replace(j,' ')
-      sentences[i] = ' '.join(sentences[i].split())
-      if sentences[i][0] == ':':
-        if sentences[i][1] == ' ':
-          sentences[i] = sentences[i][2:]
-        else:
-          sentences[i] = sentences[i][1:]
-    """
-
+    sentences = preprocess(sentences)
     labels = labels.astype(int)
 
     # Tokenize all of the sentences and map the tokens to thier word IDs.
@@ -454,43 +450,32 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         #               Prediction
         # ========================================
 
-    predit_dataset = '~/wind_energy_norway/data/secondary_dataset' 
+    predict_dataset = '/home/andebraa/wind_power_analysis/data/second_rendition_data/'
+    #second_rendition_geolocated_anonymous.csv' 
     if predict:
         from itertools import chain
-        import os
-
-        for filename in os.listdir(''):
-          print("predicting file :", filename, '\n')
-          with open('/.../'+filename) as f:
-            df = pd.read_csv('/.../'+filename, sep=',', encoding='latin-1', names=['phrase', 'phraseid', 'state'])
-            df = df[1:]
-            df.insert(0, "label", [k for k in range(0,len(df))], True)
+        filename = 'second_rendition_geolocated_noemoji_anonymous.csv' 
+        print("predicting file :", filename, '\n')
+        with open(predict_dataset+filename) as f: #NOTE:wtf are phrase ids
+            df = pd.read_csv(predict_dataset+filename, sep=',', usecols=['username',
+                                                                        'text', 
+                                                                        'loc', 
+                                                                        'created_at', 
+                                                                        'like_count', 
+                                                                        'quote_count', 
+                                                                        'latitude', 
+                                                                        'longitude'])
+            #df = df[1:] thefuck?
+            #df.insert(0, "label", [k for k in range(0,len(df))], True)
             print('Number of test sentences: {:,}\n'.format(df.shape[0]))
             print(df.head())
             # Create sentence and label lists
-            df['phraseid'] = df['phraseid'].astype(int)
-            sentences = df.phrase.values
-            phraseids = df.phraseid.values
-            labels = df.label.values
-            for i in range(0,len(sentences)):
-              sentences[i] = re.sub('@[^\s]+',' ',sentences[i])
-              sentences[i] = re.sub('&[^\s]+',' ',sentences[i])
-              sentences[i] = re.sub('https?://\S+',' ',sentences[i])
-              sentences[i] = _removeNonAscii(sentences[i])
-              for j in rm_list:
-                sentences[i] = sentences[i].replace(j,' ')
-              sentences[i] = ' '.join(sentences[i].split())
-              if sentences[i][0] == ':':
-                if sentences[i][1] == ' ':
-                  sentences[i] = sentences[i][2:]
-                else:
-                  sentences[i] = sentences[i][1:]
-
+            sentences = df.text.values
+            sentences = preprocess(sentences) 
               # Tokenize all of the sentences and map the tokens to thier word IDs.
             input_ids = []
             attention_masks = []
 
-        # For every sentence...
             for sent in sentences:
                 encoded_dict = tokenizer.encode_plus(
                                 sent,                      # Sentence to encode.
@@ -502,23 +487,20 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                                 return_tensors = 'pt',     # Return pytorch tensors.
                            )
 
-            # Add the encoded sentence to the list.
                 input_ids.append(encoded_dict['input_ids'])
 
-            # And its attention mask (simply differentiates padding from non-padding).
                 attention_masks.append(encoded_dict['attention_mask'])
 
         # Convert the lists into tensors.
             input_ids = torch.cat(input_ids, dim=0)
             attention_masks = torch.cat(attention_masks, dim=0)
             # print(labels, phraseids)
-            labels = torch.tensor(labels)
-            phraseids = torch.tensor(phraseids)
-        # Set the batch size.
+            #labels = torch.tensor(labels)
+            #phraseids = torch.tensor(phraseids)
+            
             batch_size = 16
 
-        # Create the DataLoader.
-            prediction_data = TensorDataset(input_ids, attention_masks, labels, phraseids)
+            prediction_data = TensorDataset(input_ids, attention_masks)
             prediction_sampler = SequentialSampler(prediction_data)
             prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
 
@@ -529,45 +511,61 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         # Put model in evaluation mode
             model.eval()
 
-        # Tracking variables
-            predictions , true_labels, phrase_id1 = [], [], []
+            predictions, logits_list0, logits_list1 = [], [], []
         # Predict
             for batch in prediction_dataloader:
-          # Add batch to GPU
-              batch = tuple(t.to(device) for t in batch)
+            # Add batch to GPU
+                batch = tuple(t.to(device) for t in batch)
 
-          # Unpack the inputs from our dataloader
-              b_input_ids, b_input_mask, b_labels, b_phraseids = batch
+            # Unpack the inputs from our dataloader
+                b_input_ids, b_input_mask = batch
 
-          # Telling the model not to compute or store gradients, saving memory and
-          # speeding up prediction
-              with torch.no_grad():
-              # Forward pass, calculate logit predictions
-                  outputs = model(b_input_ids, token_type_ids=None,
-                              attention_mask=b_input_mask)
+              # Telling the model not to compute or store gradients, saving memory and
+              # speeding up prediction
+                with torch.no_grad():
+                  # Forward pass, calculate logit predictions
+                    outputs = model(b_input_ids, token_type_ids=None,
+                                  attention_mask=b_input_mask)
+                print(outputs)
+                print(np.shape(outputs))
+                logits = outputs[0]
 
-              logits = outputs[0]
 
-          # Move logits and labels to CPU
-              logits = logits.detach().cpu().numpy()
-              label_ids = b_labels.to('cpu').numpy()
-              phrase_ids = b_phraseids.to('cpu').numpy()
+              # Move logits and labels to CPU
+                logits = logits.detach().cpu().numpy()
+                  #label_ids = b_labels.to('cpu').numpy()
+                  #phrase_ids = b_phraseids.to('cpu').numpy()
 
-              pred_flat = np.argmax(logits, axis=1).flatten()
-              labels_flat = label_ids.flatten()
-              phrase_ids_flat = phrase_ids.flatten()
-          # Store predictions and true labels
-              predictions.append(pred_flat)
-              true_labels.append(labels_flat)
-              phrase_id1.append(phrase_ids_flat)
+                print(logits)
+                print(np.shape(logits))
+                
+                
+                pred_flat = np.argmax(logits, axis=1).flatten()
+                  #labels_flat = label_ids.flatten()
+                  #phrase_ids_flat = phrase_ids.flatten()
+              # Store predictions and true labels
+                logits_list0.append(logits[:,0].flatten())
+                logits_list1.append(logits[:,1].flatten())
+                predictions.append(pred_flat)
+                  #true_labels.append(labels_flat)
+                  #phrase_id1.append(phrase_ids_flat)
 
             predictions = list(chain.from_iterable(predictions))
-            phrase_id1 = list(chain.from_iterable(phrase_id1))
-            true_labels = list(chain.from_iterable(true_labels))
-            df1 = pd.DataFrame(list(zip(sentences, predictions, phrase_id1)), columns=['text', 'label'])
-            df1.to_csv('/.../'+filename)
-        print('    DONE.')
-    
+            logits0 = list(chain.from_iterable(logits_list0))
+            logits1 = list(chain.from_iterable(logits_list1))
+            #phrase_id1 = list(chain.from_iterable(phrase_id1))
+            #true_labels = list(chain.from_iterable(true_labels))
+            df1 = pd.DataFrame(list(zip(sentences, predictions, logits0, logits1)), 
+                               columns=['text', 'label', 'logits0', 'logits1'])
+            out_filename = 'second_rendition_geolocated_noemoji_anonymous_negneutral_predict.csv'
+            
+            df['label'] = df1.label.copy() 
+            df['logits0'] = df1.logits0.copy() 
+            df['logits1'] = df1.logits1.copy() 
+            
+            df.to_csv(predict_dataset+out_filename)
+            print('    DONE.')
+        
     return epochs, validation_accuracy, training_loss, validation_loss
 
 
@@ -604,5 +602,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 3, plot=True, predict = True)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 6, plot=True, predict = False)
 
