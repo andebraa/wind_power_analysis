@@ -9,7 +9,7 @@ import datetime
 import pandas as pd
 import numpy as np
 
-test_hist = pd.read_csv('../data/second_rendition_data/second_rendition_output.csv', parse_dates=True)
+test_hist = pd.read_csv('../data/third_rendition_data/third_rendition_output.csv', parse_dates=True)
 
 #test_hist = test_hist[test_hist['labels'] == 1] 
 #reading, parsing and sorting time elements from twitter data
@@ -92,7 +92,7 @@ ax.plot(week_nums, flat[:len(week_nums)])
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
 
-plt.savefig('fig/tweet_per_week_second_rendition.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('tweet_per_week_third_rendition.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
 
 

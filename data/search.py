@@ -9,8 +9,8 @@ import json
 import numpy as np
 import datetime
 
-start_time = "2021-12-15T00:00:00z"
-end___time = "2021-12-19T00:00:00z"
+start_time = "2022-03-28T00:00:00z"
+end___time = "2022-04-01T00:00:00z"
 print(start_time)
 print(end___time)
 
@@ -55,9 +55,8 @@ def get_formatted_tweets(json_response):
                         skipped += 1 
                         pass
         list_of_tweets.append(tweet_info)
-    print(len(list_of_tweets))
-    print('skipped')
-    print(skipped)
+    print('len of list of tweets ',len(list_of_tweets))
+    print('skipped: ', skipped)
     return list_of_tweets
 
 
@@ -245,4 +244,4 @@ if __name__ == '__main__':
             next_token = json_response['meta']['next_token']
         else:
             break
-print(result_count)
+print('result count: ',result_count)
