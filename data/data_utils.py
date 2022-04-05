@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -108,7 +109,21 @@ def skewed_data():
     print(f'neg0: {neg0/neg_tot}, neg1: {neg1/neg_tot}')
     print(f'pos0: {pos0/pos_tot}, pos1: {pos1/pos_tot}')
     
+def weak_performer_extractor():
+    df = pd.read_csv('second_rendition_data/second_rendition_geolocated_noemoji_anonymous_predict.csv')
+    sortorder = np.zeros((len(df), 2))
+    sortorder[:,0] = np.arange(len(df))
+    for i, line in df.iterrows():
+        sortorder[i,1] = np.abs(line['logits0'] - line['logits1'])
+    print(sortorder)
+    sortorder = sortorder[sortorder[:,1].argsort()]
+    df = df.iloc[sortorder[:,0]]
+    bottom_200 = df.head(n=300)
+    midtop_100 = bottom_200.tail(n=200)
+    midtop_100.to_csv('second_rendition_predicted_logitsorted_midtop100.csv')
+    print(df)
 
 if __name__ == '__main__':
     #remove_category()
-    skewed_data()
+    #skewed_data()
+    weak_performer_extractor()
