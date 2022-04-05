@@ -7,11 +7,11 @@ change the num_tweets variable to alter the number of tweets to annotate.
 import pandas as pd 
 import numpy as np
 
-data = pd.read_csv('second_rendition_data/second_rendition_allgeo_anonymous.csv',
+data = pd.read_csv('third_rendition_data/third_rendition_allgeo.csv',
                     usecols = ['text'])
 
-output_file = 'test_anotate.csv'
-num_tweets = 5
+output_file = '200_thirdrendition_anotated.csv'
+num_tweets = 200
 
 tweet_indx = np.random.randint(0, len(data), size = num_tweets) 
 trainingdata = data.iloc[tweet_indx, :] 
@@ -21,14 +21,14 @@ label = np.zeros(len(trainingdata))
 
 def label_prompt():
     
-    labels = [-1,0,1]
+    labels = [0,1,2]
     try:
     
-        arg = int(input('0: neutral/informative, 1: postivie, -1: negative  ')) 
+        arg = int(input('1: neutral/informative, 2: postivie, 0: negative  ')) 
         assert int(arg) in labels
     except:
-        print('argument must be int, and either -1, 0 or 1')
-        arg = int(input('0: neutral/informative, 1: postivie, -1: negative  '))
+        print('argument must be int, and either 0, 1 or 2')
+        arg = int(input('1: neutral/informative, 2: postivie, 0: negative  '))
 
     return arg
 

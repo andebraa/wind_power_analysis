@@ -164,13 +164,13 @@ data['longitude'] = longitude
 print(data.head())
 print('here \n')
 print(data.tail())
-data.to_csv('third_rendition_geolocated.csv')
+data.to_csv('third_rendition_allgeo.csv')
 data = data.drop(data.index[data['loc'] == 'drop'])
 data = data.drop(data.index[data['latitude'] == 0.0])
 data = data.drop(data.index[data['longitude'] == 0.0])
 
 print('length after: ', len(data)) 
-data.to_csv('third_rendition_test_geolocate.csv')
+data.to_csv('third_rendition_geolocated.csv')
 
 
 
