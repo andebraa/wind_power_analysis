@@ -2,14 +2,12 @@ import numpy as np
 import pandas as pd
 
 def append_csv():
-    df1 = pd.read_csv('100_thirdrendition_anotated.csv', index_col = None)
-    df2 = pd.read_csv('200_thirdrendition_anotated.csv', index_col = None)
-    df3 = pd.read_csv('200_thirdrendition_anotated2.csv', index_col = None)
+    df1 = pd.read_csv('annotaion_3000_012label.csv', usecols = ['text', 'label'])
+    df2 = pd.read_csv('400_thirdrendition_annotated.csv', usecols = ['text', 'label'])
 
-    df_out = df1.append(df2)
-    df_out = df_out.append(df3)
-
-    df_out.to_csv('400_thirdrendition_annotated.csv')
+    df_out = pd.concat([df1, df2])
+    df_out.reset_index()
+    df_out.to_csv('annotation_3400_012label.csv')
 
 def remove_category():
     data = pd.read_csv('annotaion_3000_012label.csv')
