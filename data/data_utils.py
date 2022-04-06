@@ -1,6 +1,15 @@
 import numpy as np
 import pandas as pd
 
+def append_csv():
+    df1 = pd.read_csv('100_thirdrendition_anotated.csv', index_col = None)
+    df2 = pd.read_csv('200_thirdrendition_anotated.csv', index_col = None)
+    df3 = pd.read_csv('200_thirdrendition_anotated2.csv', index_col = None)
+
+    df_out = df1.append(df2)
+    df_out = df_out.append(df3)
+
+    df_out.to_csv('400_thirdrendition_annotated.csv')
 
 def remove_category():
     data = pd.read_csv('annotaion_3000_012label.csv')
@@ -126,4 +135,5 @@ def weak_performer_extractor():
 if __name__ == '__main__':
     #remove_category()
     #skewed_data()
-    weak_performer_extractor()
+    #weak_performer_extractor()
+    append_csv()
