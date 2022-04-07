@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 
 def append_csv():
-    df1 = pd.read_csv('annotaion_3000_012label.csv', usecols = ['text', 'label'])
     df2 = pd.read_csv('400_thirdrendition_annotated.csv', usecols = ['text', 'label'])
+    df1 = pd.read_csv('annotaion_3000_012label.csv', usecols = ['text', 'label'])
 
     df_out = pd.concat([df1, df2])
     df_out.reset_index()
