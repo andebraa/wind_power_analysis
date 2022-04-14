@@ -2,12 +2,22 @@ import numpy as np
 import pandas as pd
 
 def append_csv():
-    df2 = pd.read_csv('400_thirdrendition_annotated.csv', usecols = ['text', 'label'])
-    df1 = pd.read_csv('annotaion_3000_012label.csv', usecols = ['text', 'label'])
+    df1 = pd.read_csv('annotation_3000_012label.csv', usecols = ['text', 'label'], index_col = False)
+    df2 = pd.read_csv('400_thirdrendition_annotated.csv', usecols = ['text', 'label'], index_col = False)
+    df3 = pd.read_csv('100_thirdrendition_anotated.csv', usecols = ['text', 'label'], index_col = False)
+    df4 = pd.read_csv('100_thirdrendition_anotated2.csv', usecols = ['text', 'label'], index_col = False)
+    df5 = pd.read_csv('100_thirdrendition_anotated3.csv', usecols = ['text', 'label'], index_col = False)
+    df6 = pd.read_csv('100_thirdrendition_anotated4.csv', usecols = ['text', 'label'], index_col = False)
+    df7 = pd.read_csv('100_thirdrendition_anotated5.csv', usecols = ['text', 'label'], index_col = False)
+    df8 = pd.read_csv('100_thirdrendition_anotated6.csv', usecols = ['text', 'label'], index_col = False)
+    df9 = pd.read_csv('100_thirdrendition_anotated7.csv', usecols = ['text', 'label'], index_col = False)
+    df10 = pd.read_csv('200_thirdrendition_anotated.csv', usecols = ['text', 'label'], index_col = False)
+    df11 = pd.read_csv('200_thirdrendition_anotated2.csv', usecols = ['text', 'label'], index_col = False)
+    df12 = pd.read_csv('200_thirdrendition_anotated3.csv', usecols = ['text', 'label'], index_col = False)
 
-    df_out = pd.concat([df1, df2])
-    df_out.reset_index()
-    df_out.to_csv('annotation_3400_012label.csv')
+    df_out = pd.concat([df1, df2,df3,df4,df5,df6,df7,df8,df9,df10,df11,df12])
+    df_out = df_out.reset_index()
+    df_out.to_csv('annotation_4700_012label.csv')
 
 def remove_category():
     data = pd.read_csv('annotaion_3000_012label.csv')
