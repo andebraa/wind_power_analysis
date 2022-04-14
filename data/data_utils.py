@@ -3,11 +3,11 @@ import pandas as pd
 
 def append_csv():
     df1 = pd.read_csv('annotaion_3000_012label.csv', usecols = ['text', 'label'])
-    df2 = pd.read_csv('400_thirdrendition_annotated.csv', usecols = ['text', 'label'])
+    df2 = pd.read_csv('200_thirdrendition_anotated3.csv', usecols = ['text', 'label'])
 
     df_out = pd.concat([df1, df2])
     df_out.reset_index()
-    df_out.to_csv('annotation_3400_012label.csv')
+    df_out.to_csv('annotation_3600_012label.csv')
 
 def remove_category():
     data = pd.read_csv('annotaion_3000_012label.csv')
