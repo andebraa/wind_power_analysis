@@ -143,5 +143,5 @@ def weak_performer_extractor():
 if __name__ == '__main__':
     #remove_category()
     #skewed_data()
-    #weak_performer_extractor()
-    append_csv()
+    weak_performer_extractor()
+    #append_csv()
