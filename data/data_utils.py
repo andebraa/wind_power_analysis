@@ -26,10 +26,10 @@ def remove_category():
     data_out.to_csv('annotaion_3000_01label_noneutral.csv', index = False)
 
 def rename_category():
-    data = pd.read_csv('annotaion_3000_012label.csv')
+    data = pd.read_csv('annotation_4700_012label.csv')
     data.loc[data['label'] == 1, 'label'] = 2 # set label 2 to 1, so we have 0,1
     data.loc[data['label'] == 2, 'label'] = 1 #positive now 1
-    data.to_csv('annotaion_3000_01label_comb_posneutral_0neg_1pos.csv', index = False)
+    data.to_csv('annotaion_4700_01label_comb_posneutral_0neg_1pos.csv', index = False)
     
 
 def rename_column():
@@ -142,6 +142,7 @@ def weak_performer_extractor():
 
 if __name__ == '__main__':
     #remove_category()
+    rename_category()
     #skewed_data()
-    weak_performer_extractor()
+    #weak_performer_extractor()
     #append_csv()

@@ -41,7 +41,7 @@ else:
     print('No GPU available, using the CPU instead.')
     device = torch.device("cpu")
 
-infile = 'annotaion_3000_012label'
+infile = 'annotation_4700_012label'
 df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                  sep=',', usecols=['text', 'label'], index_col=None)
 

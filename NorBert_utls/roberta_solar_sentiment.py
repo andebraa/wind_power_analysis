@@ -63,14 +63,13 @@ else:
 
 
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
-    infile = 'annotaion_3000_01label_comb_posneutral_0neg_1pos'
+    infile = 'annotaion_4700_01label_comb_posneutral_0neg_1pos'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
     #----------------------------------------------------------------------------------------
     print(df.iloc[1:])
     print(df.skew().sort_values(ascending=False))
-    stop
     df = df.iloc[1:]
     train = df.sample(frac = 0.9, random_state=195)
     test = df.drop(train.index)
