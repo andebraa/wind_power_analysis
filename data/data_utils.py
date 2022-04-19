@@ -2,22 +2,13 @@ import numpy as np
 import pandas as pd
 
 def append_csv():
-    df1 = pd.read_csv('annotation_3000_012label.csv', usecols = ['text', 'label'], index_col = False)
-    df2 = pd.read_csv('400_thirdrendition_annotated.csv', usecols = ['text', 'label'], index_col = False)
-    df3 = pd.read_csv('100_thirdrendition_anotated.csv', usecols = ['text', 'label'], index_col = False)
-    df4 = pd.read_csv('100_thirdrendition_anotated2.csv', usecols = ['text', 'label'], index_col = False)
-    df5 = pd.read_csv('100_thirdrendition_anotated3.csv', usecols = ['text', 'label'], index_col = False)
-    df6 = pd.read_csv('100_thirdrendition_anotated4.csv', usecols = ['text', 'label'], index_col = False)
-    df7 = pd.read_csv('100_thirdrendition_anotated5.csv', usecols = ['text', 'label'], index_col = False)
-    df8 = pd.read_csv('100_thirdrendition_anotated6.csv', usecols = ['text', 'label'], index_col = False)
-    df9 = pd.read_csv('100_thirdrendition_anotated7.csv', usecols = ['text', 'label'], index_col = False)
-    df10 = pd.read_csv('200_thirdrendition_anotated.csv', usecols = ['text', 'label'], index_col = False)
-    df11 = pd.read_csv('200_thirdrendition_anotated2.csv', usecols = ['text', 'label'], index_col = False)
-    df12 = pd.read_csv('200_thirdrendition_anotated3.csv', usecols = ['text', 'label'], index_col = False)
+    #note; wli: weak logits included
+    df1 = pd.read_csv('annotation_4700_012label.csv', usecols = ['text', 'label'], index_col = False)
+    df2 = pd.read_csv('second_rendition_predicted_logitsorted_bottom300.csv', usecols = ['text', 'label'], index_col = False)
 
-    df_out = pd.concat([df1, df2,df3,df4,df5,df6,df7,df8,df9,df10,df11,df12])
+    df_out = pd.concat([df1, df2])
     df_out = df_out.reset_index()
-    df_out.to_csv('annotation_4700_012label.csv')
+    df_out.to_csv('annotation_5000_012label_wli.csv')
 
 def remove_category():
     data = pd.read_csv('annotaion_3000_012label.csv')
@@ -26,10 +17,10 @@ def remove_category():
     data_out.to_csv('annotaion_3000_01label_noneutral.csv', index = False)
 
 def rename_category():
-    data = pd.read_csv('annotation_4700_012label.csv')
+    data = pd.read_csv('annotation_5000_012label_wli.csv')
     data.loc[data['label'] == 1, 'label'] = 2 # set label 2 to 1, so we have 0,1
     data.loc[data['label'] == 2, 'label'] = 1 #positive now 1
-    data.to_csv('annotaion_4700_01label_comb_posneutral_0neg_1pos.csv', index = False)
+    data.to_csv('annotaion_5000_01label_comb_posneutral_0neg_1pos_iwl.csv', index = False)
     
 
 def rename_column():
@@ -135,9 +126,8 @@ def weak_performer_extractor():
     print(sortorder)
     sortorder = sortorder[sortorder[:,1].argsort()]
     df = df.iloc[sortorder[:,0]]
-    bottom_200 = df.head(n=300)
-    midtop_100 = bottom_200.tail(n=200)
-    midtop_100.to_csv('second_rendition_predicted_logitsorted_midtop100.csv')
+    bottom_300 = df.head(n=300)
+    bottom_300.to_csv('second_rendition_predicted_logitsorted_bottom300.csv')
     print(df)
 
 if __name__ == '__main__':
