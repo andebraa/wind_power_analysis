@@ -64,7 +64,8 @@ else:
 
 
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
-    infile = 'annotaion_5000_01label_comb_posneutral_0neg_1pos_iwl'
+    #infile = 'annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl'
+    infile = 'annotaion_5000_01label_noneutral_wli'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -615,5 +616,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 8, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 11, plot=True, predict = False)
 

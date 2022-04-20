@@ -4,6 +4,7 @@ based on Serena Y Kims code for sentiment in USA.
 https://github.com/SerenaYKim/Solar-Sentiment-BERT
 '''
 
+import os
 import re
 import time
 import torch
@@ -11,14 +12,15 @@ import random
 import datetime
 import numpy as np
 import pandas as pd
+import seaborn as sn 
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score, confusion_matrix 
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
 from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
-from sklearn.metrics import f1_score
-
 # Function to calculate the accuracy of our predictions vs labels
+
 def _removeNonAscii(s): return "".join(i for i in s if ord(i)<128)
 def stemmingWords(sentence,dictionary):
     return " ".join([dictionary.get(w,w) for w in sentence.split()])
@@ -72,7 +74,7 @@ for i in range(0,len(sentences)):
 
 batch_size = 16
 max_length = 300
-epochs = 10
+epochs = 2
 
 # Load the BERT tokenizer.
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
@@ -438,18 +440,28 @@ print("  Accuracy: {0:.3f}".format(avg_val_accuracy))
 print("  F1: {f1}")
 print('    DONE.')
 
-
-epochs = np.arange(epochs)
-plt.plot(epochs, validation_accuracy, label = 'val acc')
-plt.plot(epochs, training_loss, label = 'training loss')
-plt.plot(epochs, validation_loss, label = 'val loss')
-plt.xticks(epochs)
-plt.xlabel('epochs')
-plt.legend()
-plt.title(f'batch length {batch_size}, final f1; neg {f1[0]:.2f}, neut {f1[1]:.2f}, pos {f1[2]:.2f}, test accuracy {avg_val_accuracy:.2f}')
-plt.savefig(infile+'.png')
-plt.show()
-
+plot = True
+if plot:
+    epochs_list = np.arange(epochs)
+    plt.plot(epochs_list, validation_accuracy, label = 'val acc')
+    plt.plot(epochs_list, training_loss, label = 'training loss')
+    plt.plot(epochs_list, validation_loss, label = 'val loss')
+    plt.xticks(epochs_list)
+    plt.xlabel('epochs')
+    plt.legend()
+    plt.title(f'batch length {batch_size}, final f1; neg {f1[0]:.2f}, neut {f1[1]:.2f}, pos {f1[2]:.2f}, test accuracy {avg_val_accuracy:.2f}')
+    plt.savefig(infile+'.png')
+    plt.show()
+    conf_matrix = True
+    
+    if conf_matrix:
+        confusion = confusion_matrix(true_labels, predictions)
+        plt.figure(figsize = (8,8))
+        df_cm = pd.DataFrame(confusion, index = [i for i in ('negative', 'neutral', 'positive')],
+              columns = [i for i in ('negative', 'neutral', 'positive')])
+        sn.heatmap(df_cm, annot = True, fmt = 'g')
+        plt.title(f'test data; epochs {epochs}, f1 {f1:.2f}, bach size {batch_size} ')
+        plt.savefig(f'confusion_matrix_epochs{epochs}_f1{f1:.2f}_threelabel.png')
     # ========================================
     #               Prediction
     # ========================================

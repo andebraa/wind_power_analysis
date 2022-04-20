@@ -11,16 +11,19 @@ def append_csv():
     df_out.to_csv('annotation_5000_012label_wli.csv')
 
 def remove_category():
-    data = pd.read_csv('annotaion_3000_012label.csv')
+    data = pd.read_csv('annotation_5000_012label_wli.csv')
     data_out = data.loc[data['label'] != 1] 
     data_out.loc[data_out['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
-    data_out.to_csv('annotaion_3000_01label_noneutral.csv', index = False)
+    data_out.to_csv('annotaion_5000_01label_noneutral_wli.csv', index = False)
 
 def rename_category():
     data = pd.read_csv('annotation_5000_012label_wli.csv')
-    data.loc[data['label'] == 1, 'label'] = 2 # set label 2 to 1, so we have 0,1
-    data.loc[data['label'] == 2, 'label'] = 1 #positive now 1
-    data.to_csv('annotaion_5000_01label_comb_posneutral_0neg_1pos_iwl.csv', index = False)
+    #data.loc[data['label'] == 1, 'label'] = 2 #neutral now positive
+    #data.loc[data['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
+    
+    data.loc[data['label'] == 1, 'label'] = 0 # set label 1 to 0
+    data.loc[data['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
+    data.to_csv('annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl.csv', index = False)
     
 
 def rename_column():
@@ -130,9 +133,13 @@ def weak_performer_extractor():
     bottom_300.to_csv('second_rendition_predicted_logitsorted_bottom300.csv')
     print(df)
 
+def unskew():
+    df = pd.read_csv('second_rendition_data/.annotation_5000_012label_wli.csv')
+    pass
+
 if __name__ == '__main__':
-    #remove_category()
-    rename_category()
+    remove_category()
+    #rename_category()
     #skewed_data()
     #weak_performer_extractor()
     #append_csv()
