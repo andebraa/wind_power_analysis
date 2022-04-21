@@ -72,9 +72,9 @@ for i in range(0,len(sentences)):
       sentences[i] = sentences[i][1:]
 """
 
-batch_size = 16
+batch_size = 32
 max_length = 300
-epochs = 2
+epochs = 18
 
 # Load the BERT tokenizer.
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)
@@ -456,12 +456,15 @@ if plot:
     
     if conf_matrix:
         confusion = confusion_matrix(true_labels, predictions)
-        plt.figure(figsize = (8,8))
+        plt.figure(figsize = (11,11))
         df_cm = pd.DataFrame(confusion, index = [i for i in ('negative', 'neutral', 'positive')],
               columns = [i for i in ('negative', 'neutral', 'positive')])
         sn.heatmap(df_cm, annot = True, fmt = 'g')
-        plt.title(f'test data; epochs {epochs}, f1 {f1:.2f}, bach size {batch_size} ')
-        plt.savefig(f'confusion_matrix_epochs{epochs}_f1{f1:.2f}_threelabel.png')
+        print(epochs)
+        print(f1)
+        print(batch_size)
+        plt.title(f'final f1; neg {f1[0]:.2f}, neut {f1[1]:.2f}, pos {f1[2]:.2f}, test accuracy {avg_val_accuracy:.2f}')
+        plt.savefig(infile + '_confusion.png')
     # ========================================
     #               Prediction
     # ========================================
