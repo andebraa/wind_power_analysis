@@ -46,6 +46,8 @@ else:
 infile = 'annotation_5000_012label_wli'
 df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                  sep=',', usecols=['text', 'label'], index_col=None)
+rt_mask = df['text'].str.match(r'RT.*')
+df = df[~rt_mask]
 
 #----------------------------------------------------------------------------------------
 df = df.iloc[1:]
@@ -74,7 +76,7 @@ for i in range(0,len(sentences)):
 
 batch_size = 32
 max_length = 300
-epochs = 18
+epochs = 10
 
 # Load the BERT tokenizer.
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)

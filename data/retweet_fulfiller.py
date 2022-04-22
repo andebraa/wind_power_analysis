@@ -115,4 +115,4 @@ if __name__ == '__main__':
     #                  'no_unfulfilled_retweets_dropped.csv',  
     #                  drop_unfulfilled = True)
     #test_no_unfilled_retweet()
-    fulfill_retweets('annotaion_3000_012label.csv', 'annotated_fulfilled_3000.csv', True)
+    fulfill_retweets('annotation_5000_012label_wli.csv', 'annotation_5000_012label_wli_fulfilled.csv', True)

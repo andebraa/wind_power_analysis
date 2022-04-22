@@ -134,12 +134,20 @@ def weak_performer_extractor():
     print(df)
 
 def unskew():
-    df = pd.read_csv('second_rendition_data/.annotation_5000_012label_wli.csv')
+    df = pd.read_csv('annotation_5000_012label_wli.csv')
+    #unfulfilled_mask = data['text'].str.match(r'RT @(?:\w{1,15})\b(?::){0,1} (?:(?:.|\n)+)(?:\.\.\.|…)')
+    rt_mask = df['text'].str.match(r'RT.*')
+    df = df[~rt_mask]
+    print(len(df[df['label'] == 0].index))
+    print(len(df[df['label'] == 1].index))
+    print(len(df[df['label'] == 2].index))
+    print(df.skew())
     pass
 
 if __name__ == '__main__':
-    remove_category()
+    #remove_category()
     #rename_category()
     #skewed_data()
     #weak_performer_extractor()
     #append_csv()
+    unskew()
