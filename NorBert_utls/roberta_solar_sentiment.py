@@ -11,9 +11,10 @@ import random
 import datetime
 import numpy as np
 import pandas as pd
+import seaborn as sn 
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, confusion_matrix 
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
 from transformers import RobertaConfig, RobertaForSequenceClassification, AdamW, get_cosine_schedule_with_warmup
@@ -63,7 +64,8 @@ else:
 
 
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
-    infile = 'annotaion_4700_01label_comb_posneutral_0neg_1pos'
+    #infile = 'annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl'
+    infile = 'annotaion_5000_01label_noneutral_wli'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -432,18 +434,30 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     print("  F1: {0:.3f}".format(f1))
     print('    DONE.')
 
-    epochs = np.arange(epochs)
+    epochs_list = np.arange(epochs)
     if plot:
-        plt.plot(epochs, validation_accuracy, label = 'val acc')
-        plt.plot(epochs, training_loss, label = 'training loss')
-        plt.plot(epochs, validation_loss, label = 'val loss')
-        plt.xticks(epochs)
+        plt.plot(epochs_list, validation_accuracy, label = 'val acc')
+        plt.plot(epochs_list, training_loss, label = 'training loss')
+        plt.plot(epochs_list, validation_loss, label = 'val loss')
+        plt.xticks(epochs_list)
         plt.xlabel('epochs')
         plt.legend()
         plt.title(f'batch length {batch_size}, final f1 {f1:.2f}, test accuracy {avg_val_accuracy:.2f}')
         plt.savefig(infile+'.png')
         plt.show()
-    
+        conf_matrix = True
+        
+        if conf_matrix:
+            confusion = confusion_matrix(true_labels, predictions)
+            plt.figure(figsize = (8,8))
+            df_cm = pd.DataFrame(confusion, index = [i for i in ('False', 'True')],
+                  columns = [i for i in ('False', 'True')])
+            sn.heatmap(df_cm, annot = True, fmt = 'g')
+            plt.title(f'test data; epochs {epochs}, f1 {f1:.2f}, bach size {batch_size} posneutral')
+            plt.savefig(f'confusion_matrix_epochs{epochs}_f1{f1:.2f}.png')
+
+
+
 
         # ========================================
         #               Prediction
@@ -564,6 +578,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             
             df.to_csv(predict_dataset+out_filename)
             print('    DONE.')
+
         
     return epochs, validation_accuracy, training_loss, validation_loss
 
@@ -601,5 +616,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 6, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 11, plot=True, predict = False)
 
