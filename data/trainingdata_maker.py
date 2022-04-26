@@ -7,14 +7,14 @@ change the num_tweets variable to alter the number of tweets to annotate.
 import pandas as pd 
 import numpy as np
 
-#data = pd.read_csv('third_rendition_data/third_rendition_output.csv',
-#                    usecols = ['text'])
-
-data = pd.read_csv('second_rendition_predicted_logitsorted_midbottom300.csv',
+data = pd.read_csv('third_rendition_data/third_rendition_output.csv',
                     usecols = ['text'])
 
-output_file = '300_secondrendition_anotated_worse_logitssorted_midbottom.csv'
-num_tweets = 300
+#data = pd.read_csv('second_rendition_predicted_logitsorted_midbottom300.csv',
+#                    usecols = ['text'])
+
+output_file = '100_thirdrendition_anotated8.csv'
+num_tweets = 100
 
 tweet_indx = np.random.randint(0, len(data), size = num_tweets) 
 trainingdata = data.iloc[tweet_indx, :] 
