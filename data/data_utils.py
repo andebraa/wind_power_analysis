@@ -129,8 +129,9 @@ def weak_performer_extractor():
     print(sortorder)
     sortorder = sortorder[sortorder[:,1].argsort()]
     df = df.iloc[sortorder[:,0]]
-    bottom_300 = df.head(n=300)
-    bottom_300.to_csv('second_rendition_predicted_logitsorted_bottom300.csv')
+    bottom_600 = df.head(n=600)
+    midbottom_300 = bottom_600.head(n=300)
+    midbottom_300.to_csv('second_rendition_predicted_logitsorted_midbottom300.csv')
     print(df)
 
 def unskew():
@@ -148,6 +149,6 @@ if __name__ == '__main__':
     #remove_category()
     #rename_category()
     #skewed_data()
-    #weak_performer_extractor()
+    weak_performer_extractor()
     #append_csv()
-    unskew()
+    #unskew()
