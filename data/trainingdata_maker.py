@@ -10,7 +10,7 @@ import numpy as np
 data = pd.read_csv('third_rendition_data/third_rendition_output.csv',
                     usecols = ['text'])
 
-output_file = '200_thirdrendition_anotated4.csv'
+output_file = '200_thirdrendition_anotated5.csv'
 num_tweets = 200
 
 tweet_indx = np.random.randint(0, len(data), size = num_tweets) 
