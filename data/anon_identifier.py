@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Rectangle
 
-data = pd.read_csv('second_rendition_data/second_rendition_geolocated_noemoji.csv', parse_dates = True)# , usecols = [''])
+data = pd.read_csv('third_rendition_data/third_rendition_output.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
 tweet_occurances = {} #keep track of number of tweets per user
 
@@ -18,7 +18,7 @@ def generate_ID(ID):
     should recursively loop through random numbers until a unique value is found.
     NOTE; don't use with a too large dataset, as it will bottom out at 100000
     """
-    new_ID = np.random.randint(0, 10000)
+    new_ID = np.random.randint(0, 1000000)
     if new_ID not in ID:
         return new_ID
     else:
@@ -33,7 +33,6 @@ for i, elem in enumerate(data['username']):
         tweet_occurances[elem] += 1 #another tweet from user elem
     else:
         new_ID = generate_ID(ID)
-        print(new_ID)
         assert not np.isnan(new_ID)
         tweet_occurances[elem] = 1 #first tweet by user elem 
     ID[new_ID] = elem
@@ -68,9 +67,9 @@ plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2007 -2021')
 
-plt.savefig('second_rendition_data/second_rendition_noemoji_geolocated.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('third_rendition_data/third_rendition_output_user_tweetfreq.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-outfile_ID = open('second_rendition_data/second_rendition_geolocated_noemoji_translator.json', 'w')
-json.dump(ID, outfile_ID) #writing the translation dictionary to file
+#outfile_ID = open('second_rendition_data/second_rendition_geolocated_noemoji_translator.json', 'w')
+#json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
-data.to_csv('second_rendition_data/second_rendition_geolocated_noemoji_anonymous.csv', index=False)
+#data.to_csv('third_rendition_data/third_rendition_geolocated_output_anonymous.csv', index=False)
