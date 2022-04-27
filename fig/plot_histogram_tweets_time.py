@@ -18,7 +18,7 @@ tiems= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
 tiems_sorted = tiems.sort_values()
 
 
-
+print(tiems_sorted)
 week_nums = pd.date_range(tiems_sorted.iloc[0], tiems_sorted.iloc[-1], freq='W-MON')
 year_nums = np.arange(tiems_sorted.iloc[0].year, tiems_sorted.iloc[-1].year +1)
 print(week_nums)
@@ -92,7 +92,7 @@ ax.plot(week_nums, flat[:len(week_nums)])
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
 
-plt.savefig('tweet_per_week_third_rendition.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('tweet_per_week_third_rendition_output.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
 
 
