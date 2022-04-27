@@ -92,7 +92,7 @@ ax.plot(week_nums, flat[:len(week_nums)])
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
 
-plt.savefig('tweet_per_week_third_rendition_output.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('tweet_per_week_third_rendition_output.jpg', bbox_inches = 'tight', pad_inches = 0.1, dpi = 200) #0.1 is default when bbox is tight
 
 
 
