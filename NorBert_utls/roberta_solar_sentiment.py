@@ -65,7 +65,7 @@ else:
 
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
     #infile = 'annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl'
-    infile = 'annotaion_5000_01label_noneutral_wli'
+    infile = 'annotaion_5800_01label_comb_posneutral_0neg_1pos_600iwl'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -443,7 +443,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         plt.xlabel('epochs')
         plt.legend()
         plt.title(f'batch length {batch_size}, final f1 {f1:.2f}, test accuracy {avg_val_accuracy:.2f}')
-        plt.savefig(infile+'.png')
+        plt.savefig(infile+f'batch{batch_size}_epochs{epochs}'+'.png')
         plt.show()
         conf_matrix = True
         
@@ -454,7 +454,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                   columns = [i for i in ('False', 'True')])
             sn.heatmap(df_cm, annot = True, fmt = 'g')
             plt.title(f'test data; epochs {epochs}, f1 {f1:.2f}, bach size {batch_size} posneutral')
-            plt.savefig(f'confusion_matrix_epochs{epochs}_f1{f1:.2f}.png')
+            plt.savefig(infile +f'confusion_matrix_epochs{epochs}_f1{f1:.2f}.png')
 
 
 
@@ -616,5 +616,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 11, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 5, plot=True, predict = False)
 

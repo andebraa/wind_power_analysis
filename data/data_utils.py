@@ -3,27 +3,31 @@ import pandas as pd
 
 def append_csv():
     #note; wli: weak logits included
-    df1 = pd.read_csv('annotation_4700_012label.csv', usecols = ['text', 'label'], index_col = False)
-    df2 = pd.read_csv('second_rendition_predicted_logitsorted_bottom300.csv', usecols = ['text', 'label'], index_col = False)
+    df1 = pd.read_csv('annotation_5000_012label_wli.csv', usecols = ['text', 'label'], index_col = False)
+    df2 = pd.read_csv('300_secondrendition_anotated_worse_logitssorted_midbottom.csv', usecols = ['text', 'label'], index_col = False)
+    df3 = pd.read_csv('200_thirdrendition_anotated4.csv', usecols = ['text', 'label'], index_col = False)
+    df4 = pd.read_csv('200_thirdrendition_anotated5.csv', usecols = ['text', 'label'], index_col = False)
+    df5 = pd.read_csv('100_thirdrendition_anotated8.csv', usecols = ['text', 'label'], index_col = False)
 
-    df_out = pd.concat([df1, df2])
+    df_out = pd.concat([df1, df2, df3, df4, df5])
     df_out = df_out.reset_index()
-    df_out.to_csv('annotation_5000_012label_wli.csv')
+    df_out.to_csv('annotation_5800_012label_600wli.csv')
 
 def remove_category():
-    data = pd.read_csv('annotation_5000_012label_wli.csv')
+    data = pd.read_csv('annotation_5800_012label_600wli.csv')
     data_out = data.loc[data['label'] != 1] 
     data_out.loc[data_out['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
     data_out.to_csv('annotaion_5000_01label_noneutral_wli.csv', index = False)
 
 def rename_category():
-    data = pd.read_csv('annotation_5000_012label_wli.csv')
-    #data.loc[data['label'] == 1, 'label'] = 2 #neutral now positive
-    #data.loc[data['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
-    
-    data.loc[data['label'] == 1, 'label'] = 0 # set label 1 to 0
+    data = pd.read_csv('annotation_5800_012label_600wli.csv')
+    data.loc[data['label'] == 1, 'label'] = 2 #neutral now positive
     data.loc[data['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
-    data.to_csv('annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl.csv', index = False)
+    data.to_csv('annotaion_5800_01label_comb_posneutral_0neg_1pos_600iwl.csv', index = False)
+    
+    #data.loc[data['label'] == 1, 'label'] = 0 # set label 1 to 0
+    #data.loc[data['label'] == 2, 'label'] = 1 # set label 2 to 1, so we have 0,1
+    #data.to_csv('annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl.csv', index = False)
     
 
 def rename_column():
@@ -147,8 +151,8 @@ def unskew():
 
 if __name__ == '__main__':
     #remove_category()
-    #rename_category()
+    rename_category()
     #skewed_data()
-    weak_performer_extractor()
+    #weak_performer_extractor()
     #append_csv()
     #unskew()
