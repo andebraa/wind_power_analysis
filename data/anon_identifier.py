@@ -67,7 +67,7 @@ plt.ylabel('number of users')
 plt.xlabel('number of tweets')
 plt.title('Frequency of tweets by users. 2007 -2021')
 
-plt.savefig('third_rendition_data/third_rendition_output_user_tweetfreq.jpg', bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+plt.savefig('third_rendition_data/third_rendition_output_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
 #outfile_ID = open('second_rendition_data/second_rendition_geolocated_noemoji_translator.json', 'w')
 #json.dump(ID, outfile_ID) #writing the translation dictionary to file
