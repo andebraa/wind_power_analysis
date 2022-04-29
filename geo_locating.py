@@ -103,15 +103,16 @@ def geolocate(user_input):
 
         else:
             
-            print('lost case: ', elem)
-            print('user_input: ', user_input)
+            #print('lost case: ', elem)
+            #print('user_input: ', user_input)
             return False, False, False, False
 
 data = pd.read_csv('data/third_rendition_data/third_rendition_output.csv',
                     usecols = ['username', 'text', 'loc', 'created_at', 'like_count', 'quote_count']
                     )
 
-
+print(len(data))
+breakpoint()
 #we wish to remove the known larges occurences of locations, i.e. oslo, bergen etc
 data = data[data['loc'] != 'Jorden']
 data = data[data['loc'] != 'New York, NY'] #don't want new yark 
@@ -164,13 +165,13 @@ data['longitude'] = longitude
 print(data.head())
 print('here \n')
 print(data.tail())
-data.to_csv('third_rendition_allgeo.csv')
+#data.to_csv('third_rendition_allgeo.csv')
 data = data.drop(data.index[data['loc'] == 'drop'])
 data = data.drop(data.index[data['latitude'] == 0.0])
 data = data.drop(data.index[data['longitude'] == 0.0])
 
 print('length after: ', len(data)) 
-data.to_csv('third_rendition_geolocated.csv')
+#data.to_csv('third_rendition_geolocated.csv')
 
 
 

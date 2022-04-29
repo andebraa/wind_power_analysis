@@ -30,8 +30,8 @@ no_tweetinfo = 0
 no_geodata = 0
 lost_tweets = 0
 tot_tweets = 0
-with open('thrid_rendition_output.csv', 'w+', encoding='UTF8', newline='') as file_2:
-    print('open')
+with open('thrid_rendition_test_output.csv', 'w+', encoding='UTF8', newline='') as file_2:
+    #print('open')
     writer = csv.writer(file_2)
     writer.writerow(header)
     times = []
@@ -45,7 +45,7 @@ with open('thrid_rendition_output.csv', 'w+', encoding='UTF8', newline='') as fi
 
         try:
             tweet_info.extend((element['user']['username'], element['text'], element['place']['name'], element['created_at'], element['public_metrics']['like_count'], element['public_metrics']['quote_count']))
-            print(tweet_info)
+            #print(tweet_info)
             writer.writerow(tweet_info)
             success = True
             tot_tweets += 1 
