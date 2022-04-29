@@ -43,7 +43,7 @@ else:
     print('No GPU available, using the CPU instead.')
     device = torch.device("cpu")
 
-infile = 'annotation_5800_012label_600wli'
+infile = 'annotation_1845_5800unskewed_wli'
 df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                  sep=',', usecols=['text', 'label'], index_col=None)
 rt_mask = df['text'].str.match(r'RT.*')
@@ -76,7 +76,7 @@ for i in range(0,len(sentences)):
 
 batch_size = 16
 max_length = 300
-epochs = 4
+epochs = 10
 
 # Load the BERT tokenizer.
 tokenizer = AutoTokenizer.from_pretrained('ltgoslo/norbert2', do_lower_case=False)

@@ -69,6 +69,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
+    fig_dir = '../fig/'
     #----------------------------------------------------------------------------------------
     print(df.iloc[1:])
     print(df.skew().sort_values(ascending=False))
@@ -443,7 +444,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         plt.xlabel('epochs')
         plt.legend()
         plt.title(f'batch length {batch_size}, final f1 {f1:.2f}, test accuracy {avg_val_accuracy:.2f}')
-        plt.savefig(infile+f'batch{batch_size}_epochs{epochs}'+'.png')
+        plt.savefig(fig_dir + infile+f'batch{batch_size}_epochs{epochs}'+'.png')
         plt.show()
         conf_matrix = True
         
@@ -454,7 +455,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                   columns = [i for i in ('False', 'True')])
             sn.heatmap(df_cm, annot = True, fmt = 'g')
             plt.title(f'test data; epochs {epochs}, f1 {f1:.2f}, bach size {batch_size} posneutral')
-            plt.savefig(infile +f'confusion_matrix_epochs{epochs}_f1{f1:.2f}.png')
+            plt.savefig(fig_dir + infile +f'confusion_matrix_epochs{epochs}_f1{f1:.2f}.png')
 
 
 

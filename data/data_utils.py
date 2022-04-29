@@ -1,5 +1,11 @@
-import numpy as np
 import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+import nltk 
+import string
+import re
 
 def append_csv():
     #note; wli: weak logits included
@@ -139,20 +145,43 @@ def weak_performer_extractor():
     print(df)
 
 def unskew():
-    df = pd.read_csv('annotation_5000_012label_wli.csv')
+    df = pd.read_csv('annotation_5800_012label_600wli.csv')
+    print('len df', len(df))
     #unfulfilled_mask = data['text'].str.match(r'RT @(?:\w{1,15})\b(?::){0,1} (?:(?:.|\n)+)(?:\.\.\.|…)')
     rt_mask = df['text'].str.match(r'RT.*')
     df = df[~rt_mask]
-    print(len(df[df['label'] == 0].index))
-    print(len(df[df['label'] == 1].index))
-    print(len(df[df['label'] == 2].index))
-    print(df.skew())
-    pass
+    df.to_csv('annotation_5800_012label_600wli_noRT.csv')
+    print('len df noRT', len(df))
+    
+    zero = len(df[df['label'] == 0].index)
+    one = len(df[df['label'] == 1].index)
+    two = len(df[df['label'] == 2].index)
+   
+    limit = np.min(np.array((zero, one, two))) 
+    print(limit)
+    
+    df1 = df[df['label'] ==0][:limit]
+    df2 = df[df['label']==1][:limit]
+    df3 = df[df['label']==2][:limit]
+    
+    unskewed = pd.concat([df1,df2,df3])
+
+    unskewed = unskewed.sample(frac=1).reset_index(drop=True)
+    
+    unskewed.to_csv('annotation_1845_5800unskewed_wli.csv')
+
+
+def data_clean():
+    #https://www.kaggle.com/code/ragnisah/text-data-cleaning-tweets-analysis/notebook
+    df = pd.read_csv()
+    sns.countplot(x='labels', data = df)
+    plt.show()
 
 if __name__ == '__main__':
     #remove_category()
-    rename_category()
+    #rename_category()
     #skewed_data()
     #weak_performer_extractor()
     #append_csv()
     #unskew()
+    data_clean()
