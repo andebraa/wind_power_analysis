@@ -14,6 +14,7 @@ import pandas as pd
 import seaborn as sn 
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 from sklearn.metrics import f1_score, confusion_matrix 
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
@@ -37,14 +38,15 @@ def preprocess(sentences):
     remove usernames, urls and ": " from retweets
     '''
     for i in range(0,len(sentences)):
-      sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
-      sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
-      sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
-      #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
-      #for j in rm_list:
-      #  sentences[i] = sentences[i].replace(j,' ')
-      sentences[i] = ' '.join(sentences[i].split()) #insert space
-      if sentences[i][0] == ':':
+
+    sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
+    sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
+    sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
+    #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
+    #for j in rm_list:
+    #  sentences[i] = sentences[i].replace(j,' ')
+    sentences[i] = ' '.join(sentences[i].split()) #insert space
+    if sentences[i][0] == ':':
         if sentences[i][1] == ' ':
             sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
         else:
@@ -85,6 +87,42 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
 
     sentences = preprocess(sentences) 
 
+    wordcloud = True
+    if wordcloud:
+        print(type(sentences))
+        print(sentences)
+        truemask = labels==1
+        falsemask = labels==0
+
+        truetweets = sentences[truemask]
+        falsetweets = sentences[falsemask]
+        print(truetweets)
+        fig, ax = plt.subplots(3,1, figsize = (30,30))
+
+        tweet_pos = ' '.join(elem for elem in truetweets)
+        tweet_neg = ' '.join(elem for elem in falsetweets)
+        tweet_all = ' '.join(elem for elem in sentences)
+
+    
+        wordcloud_all = WordCloud(max_font_size = 50, max_words = 100, background_color = 'white').generate(tweet_all)
+        wordcloud_neg = WordCloud(max_font_size = 50, max_words = 100, background_color = 'white').generate(tweet_neg)
+        wordcloud_pos = WordCloud(max_font_size = 50, max_words = 100, background_color = 'white').generate(tweet_pos)
+
+        ax[0].imshow(wordcloud_all, interpolation = 'bilinear')
+        ax[0].set_title('All tweets')
+        ax[0].axis('off')
+
+        ax[1].imshow(wordcloud_pos, interpolation = 'bilinear')
+        ax[1].set_title('positive tweets')
+        ax[1].axis('off')
+
+        ax[2].imshow(wordcloud_neg, interpolation = 'bilinear')
+        ax[2].set_title('negative tweets')
+        ax[2].axis('off')
+
+        plt.show()
+
+    stop
     max_length = 300
 
     # Load the BERT tokenizer.

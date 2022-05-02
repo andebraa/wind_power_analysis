@@ -1,11 +1,12 @@
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.feature_extraction.text import CountVectorizer
 import nltk 
 import string
 import re
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+from nltk.corpus import stopwords
 
 def append_csv():
     #note; wli: weak logits included
@@ -173,9 +174,28 @@ def unskew():
 
 def data_clean():
     #https://www.kaggle.com/code/ragnisah/text-data-cleaning-tweets-analysis/notebook
-    df = pd.read_csv()
-    sns.countplot(x='labels', data = df)
-    plt.show()
+    df = pd.read_csv('third_rendition_data/third_rendition_geolocated_output_anonymous.csv')
+    df = df.dropna()
+
+    def remove_punct(text):
+        text  = "".join([char for char in text if char not in string.punctuation])
+        text = re.sub('[0-9]+', '', text)
+        return text
+    df['text_punct'] = df['text'].apply(lambda x: remove_punct(x))
+    print(df.head(10))
+
+    stop_words = set(stopwords.words('norwegian')) 
+    print(stop_words)
+
+    def remove_stopwords(text):
+        text = [word for word in text if word not in stopword]
+        return text
+    
+    df['Tweet_nonstop'] = df['Tweet_tokenized'].apply(lambda x: remove_stopwords(x))
+    df.head(10)
+    
+
+
 
 if __name__ == '__main__':
     #remove_category()
