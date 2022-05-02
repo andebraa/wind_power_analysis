@@ -38,19 +38,19 @@ def preprocess(sentences):
     remove usernames, urls and ": " from retweets
     '''
     for i in range(0,len(sentences)):
-
-    sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
-    sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
-    sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
-    #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
-    #for j in rm_list:
-    #  sentences[i] = sentences[i].replace(j,' ')
-    sentences[i] = ' '.join(sentences[i].split()) #insert space
-    if sentences[i][0] == ':':
-        if sentences[i][1] == ' ':
-            sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
-        else:
-          sentences[i] = sentences[i][1:]
+        #sentences[i] = re.sub('RT ', ' ', sentences[i]) # the RT in retweets
+        sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
+        sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
+        sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
+        #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
+        #for j in rm_list:
+        #  sentences[i] = sentences[i].replace(j,' ')
+        sentences[i] = ' '.join(sentences[i].split()) #insert space
+        if sentences[i][0] == ':':
+            if sentences[i][1] == ' ':
+                sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
+            else:
+              sentences[i] = sentences[i][1:]
     return sentences
 
 if torch.cuda.is_available():
