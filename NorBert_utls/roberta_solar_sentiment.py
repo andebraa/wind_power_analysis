@@ -5,6 +5,7 @@ https://github.com/SerenaYKim/Solar-Sentiment-BERT
 '''
 import os
 import re
+import nltk
 import time
 import torch
 import random
@@ -35,22 +36,34 @@ def format_time(elapsed):
     return str(datetime.timedelta(seconds=elapsed_rounded))
 def preprocess(sentences):
     '''
-    remove usernames, urls and ": " from retweets
+    remove usernames, stopword, urls and ": " from retweets
     '''
+    stopword = nltk.corpus.stopwords.words('norwegian')
+    searchquery = ['havvind','vindkraft','vindmølle','vindmøller','vindmøllene','vindturbiner','vindenergi']
+    for word in searchquery:
+        stopword.append(word)
     for i in range(0,len(sentences)):
-        #sentences[i] = re.sub('RT ', ' ', sentences[i]) # the RT in retweets
+        sentences[i] = re.sub('RT ', ' ', sentences[i]) # the RT in retweets
         sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
+        sentences[i] = re.sub('https:\/\/t.co\/(?:[a-zA-Z])+(\s+)',' ',sentences[i]) #https://t.co/w+ 
         sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
         sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
-        #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
-        #for j in rm_list:
-        #  sentences[i] = sentences[i].replace(j,' ')
         sentences[i] = ' '.join(sentences[i].split()) #insert space
+        if len(sentences[i]) <5:
+            sentences[i] = 'drop'
+            continue #skip to next iteration in for loop
         if sentences[i][0] == ':':
             if sentences[i][1] == ' ':
                 sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
             else:
               sentences[i] = sentences[i][1:]
+        sentences[i] = sentences[i].split()
+        sentences[i] = [s.strip() for s in sentences[i]]
+        for j, word in enumerate(sentences[i]):
+            if word in stopword:
+                sentences[i].remove(word)
+
+        sentences[i] = ' '.join(sentences[i])
     return sentences
 
 if torch.cuda.is_available():
@@ -63,14 +76,13 @@ else:
     device = torch.device("cpu")
 
 
-
-
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
     #infile = 'annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl'
-    infile = 'annotaion_5800_01label_comb_posneutral_0neg_1pos_600iwl'
+    infile = 'annotaion_5800_01label_comb_negneutral_0neg_1pos_600iwl'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
+    #df['text'] = df['text'].apply(lambda x: remove_stopwords(x, stopword))
     fig_dir = '../fig/'
     #----------------------------------------------------------------------------------------
     print(df.iloc[1:])
@@ -79,24 +91,25 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     train = df.sample(frac = 0.9, random_state=195)
     test = df.drop(train.index)
 
-    # rm_list = ',:.";|()$1234567890-@^#!?$=%~&+*/\[]{}'
-    rm_list = ''
     sentences = train.text.values
     labels = train.label.values
+    # rm_list = ',:.";|()$1234567890-@^#!?$=%~&+*/\[]{}'
+    rm_list = ''
     
 
     sentences = preprocess(sentences) 
 
-    wordcloud = True
+    drop_mask = np.ma.masked_array(sentences, sentences == 'drop')
+    sentences = sentences[~drop_mask.mask]
+    labels = labels[~drop_mask.mask]
+
+    wordcloud = False
     if wordcloud:
-        print(type(sentences))
-        print(sentences)
         truemask = labels==1
         falsemask = labels==0
 
         truetweets = sentences[truemask]
         falsetweets = sentences[falsemask]
-        print(truetweets)
         fig, ax = plt.subplots(3,1, figsize = (30,30))
 
         tweet_pos = ' '.join(elem for elem in truetweets)
@@ -122,7 +135,6 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
 
         plt.show()
 
-    stop
     max_length = 300
 
     # Load the BERT tokenizer.
@@ -655,5 +667,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 5, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 13, plot=True, predict = False)
 
