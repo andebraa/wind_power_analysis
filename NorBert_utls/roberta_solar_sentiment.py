@@ -78,7 +78,7 @@ else:
 
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
     #infile = 'annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl'
-    infile = 'annotaion_5800_01label_comb_negneutral_0neg_1pos_600iwl'
+    infile = 'annotaion_5800_01label_comb_posneutral_0neg_1pos_600iwl'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
@@ -223,7 +223,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     # I believe the 'W' stands for 'Weight Decay fix"
     optimizer = AdamW(model.parameters(),
                       lr = lr, # args.learning_rate - default is 5e-5, our notebook had 2e-5
-                      eps = 1e-8 # args.adam_epsilon  - default is 1e-8.
+                      eps = 1e-9 # args.adam_epsilon  - default is 1e-8.
                     )
 
     # Total number of training steps is [number of batches] x [number of epochs].
@@ -667,5 +667,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 13, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 10, plot=True, predict = False)
 
