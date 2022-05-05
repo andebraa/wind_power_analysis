@@ -413,7 +413,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         encoded_dict = tokenizer.encode_plus(
                             sent,                      # Sentence to encode.
                             add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                            max_length = 128,           # Pad & truncate all sentences.
+                            max_length = max_length,           # Pad & truncate all sentences.
                             truncation = True,
                             pad_to_max_length = True,
                             return_attention_mask = True,   # Construct attn. masks.
@@ -514,11 +514,11 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         #               Prediction
         # ========================================
 
-    predict_dataset = '/home/andebraa/wind_power_analysis/data/second_rendition_data/'
+    predict_dataset = '/home/andebraa/wind_power_analysis/data/third_rendition_data/'
     #second_rendition_geolocated_anonymous.csv' 
     if predict:
         from itertools import chain
-        filename = 'second_rendition_geolocated_noemoji_anonymous.csv' 
+        filename = 'third_rendition_geolocated_anonymous.csv' 
         print("predicting file :", filename, '\n')
         with open(predict_dataset+filename) as f: #NOTE:wtf are phrase ids
             df = pd.read_csv(predict_dataset+filename, sep=',', usecols=['username',
@@ -544,7 +544,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                 encoded_dict = tokenizer.encode_plus(
                                 sent,                      # Sentence to encode.
                                 add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                                max_length = 128,           # Pad & truncate all sentences.
+                                max_length = max_length,           # Pad & truncate all sentences.
                                 truncation = True,
                                 pad_to_max_length = True,
                                 return_attention_mask = True,   # Construct attn. masks.
@@ -621,7 +621,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             #true_labels = list(chain.from_iterable(true_labels))
             df1 = pd.DataFrame(list(zip(sentences, predictions, logits0, logits1)), 
                                columns=['text', 'label', 'logits0', 'logits1'])
-            out_filename = 'second_rendition_geolocated_noemoji_anonymous_negneutral_predict.csv'
+            out_filename = 'third_rendition_geolocated_anonymous_negneutral_predict.csv'
             
             df['label'] = df1.label.copy() 
             df['logits0'] = df1.logits0.copy() 
@@ -667,5 +667,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 10, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 8, plot=True, predict = True)
 
