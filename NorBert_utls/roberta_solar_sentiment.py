@@ -5,6 +5,7 @@ https://github.com/SerenaYKim/Solar-Sentiment-BERT
 '''
 import os
 import re
+import nltk
 import time
 import torch
 import random
@@ -14,6 +15,7 @@ import pandas as pd
 import seaborn as sn 
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 from sklearn.metrics import f1_score, confusion_matrix 
 from transformers import BertForSequenceClassification, AutoTokenizer
 from torch.utils.data import TensorDataset, random_split, DataLoader, RandomSampler, SequentialSampler
@@ -34,21 +36,34 @@ def format_time(elapsed):
     return str(datetime.timedelta(seconds=elapsed_rounded))
 def preprocess(sentences):
     '''
-    remove usernames, urls and ": " from retweets
+    remove usernames, stopword, urls and ": " from retweets
     '''
+    stopword = nltk.corpus.stopwords.words('norwegian')
+    searchquery = ['havvind','vindkraft','vindmølle','vindmøller','vindmøllene','vindturbiner','vindenergi']
+    for word in searchquery:
+        stopword.append(word)
     for i in range(0,len(sentences)):
-      sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
-      sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
-      sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
-      #sentences[i] = _removeNonAscii(sentences[i]) #also removes norwegian 
-      #for j in rm_list:
-      #  sentences[i] = sentences[i].replace(j,' ')
-      sentences[i] = ' '.join(sentences[i].split()) #insert space
-      if sentences[i][0] == ':':
-        if sentences[i][1] == ' ':
-            sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
-        else:
-          sentences[i] = sentences[i][1:]
+        sentences[i] = re.sub('RT ', ' ', sentences[i]) # the RT in retweets
+        sentences[i] = re.sub('@[^\s]+',' ',sentences[i]) #all sernames 
+        sentences[i] = re.sub('https:\/\/t.co\/(?:[a-zA-Z])+(\s+)',' ',sentences[i]) #https://t.co/w+ 
+        sentences[i] = re.sub('&[^\s]+',' ',sentences[i]) #&[*all non whitespace*] ? 
+        sentences[i] = re.sub('https?://\S+',' ',sentences[i]) #urls
+        sentences[i] = ' '.join(sentences[i].split()) #insert space
+        if len(sentences[i]) <5:
+            sentences[i] = 'drop'
+            continue #skip to next iteration in for loop
+        if sentences[i][0] == ':':
+            if sentences[i][1] == ' ':
+                sentences[i] = sentences[i][2:] # is sentence starts with ': ', remove it (retweets?)
+            else:
+              sentences[i] = sentences[i][1:]
+        sentences[i] = sentences[i].split()
+        sentences[i] = [s.strip() for s in sentences[i]]
+        for j, word in enumerate(sentences[i]):
+            if word in stopword:
+                sentences[i].remove(word)
+
+        sentences[i] = ' '.join(sentences[i])
     return sentences
 
 if torch.cuda.is_available():
@@ -61,14 +76,13 @@ else:
     device = torch.device("cpu")
 
 
-
-
 def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, predict = False):
     #infile = 'annotaion_5000_01label_comb_negneutral_0neg_1pos_iwl'
     infile = 'annotaion_5800_01label_comb_posneutral_0neg_1pos_600iwl'
     df = pd.read_csv('~/wind_power_analysis/data/'+infile+'.csv', 
                      sep=',', usecols=['text', 'label'], index_col=None)
 
+    #df['text'] = df['text'].apply(lambda x: remove_stopwords(x, stopword))
     fig_dir = '../fig/'
     #----------------------------------------------------------------------------------------
     print(df.iloc[1:])
@@ -77,13 +91,49 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     train = df.sample(frac = 0.9, random_state=195)
     test = df.drop(train.index)
 
-    # rm_list = ',:.";|()$1234567890-@^#!?$=%~&+*/\[]{}'
-    rm_list = ''
     sentences = train.text.values
     labels = train.label.values
+    # rm_list = ',:.";|()$1234567890-@^#!?$=%~&+*/\[]{}'
+    rm_list = ''
     
 
     sentences = preprocess(sentences) 
+
+    drop_mask = np.ma.masked_array(sentences, sentences == 'drop')
+    sentences = sentences[~drop_mask.mask]
+    labels = labels[~drop_mask.mask]
+
+    wordcloud = False
+    if wordcloud:
+        truemask = labels==1
+        falsemask = labels==0
+
+        truetweets = sentences[truemask]
+        falsetweets = sentences[falsemask]
+        fig, ax = plt.subplots(3,1, figsize = (30,30))
+
+        tweet_pos = ' '.join(elem for elem in truetweets)
+        tweet_neg = ' '.join(elem for elem in falsetweets)
+        tweet_all = ' '.join(elem for elem in sentences)
+
+    
+        wordcloud_all = WordCloud(max_font_size = 50, max_words = 100, background_color = 'white').generate(tweet_all)
+        wordcloud_neg = WordCloud(max_font_size = 50, max_words = 100, background_color = 'white').generate(tweet_neg)
+        wordcloud_pos = WordCloud(max_font_size = 50, max_words = 100, background_color = 'white').generate(tweet_pos)
+
+        ax[0].imshow(wordcloud_all, interpolation = 'bilinear')
+        ax[0].set_title('All tweets')
+        ax[0].axis('off')
+
+        ax[1].imshow(wordcloud_pos, interpolation = 'bilinear')
+        ax[1].set_title('positive tweets')
+        ax[1].axis('off')
+
+        ax[2].imshow(wordcloud_neg, interpolation = 'bilinear')
+        ax[2].set_title('negative tweets')
+        ax[2].axis('off')
+
+        plt.show()
 
     max_length = 300
 
@@ -173,7 +223,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
     # I believe the 'W' stands for 'Weight Decay fix"
     optimizer = AdamW(model.parameters(),
                       lr = lr, # args.learning_rate - default is 5e-5, our notebook had 2e-5
-                      eps = 1e-8 # args.adam_epsilon  - default is 1e-8.
+                      eps = 1e-9 # args.adam_epsilon  - default is 1e-8.
                     )
 
     # Total number of training steps is [number of batches] x [number of epochs].
@@ -363,7 +413,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         encoded_dict = tokenizer.encode_plus(
                             sent,                      # Sentence to encode.
                             add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                            max_length = 128,           # Pad & truncate all sentences.
+                            max_length = max_length,           # Pad & truncate all sentences.
                             truncation = True,
                             pad_to_max_length = True,
                             return_attention_mask = True,   # Construct attn. masks.
@@ -464,11 +514,11 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
         #               Prediction
         # ========================================
 
-    predict_dataset = '/home/andebraa/wind_power_analysis/data/second_rendition_data/'
+    predict_dataset = '/home/andebraa/wind_power_analysis/data/third_rendition_data/'
     #second_rendition_geolocated_anonymous.csv' 
     if predict:
         from itertools import chain
-        filename = 'second_rendition_geolocated_noemoji_anonymous.csv' 
+        filename = 'third_rendition_geolocated_anonymous.csv' 
         print("predicting file :", filename, '\n')
         with open(predict_dataset+filename) as f: #NOTE:wtf are phrase ids
             df = pd.read_csv(predict_dataset+filename, sep=',', usecols=['username',
@@ -494,7 +544,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
                 encoded_dict = tokenizer.encode_plus(
                                 sent,                      # Sentence to encode.
                                 add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                                max_length = 128,           # Pad & truncate all sentences.
+                                max_length = max_length,           # Pad & truncate all sentences.
                                 truncation = True,
                                 pad_to_max_length = True,
                                 return_attention_mask = True,   # Construct attn. masks.
@@ -571,7 +621,7 @@ def roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 10, plot = False, pre
             #true_labels = list(chain.from_iterable(true_labels))
             df1 = pd.DataFrame(list(zip(sentences, predictions, logits0, logits1)), 
                                columns=['text', 'label', 'logits0', 'logits1'])
-            out_filename = 'second_rendition_geolocated_noemoji_anonymous_negneutral_predict.csv'
+            out_filename = 'third_rendition_geolocated_anonymous_negneutral_predict.csv'
             
             df['label'] = df1.label.copy() 
             df['logits0'] = df1.logits0.copy() 
@@ -617,5 +667,5 @@ def gridsearch():
 if __name__ == '__main__':
         
 
-    roberta_sentiment(lr = 1e-5, batch_size = 16, epochs = 5, plot=True, predict = False)
+    roberta_sentiment(lr = 1e-5, batch_size = 32, epochs = 8, plot=True, predict = True)
 
