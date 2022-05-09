@@ -11,76 +11,93 @@ import numpy as np
 
 test_hist = pd.read_csv('../data/third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv', parse_dates=True)
 
-#test_hist = test_hist[test_hist['labels'] == 1] 
-#reading, parsing and sorting time elements from twitter data
-tiems = test_hist['created_at']
-test_hist['created_at']= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ") - pd.to_timedelta(7, unit='d')
+pos_tweets = test_hist[test_hist['label'] == 1]
+neg_tweets = test_hist[test_hist['label'] == 0] 
 
-test_hist = test_hist.groupby(['created_at', pd.Grouper(key='created_at', freq='W-MON')])
-#test_hist = test_hist.set_index('created_at')
-#test_hist.sort_values(by='created_at')
-print(test_hist.index.date)
+tiems0 = neg_tweets['created_at']
+tiems0= pd.to_datetime(tiems0, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
+tiems_sorted0 = tiems0.sort_values()
 
+tiems1 = pos_tweets['created_at']
+tiems1= pd.to_datetime(tiems1, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
+tiems_sorted1 = tiems1.sort_values()
 
-print(test_hist.index)
+week_nums1 = pd.date_range(tiems_sorted1.iloc[0], tiems_sorted1.iloc[-1], freq='W-MON')
+year_nums1 = np.arange(tiems_sorted1.iloc[0].year, tiems_sorted1.iloc[-1].year +1)
+        
+week_nums0 = pd.date_range(tiems_sorted0.iloc[0], tiems_sorted0.iloc[-1], freq='W-MON')
+year_nums0 = np.arange(tiems_sorted0.iloc[0].year, tiems_sorted0.iloc[-1].year +1)
 
-count = test_hist.groupby([test_hist.index.date]).count().plot()
-plt.show()
-print(count)
-stop
-year_indx_dict = {} 
-for i, elem in enumerate(year_nums): #make a dictionary containing year and corresponding index 
-    year_indx_dict[elem] = i
+year_indx_dict1 = {} 
+year_indx_dict0 = {} 
+for i, elem in enumerate(year_nums1): #make a dictionary containing year and corresponding index 
+    year_indx_dict1[elem] = i
 
-start_year = tiems_sorted.iloc[0].year
-end_year = tiems_sorted.iloc[-1].year
+for i, elem in enumerate(year_nums0): #make a dictionary containing year and corresponding index 
+    year_indx_dict0[elem] = i
+
+start_year0 = tiems_sorted0.iloc[0].year
+end_year0 = tiems_sorted0.iloc[-1].year
+
+start_year1 = tiems_sorted1.iloc[0].year
+end_year1 = tiems_sorted1.iloc[-1].year
+
 long_years = [2009, 2015, 2020]
 
-occurences = np.zeros((len(year_indx_dict), 53))
-long_weeks = 0
+occurences0 = np.zeros((len(year_indx_dict0), 53))
+occurences1 = np.zeros((len(year_indx_dict1), 53))
+long_weeks0 = 0
+long_weeks1 = 0
 
-#TODO:  Check week num and year in week_nums array and elem to find matching index. 
-for i, elem in enumerate(tiems_sorted):
+for i, elem in enumerate(tiems_sorted0):
     """
     NOTE: datetime.date(elem.year,29,12).isocalendar()[1]) is to exctract the total number of weeks in a given year. 
     this is because 2020 had 53 weeks and this fucked my code
     """
-    #print(int(elem.week + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) -1))
-    
-    #bool_list = week_nums.isin(np.array([date]).astype('datetime64[ns]'))
-    #print(bool_list)
-    
-    #print(datetime.date(elem.year,12,29).isocalendar()[1])
-    #doy = elem.day_of_year
-    #dow = elem.day_of_week
-    #woy = ((10 + doy - dow) //7) -1 #https://en.wikipedia.org/wiki/ISO_week_date#Differences_to_other_calendars
     if elem.week == 53 and elem.year in long_years:
-        occurences[year_indx_dict[elem.year], elem.week -2] += 1 
-        long_weeks += 1
+        occurences0[year_indx_dict0[elem.year], elem.week -2] += 1 
+        long_weeks0 += 1
         pass 
 
         
-    #print(elem.year, elem.week-1)  
-    occurences[year_indx_dict[elem.year], elem.week-1] += 1 
+    occurences0[year_indx_dict0[elem.year], elem.week-1] += 1 
     #occurences[int(woy + (year_indx_dict[elem.year]*datetime.date(elem.year,12,29).isocalendar()[1]) )]  += 1 
             #the number of year times 52 ensures indexing goes beyond 52 for the subsequent years
             # calculating woy is due to ISO calendar not ending the year at first of january
 
-flat = occurences.flatten()
+for i, elem in enumerate(tiems_sorted1):
+    if elem.week == 53 and elem.year in long_years:
+        occurences1[year_indx_dict1[elem.year], elem.week -2] += 1 
+        long_weeks1 += 1
+        pass 
+
+        
+    occurences1[year_indx_dict1[elem.year], elem.week-1] += 1 
+
+
+flat0 = occurences0.flatten()
+flat1 = occurences1.flatten()
 fig, ax = plt.subplots()
-first_tweet_week = tiems_sorted.iloc[0].week -1 #-1 for index
-flat = flat[first_tweet_week:]
+
+first_tweet_week0 = tiems_sorted0.iloc[0].week -1 #-1 for index
+first_tweet_week1 = tiems_sorted1.iloc[0].week -1 #-1 for index
+flat0 = flat0[first_tweet_week0:]
+flat1 = flat1[first_tweet_week1:]
 
 for label in (ax.get_xticklabels() + ax.get_yticklabels()):
     label.set_fontsize(8)
+N = 5
+print(np.shape(flat0))
+flat0 = np.convolve(flat0, np.ones(N)/N, mode = 'valid')
+flat1 = np.convolve(flat1, np.ones(N)/N, mode = 'valid')
+print(np.shape(flat0))
 
-
-ax.plot(week_nums, flat[:len(week_nums)])
+ax.plot(week_nums0, flat0[:len(week_nums0)], label='negative')
+ax.plot(week_nums1, flat1[:len(week_nums1)], label='positive')
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
-
-plt.show()
-#plt.savefig('tweet_per_week_third_rendition_output.png', format='png', bbox_inches = 'tight', pad_inches = 0.1, dpi = 300) #0.1 is default when bbox is tight
+plt.legend()
+plt.savefig('tweet_per_week_third_rendition_geolocated_predict.png', format='png', bbox_inches = 'tight', pad_inches = 0.1, dpi = 300) #0.1 is default when bbox is tight
 
 
 
