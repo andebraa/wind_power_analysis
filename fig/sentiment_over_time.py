@@ -14,8 +14,10 @@ test_hist = pd.read_csv('../data/third_rendition_data/third_rendition_geolocated
 #test_hist = test_hist[test_hist['labels'] == 1] 
 #reading, parsing and sorting time elements from twitter data
 tiems = test_hist['created_at']
-test_hist['created_at']= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ")
-test_hist = test_hist.set_index('created_at')
+test_hist['created_at']= pd.to_datetime(tiems, errors='coerce', format = "%Y-%m-%dT%H:%M:%S.%fZ") - pd.to_timedelta(7, unit='d')
+
+test_hist = test_hist.groupby(['created_at', pd.Grouper(key='created_at', freq='W-MON')])
+#test_hist = test_hist.set_index('created_at')
 #test_hist.sort_values(by='created_at')
 print(test_hist.index.date)
 
