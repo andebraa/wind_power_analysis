@@ -100,9 +100,9 @@ ax.axvline(
     linestyle = "--"
 )
 
-plt.legend(fontsize=14)
-plt.xlabel('Year')
-plt.ylabel('Number of tweets')
+ax.legend(fontsize=14)
+ax.set_xlabel('Year')
+ax.set_ylabel('Number of tweets')
 
 # Read the wind power data from NVE
 df_wp = pd.read_csv(
@@ -126,16 +126,14 @@ df_wp = pd.read_csv(
 )
 df_wp['year'] = df_wp['Produksjon oppstart'].to_numpy().astype('datetime64[Y]')
 time_adjust = pd.Timedelta(pd.to_datetime('10.06.2020', format='%d.%m.%Y') -pd.to_datetime('01.01.2020', format = '%d.%m.%Y'))
-print(time_adjust)
-print(df_wp)
 df_wp['year'] += time_adjust
-print(df_wp)
 df_wp.plot(
         ax=ax2,
-        y = ['installed_capacity_MW'],
-        x = 'year',
+        y = ['installed_capacity_MW'], #, 'average_generation_GWh'],
+        x = 'year'
 )
 ax2.grid(None)
+ax2.set_ylabel('installed windpower capacity [MW]')
 plt.legend()
 plt.show()
 
