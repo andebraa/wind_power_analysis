@@ -64,14 +64,14 @@ df_twitter_monthly_senti = df_twitter_monthly_senti.rename(columns={'created_at'
 xs = [0,100]
 
 fig, ax = plt.subplots(figsize=(16,10))
+
 ax2 = ax.twinx()
-df_twitter_monthly_senti.plot(
+df_twitter_monthly_senti.plot.area(
     ax=ax,
     y = ['negative_sentiment','non-negative_sentiment'],
     title = 'Amount of tweets over time (aggregated monthly), with binary classification',
     color = [vermilion,blue]
 )
-
 ax.axvline(
     dt.datetime(2019, 4, 1),
     color="#E69F00",
@@ -103,8 +103,6 @@ ax.axvline(
 plt.legend(fontsize=14)
 plt.xlabel('Year')
 plt.ylabel('Number of tweets')
-#plt.show()
-#plt.savefig('figures/tweets_over_time_monthly_agg.eps')
 
 # Read the wind power data from NVE
 df_wp = pd.read_csv(
@@ -126,24 +124,18 @@ df_wp = pd.read_csv(
     cumulative_annually_average_production_GWh = lambda x: x.average_generation_GWh.cumsum(),
     cumulative_installed_capacity_MW = lambda x: x.installed_capacity_MW.cumsum()
 )
+df_wp['year'] = df_wp['Produksjon oppstart'].to_numpy().astype('datetime64[Y]')
+time_adjust = pd.Timedelta(pd.to_datetime('10.06.2020', format='%d.%m.%Y') -pd.to_datetime('01.01.2020', format = '%d.%m.%Y'))
+print(time_adjust)
 print(df_wp)
-prod_start = df_wp['Produksjon oppstart'].iloc[0]
-prod_slutt = df_wp['Produksjon oppstart'].iloc[-1]
-
-daterange = pd.date_range(prod_start, prod_slutt)
-plot_elems = pd.DataFrame()
-plot_elems['daterange'] = daterange
-plot_elems['cap'] = df_wp['installed_capacity_MW']
-plot_elems['gen'] = df_wp['average_generation_GWh']
-print(df_twitter_monthly_senti['year_month'])
-print(plot_elems)
-
-#ax2.plot(df_wp['Produksjon oppstart'], df_wp['installed_capacity_MW'], label='installert kapasitet MW')
-#ax2.plot(df_wp['Produksjon oppstart'], df_wp['average_generation_GWh'], label='snitt produksjon GWh')
-ax2.plot(plot_elems['daterange'], plot_elems['cap'])
+df_wp['year'] += time_adjust
+print(df_wp)
+df_wp.plot(
+        ax=ax2,
+        y = ['installed_capacity_MW'],
+        x = 'year',
+)
 ax2.grid(None)
-
 plt.legend()
-
 plt.show()
 
