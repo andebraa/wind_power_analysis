@@ -124,6 +124,7 @@ df_wp = pd.read_csv(
     cumulative_annually_average_production_GWh = lambda x: x.average_generation_GWh.cumsum(),
     cumulative_installed_capacity_MW = lambda x: x.installed_capacity_MW.cumsum()
 )
+print(df_wp.columns)
 df_wp['year'] = df_wp['Produksjon oppstart'].to_numpy().astype('datetime64[Y]')
 time_adjust = pd.Timedelta(pd.to_datetime('10.06.2020', format='%d.%m.%Y') -pd.to_datetime('01.01.2020', format = '%d.%m.%Y'))
 df_wp['year'] += time_adjust

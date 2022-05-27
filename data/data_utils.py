@@ -195,13 +195,21 @@ def data_clean():
     df.head(10)
     
 
+def temp_pos_neg_extractor():
+    df = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
+    print(df.columns)
+    df_neg = df.loc[df['label'] ==0, 'text']
+    df_pos = df.loc[df['label'] ==1, 'text']
 
-
+    print(df_neg)
+    df_neg.to_csv('third_rendition_data/third_rendition_geolocated_negative_text.csv')
+    df_pos.to_csv('third_rendition_data/third_rendition_geolocated_positive_neutral_text.csv')
 if __name__ == '__main__':
     #remove_category()
-    rename_category()
+    #rename_category()
     #skewed_data()
     #weak_performer_extractor()
     #append_csv()
     #unskew()
     #data_clean()
+    temp_pos_neg_extractor()
