@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Rectangle
+from matplotlib.offsetbox import (TextArea, AnnotationBbox)
 
 data = pd.read_csv('third_rendition_data/third_rendition_geolocated.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
@@ -25,6 +26,7 @@ def generate_ID(ID):
         return generate_ID(ID)
 
 def anonymizer():
+    data = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
     for i, elem in enumerate(data['username']):
         #If the element (username) has already been given a anon value, 
         if elem in ID.values():
@@ -54,12 +56,21 @@ def anonymizer():
     for label in (ax.get_xticklabels() + ax.get_yticklabels()):
         label.set_fontsize(8)
 
-
+    
     #logbins=np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+    
 
     max_key = max(tweet_occurances, key=tweet_occurances.get)
     print(max_key)
     print(tweet_occurances[max_key]) 
+
+    #making a marker for the highest tweets user
+    offsetbox = TextArea('1')
+    ab = AnnotationBbox(offsetboxm, (max_key,2),
+                        xybox = (-20, 40),
+                        box_alignment = (500, 1000),
+                        arrowprops = dict(arowstyle='->'))
+                
 
     ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 300))
     plt.yscale('log')
@@ -68,12 +79,13 @@ def anonymizer():
     plt.xlabel('number of tweets')
     plt.title('Frequency of tweets by users. 2007 -2021')
 
+    ax.add_artis(ab)
     plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
     outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
-    json.dump(ID, outfile_ID) #writing the translation dictionary to file
+    #json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
-    data.to_csv('third_rendition_data/third_rendition_geolocated_anonymous.csv', index=False)
+    #data.to_csv('third_rendition_data/third_rendition_geolocated_anonymous.csv', index=False)
 
 def identifyer():
     df = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
