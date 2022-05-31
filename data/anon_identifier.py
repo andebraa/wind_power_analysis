@@ -14,6 +14,7 @@ data = pd.read_csv('third_rendition_data/third_rendition_geolocated.csv', parse_
 ID = {} #dictionary to translate ID and usernames
 tweet_occurances = {} #keep track of number of tweets per user
 
+
 def generate_ID(ID):
     """
     should recursively loop through random numbers until a unique value is found.
@@ -49,6 +50,7 @@ def anonymizer():
     for elem in tweet_occurances.values():
         num_of_tweets[elem] += 1 
 
+    
 
     print("highest number of tweets by single user:{}".format(max_number_of_tweets)) 
     fig, ax = plt.subplots()
@@ -62,13 +64,29 @@ def anonymizer():
 
     max_key = max(tweet_occurances, key=tweet_occurances.get)
     print(max_key)
-    print(tweet_occurances[max_key]) 
+    tweet_array = np.zeros((len(tweet_occurances.items()), 2))
+    for i, (key, value) in enumerate(tweet_occurances.items()):
+        tweet_array[i,0] = key
+        tweet_array[i,1] = value
+    
+    print(tweet_array)
+    tweet_array = tweet_array[tweet_array[:,1].argsort()]
+    print(tweet_array[-10:])
+    try:
+        with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
+            trans_dict = json.loads(fp.read())
+        for user, freq in tweet_array[-10:]:
+            print(f'user {trans_dict[user]} tweeted {freq} times ')
 
+    stop
     #making a marker for the highest tweets user
+    xy = (tweet_occurances[max_key], 2)
+    ax.plot(xy[0], xy[1])
+
     offsetbox = TextArea('1')
-    ab = AnnotationBbox(offsetbox, (max_key,2),
-                        xybox = (-20, 40),
-                        box_alignment = (500, 1000),
+    ab = AnnotationBbox(offsetbox, xy,
+                        xybox = (2500, 4000),
+                        box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
                 
 
@@ -80,7 +98,8 @@ def anonymizer():
     plt.title('Frequency of tweets by users. 2007 -2021')
 
     ax.add_artist(ab)
-    plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+    plt.show()
+    #plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
     outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
     #json.dump(ID, outfile_ID) #writing the translation dictionary to file
