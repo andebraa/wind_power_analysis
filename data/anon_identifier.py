@@ -66,10 +66,10 @@ def anonymizer():
 
     #making a marker for the highest tweets user
     offsetbox = TextArea('1')
-    ab = AnnotationBbox(offsetboxm, (max_key,2),
+    ab = AnnotationBbox(offsetbox, (max_key,2),
                         xybox = (-20, 40),
                         box_alignment = (500, 1000),
-                        arrowprops = dict(arowstyle='->'))
+                        arrowprops = dict(arrowstyle='->'))
                 
 
     ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 300))
@@ -79,7 +79,7 @@ def anonymizer():
     plt.xlabel('number of tweets')
     plt.title('Frequency of tweets by users. 2007 -2021')
 
-    ax.add_artis(ab)
+    ax.add_artist(ab)
     plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
     outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
@@ -103,4 +103,5 @@ def identifyer():
     df.to_csv('third_rendition_data/third_rendition_geolocated_posneutral_predict.csv')
         
 if __name__ == '__main__':
-    identifyer()
+    #identifyer()
+    anonymizer()
