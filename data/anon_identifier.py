@@ -72,17 +72,20 @@ def anonymizer():
     print(tweet_array)
     tweet_array = tweet_array[tweet_array[:,1].argsort()]
     print(tweet_array[-10:])
-    try:
-        with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
-            trans_dict = json.loads(fp.read())
-        for user, freq in tweet_array[-10:]:
-            print(f'user {trans_dict[user]} tweeted {freq} times ')
+    #try:
+    with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
+        trans_dict = json.loads(fp.read())
+        print(trans_dict)
+    for (user, freq) in tweet_array[-10:]:
+        print(f'user {trans_dict[str(int(user))]} tweeted {freq} times ')
 
-    stop
+    #except:
+    #    pass
     #making a marker for the highest tweets user
+    stop
     xy = (tweet_occurances[max_key], 2)
     ax.plot(xy[0], xy[1])
-
+    
     offsetbox = TextArea('1')
     ab = AnnotationBbox(offsetbox, xy,
                         xybox = (2500, 4000),
@@ -98,11 +101,11 @@ def anonymizer():
     plt.title('Frequency of tweets by users. 2007 -2021')
 
     ax.add_artist(ab)
-    plt.show()
-    #plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+    #plt.show()
+    plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-    outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
-    #json.dump(ID, outfile_ID) #writing the translation dictionary to file
+    #outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
+    json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
     #data.to_csv('third_rendition_data/third_rendition_geolocated_anonymous.csv', index=False)
 
