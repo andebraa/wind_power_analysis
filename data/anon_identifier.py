@@ -75,8 +75,7 @@ def anonymizer():
                         box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
                 
-    ax.plot(sorted_tweet_occurances.values())
-    #ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 20))
+    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 500))
     plt.yscale('log')
     plt.xscale('linear')
     plt.ylabel('number of users')
