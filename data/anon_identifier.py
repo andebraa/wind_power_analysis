@@ -27,7 +27,6 @@ def generate_ID(ID):
         return generate_ID(ID)
 
 def anonymizer():
-    data = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
     for i, elem in enumerate(data['username']):
         #If the element (username) has already been given a anon value, 
         if elem in ID.values():
@@ -50,8 +49,9 @@ def anonymizer():
     for elem in tweet_occurances.values():
         num_of_tweets[elem] += 1 
 
-    
-
+    sorted_tweet_occurances = dict(sorted(tweet_occurances.items(), key = lambda item: item[1]))
+    print(sorted_tweet_occurances)
+    print(list(sorted_tweet_occurances)[-10:])
     print("highest number of tweets by single user:{}".format(max_number_of_tweets)) 
     fig, ax = plt.subplots()
 
@@ -64,25 +64,8 @@ def anonymizer():
 
     max_key = max(tweet_occurances, key=tweet_occurances.get)
     print(max_key)
-    tweet_array = np.zeros((len(tweet_occurances.items()), 2))
-    for i, (key, value) in enumerate(tweet_occurances.items()):
-        tweet_array[i,0] = key
-        tweet_array[i,1] = value
     
-    print(tweet_array)
-    tweet_array = tweet_array[tweet_array[:,1].argsort()]
-    print(tweet_array[-10:])
-    #try:
-    with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
-        trans_dict = json.loads(fp.read())
-        print(trans_dict)
-    for (user, freq) in tweet_array[-10:]:
-        print(f'user {trans_dict[str(int(user))]} tweeted {freq} times ')
-
-    #except:
-    #    pass
     #making a marker for the highest tweets user
-    stop
     xy = (tweet_occurances[max_key], 2)
     ax.plot(xy[0], xy[1])
     
@@ -104,14 +87,13 @@ def anonymizer():
     #plt.show()
     plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-    #outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
-    json.dump(ID, outfile_ID) #writing the translation dictionary to file
+    with open('third_rendition_data/third_rendition_geolocated_translator.json', 'w') as outfile_ID:
+        json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
     #data.to_csv('third_rendition_data/third_rendition_geolocated_anonymous.csv', index=False)
 
 def identifyer():
     df = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
-
     with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
         trans_dict = json.loads(fp.read())
 
