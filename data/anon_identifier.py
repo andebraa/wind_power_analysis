@@ -50,8 +50,6 @@ def anonymizer():
         num_of_tweets[elem] += 1 
 
     sorted_tweet_occurances = dict(sorted(tweet_occurances.items(), key = lambda item: item[1]))
-    print(sorted_tweet_occurances)
-    print(list(sorted_tweet_occurances)[-10:])
     print("highest number of tweets by single user:{}".format(max_number_of_tweets)) 
     fig, ax = plt.subplots()
 
@@ -75,7 +73,8 @@ def anonymizer():
                         box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
                 
-    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 500))
+    print(tweet_occurances.values())
+    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 2500))
     plt.yscale('log')
     plt.xscale('linear')
     plt.ylabel('number of users')
