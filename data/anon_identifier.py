@@ -76,7 +76,7 @@ def anonymizer():
                         arrowprops = dict(arrowstyle='->'))
                 
 
-    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 250))
+    ax.hist(tweet_occurances.values())# , bins = np.linspace(1, max_number_of_tweets-2, 250))
     plt.yscale('log')
     plt.xscale('linear')
     plt.ylabel('number of users')
