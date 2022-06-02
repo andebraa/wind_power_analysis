@@ -62,26 +62,55 @@ def anonymizer():
 
     max_key = max(tweet_occurances, key=tweet_occurances.get)
     print(max_key)
-    
+    print('tweet occurances')
+    print(list(sorted_tweet_occurances)[-1])
+    print(list(sorted_tweet_occurances)[-2])
+    print(list(sorted_tweet_occurances)[-3])
+    print(tweet_occurances[list(sorted_tweet_occurances)[-1]])
+
+    p1, t1 = (list(sorted_tweet_occurances)[-1], tweet_occurances[list(sorted_tweet_occurances)[-1]])
     #making a marker for the highest tweets user
-    xy = (tweet_occurances[max_key], 2)
-    ax.plot(xy[0], xy[1])
+    xy1 = (t1, 2)
+    ax.plot(xy1[0], xy1[1])
     
-    offsetbox = TextArea('1')
-    ab = AnnotationBbox(offsetbox, xy,
+    offsetbox1 = TextArea(p1)
+    ab1 = AnnotationBbox(offsetbox1, xy1,
                         xybox = (2500, 4000),
                         box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
                 
+    
+    p2, t2 = (list(sorted_tweet_occurances)[-2], tweet_occurances[list(sorted_tweet_occurances)[-2]])
+    #making a marker for the highest tweets user
+    xy2 = (t2, 2)
+    ax.plot(xy2[0], xy2[1])
+    offsetbox2 = TextArea(p2)
+    ab2 = AnnotationBbox(offsetbox2, xy2,
+                        xybox = (2000, 3500),
+                        box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
+    p3, t3 = (list(sorted_tweet_occurances)[-3], tweet_occurances[list(sorted_tweet_occurances)[-3]])
+    #making a marker for the highest tweets user
+    xy3 = (t3, 2)
+    ax.plot(xy3[0], xy3[1])
+    offsetbox3 = TextArea(p3)
+    ab3 = AnnotationBbox(offsetbox3, xy3,
+                        xybox = (1500, 4000),
+                        box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
     print(tweet_occurances.values())
-    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets+2, 2500))
+    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets+2, 500))
     plt.yscale('log')
     plt.xscale('linear')
     plt.ylabel('number of users')
     plt.xlabel('number of tweets')
     plt.title('Frequency of tweets by users. 2007 -2021')
 
-    ax.add_artist(ab)
+    ax.add_artist(ab1)
+    ax.add_artist(ab2)
+    ax.add_artist(ab3)
     #plt.show()
     plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
