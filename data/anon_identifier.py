@@ -96,7 +96,38 @@ def anonymizer():
     ax.plot(xy3[0], xy3[1])
     offsetbox3 = TextArea(p3)
     ab3 = AnnotationBbox(offsetbox3, xy3,
-                        xybox = (1500, 4000),
+                        xybox = (1600, 4000),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
+    p4, t4 = (list(sorted_tweet_occurances)[-4], tweet_occurances[list(sorted_tweet_occurances)[-4]])
+    #making a marker for the highest tweets user
+    xy4 = (t4, 2)
+    ax.plot(xy4[0], xy4[1])
+    offsetbox4 = TextArea(p4)
+    ab4 = AnnotationBbox(offsetbox4, xy4,
+                        xybox = (1200, 1500),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
+    p5, t5 = (list(sorted_tweet_occurances)[-5], tweet_occurances[list(sorted_tweet_occurances)[-5]])
+    #making a marker for the highest tweets user
+    xy5 = (t5, 2)
+    ax.plot(xy5[0], xy5[1])
+    offsetbox5 = TextArea(p5)
+    ab5 = AnnotationBbox(offsetbox5, xy5,
+                        xybox = (1000, 4000),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+    
+
+    p6, t6 = (list(sorted_tweet_occurances)[-6], tweet_occurances[list(sorted_tweet_occurances)[-6]])
+    #making a marker for the highest tweets user
+    xy6 = (t6, 2)
+    ax.plot(xy6[0], xy6[1])
+    offsetbox6 = TextArea(p6)
+    ab6 = AnnotationBbox(offsetbox6, xy6,
+                        xybox = (800, 1500),
                         #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
 
@@ -111,6 +142,9 @@ def anonymizer():
     ax.add_artist(ab1)
     ax.add_artist(ab2)
     ax.add_artist(ab3)
+    ax.add_artist(ab4)
+    ax.add_artist(ab5)
+    ax.add_artist(ab6)
     #plt.show()
     plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
