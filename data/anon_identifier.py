@@ -61,12 +61,6 @@ def anonymizer():
     
 
     max_key = max(tweet_occurances, key=tweet_occurances.get)
-    print(max_key)
-    print('tweet occurances')
-    print(list(sorted_tweet_occurances)[-1])
-    print(list(sorted_tweet_occurances)[-2])
-    print(list(sorted_tweet_occurances)[-3])
-    print(tweet_occurances[list(sorted_tweet_occurances)[-1]])
 
     p1, t1 = (list(sorted_tweet_occurances)[-1], tweet_occurances[list(sorted_tweet_occurances)[-1]])
     #making a marker for the highest tweets user
@@ -127,12 +121,11 @@ def anonymizer():
     ax.plot(xy6[0], xy6[1])
     offsetbox6 = TextArea(p6)
     ab6 = AnnotationBbox(offsetbox6, xy6,
-                        xybox = (800, 1500),
+                        xybox = (500, 1500),
                         #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
 
-    print(tweet_occurances.values())
-    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets+2, 500))
+    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets+2, 200))
     plt.yscale('log')
     plt.xscale('linear')
     plt.ylabel('number of users')
