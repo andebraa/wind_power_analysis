@@ -86,7 +86,7 @@ def anonymizer():
     ax.plot(xy2[0], xy2[1])
     offsetbox2 = TextArea(p2)
     ab2 = AnnotationBbox(offsetbox2, xy2,
-                        xybox = (2000, 3500),
+                        xybox = (2000, 1500),
                         #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
 
