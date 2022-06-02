@@ -76,7 +76,7 @@ def anonymizer():
     offsetbox1 = TextArea(p1)
     ab1 = AnnotationBbox(offsetbox1, xy1,
                         xybox = (2500, 4000),
-                        box_alignment = (5, 1),
+                        #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
                 
     
@@ -87,7 +87,7 @@ def anonymizer():
     offsetbox2 = TextArea(p2)
     ab2 = AnnotationBbox(offsetbox2, xy2,
                         xybox = (2000, 3500),
-                        box_alignment = (5, 1),
+                        #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
 
     p3, t3 = (list(sorted_tweet_occurances)[-3], tweet_occurances[list(sorted_tweet_occurances)[-3]])
@@ -97,7 +97,7 @@ def anonymizer():
     offsetbox3 = TextArea(p3)
     ab3 = AnnotationBbox(offsetbox3, xy3,
                         xybox = (1500, 4000),
-                        box_alignment = (5, 1),
+                        #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
 
     print(tweet_occurances.values())
