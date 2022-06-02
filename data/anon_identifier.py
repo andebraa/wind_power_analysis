@@ -86,7 +86,7 @@ def anonymizer():
 
     p3, t3 = (list(sorted_tweet_occurances)[-3], tweet_occurances[list(sorted_tweet_occurances)[-3]])
     #making a marker for the highest tweets user
-    xy3 = (t3, 2)
+    xy3 = (t3, 1)
     ax.plot(xy3[0], xy3[1])
     offsetbox3 = TextArea(p3)
     ab3 = AnnotationBbox(offsetbox3, xy3,
