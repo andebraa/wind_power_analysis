@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 from matplotlib.patches import Rectangle
 from matplotlib.offsetbox import (TextArea, AnnotationBbox)
+plt.style.use('seaborn')
 
 data = pd.read_csv('third_rendition_data/third_rendition_geolocated.csv', parse_dates = True)# , usecols = [''])
 ID = {} #dictionary to translate ID and usernames
