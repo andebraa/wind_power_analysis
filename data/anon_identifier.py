@@ -27,7 +27,6 @@ def generate_ID(ID):
         return generate_ID(ID)
 
 def anonymizer():
-    data = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
     for i, elem in enumerate(data['username']):
         #If the element (username) has already been given a anon value, 
         if elem in ID.values():
@@ -50,8 +49,7 @@ def anonymizer():
     for elem in tweet_occurances.values():
         num_of_tweets[elem] += 1 
 
-    
-
+    sorted_tweet_occurances = dict(sorted(tweet_occurances.items(), key = lambda item: item[1]))
     print("highest number of tweets by single user:{}".format(max_number_of_tweets)) 
     fig, ax = plt.subplots()
 
@@ -63,52 +61,93 @@ def anonymizer():
     
 
     max_key = max(tweet_occurances, key=tweet_occurances.get)
-    print(max_key)
-    tweet_array = np.zeros((len(tweet_occurances.items()), 2))
-    for i, (key, value) in enumerate(tweet_occurances.items()):
-        tweet_array[i,0] = key
-        tweet_array[i,1] = value
-    
-    print(tweet_array)
-    tweet_array = tweet_array[tweet_array[:,1].argsort()]
-    print(tweet_array[-10:])
-    try:
-        with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
-            trans_dict = json.loads(fp.read())
-        for user, freq in tweet_array[-10:]:
-            print(f'user {trans_dict[user]} tweeted {freq} times ')
 
-    stop
+    p1, t1 = (list(sorted_tweet_occurances)[-1], tweet_occurances[list(sorted_tweet_occurances)[-1]])
     #making a marker for the highest tweets user
-    xy = (tweet_occurances[max_key], 2)
-    ax.plot(xy[0], xy[1])
-
-    offsetbox = TextArea('1')
-    ab = AnnotationBbox(offsetbox, xy,
+    xy1 = (t1, 2)
+    ax.plot(xy1[0], xy1[1])
+    
+    offsetbox1 = TextArea(p1)
+    ab1 = AnnotationBbox(offsetbox1, xy1,
                         xybox = (2500, 4000),
-                        box_alignment = (5, 1),
+                        #box_alignment = (5, 1),
                         arrowprops = dict(arrowstyle='->'))
                 
+    
+    p2, t2 = (list(sorted_tweet_occurances)[-2], tweet_occurances[list(sorted_tweet_occurances)[-2]])
+    #making a marker for the highest tweets user
+    xy2 = (t2, 2)
+    ax.plot(xy2[0], xy2[1])
+    offsetbox2 = TextArea(p2)
+    ab2 = AnnotationBbox(offsetbox2, xy2,
+                        xybox = (2000, 1500),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
 
-    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets-2, 300))
+    p3, t3 = (list(sorted_tweet_occurances)[-3], tweet_occurances[list(sorted_tweet_occurances)[-3]])
+    #making a marker for the highest tweets user
+    xy3 = (t3, 1)
+    ax.plot(xy3[0], xy3[1])
+    offsetbox3 = TextArea(p3)
+    ab3 = AnnotationBbox(offsetbox3, xy3,
+                        xybox = (1600, 4000),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
+    p4, t4 = (list(sorted_tweet_occurances)[-4], tweet_occurances[list(sorted_tweet_occurances)[-4]])
+    #making a marker for the highest tweets user
+    xy4 = (t4, 2)
+    ax.plot(xy4[0], xy4[1])
+    offsetbox4 = TextArea(p4)
+    ab4 = AnnotationBbox(offsetbox4, xy4,
+                        xybox = (1200, 1500),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
+    p5, t5 = (list(sorted_tweet_occurances)[-5], tweet_occurances[list(sorted_tweet_occurances)[-5]])
+    #making a marker for the highest tweets user
+    xy5 = (t5, 2)
+    ax.plot(xy5[0], xy5[1])
+    offsetbox5 = TextArea(p5)
+    ab5 = AnnotationBbox(offsetbox5, xy5,
+                        xybox = (1000, 4000),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+    
+
+    p6, t6 = (list(sorted_tweet_occurances)[-6], tweet_occurances[list(sorted_tweet_occurances)[-6]])
+    #making a marker for the highest tweets user
+    xy6 = (t6, 2)
+    ax.plot(xy6[0], xy6[1])
+    offsetbox6 = TextArea(p6)
+    ab6 = AnnotationBbox(offsetbox6, xy6,
+                        xybox = (500, 1500),
+                        #box_alignment = (5, 1),
+                        arrowprops = dict(arrowstyle='->'))
+
+    ax.hist(tweet_occurances.values() , bins = np.linspace(1, max_number_of_tweets+2, 350), color = 'blue')
     plt.yscale('log')
     plt.xscale('linear')
     plt.ylabel('number of users')
     plt.xlabel('number of tweets')
     plt.title('Frequency of tweets by users. 2007 -2021')
 
-    ax.add_artist(ab)
-    plt.show()
-    #plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
+    ax.add_artist(ab1)
+    ax.add_artist(ab2)
+    ax.add_artist(ab3)
+    ax.add_artist(ab4)
+    ax.add_artist(ab5)
+    ax.add_artist(ab6)
+    #plt.show()
+    plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
-    outfile_ID = open('third_rendition_data/third_rendition_geolocated_translator.json', 'w')
-    #json.dump(ID, outfile_ID) #writing the translation dictionary to file
+    with open('third_rendition_data/third_rendition_geolocated_translator.json', 'w') as outfile_ID:
+        json.dump(ID, outfile_ID) #writing the translation dictionary to file
 
     #data.to_csv('third_rendition_data/third_rendition_geolocated_anonymous.csv', index=False)
 
 def identifyer():
     df = pd.read_csv('third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv')
-
     with open('third_rendition_data/third_rendition_geolocated_translator.json') as fp:
         trans_dict = json.loads(fp.read())
 
@@ -124,3 +163,4 @@ def identifyer():
 if __name__ == '__main__':
     #identifyer()
     anonymizer()
+
