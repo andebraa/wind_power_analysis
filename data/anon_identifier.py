@@ -65,7 +65,7 @@ def anonymizer():
     p1, t1 = (list(sorted_tweet_occurances)[-1], tweet_occurances[list(sorted_tweet_occurances)[-1]])
     #making a marker for the highest tweets user
     xy1 = (t1, 2)
-    ax.plot(xy1[0], xy1[1])
+    #ax.plot(xy1[0], xy1[1])
     
     offsetbox1 = TextArea(p1)
     ab1 = AnnotationBbox(offsetbox1, xy1,
@@ -77,7 +77,7 @@ def anonymizer():
     p2, t2 = (list(sorted_tweet_occurances)[-2], tweet_occurances[list(sorted_tweet_occurances)[-2]])
     #making a marker for the highest tweets user
     xy2 = (t2, 2)
-    ax.plot(xy2[0], xy2[1])
+    #ax.plot(xy2[0], xy2[1])
     offsetbox2 = TextArea(p2)
     ab2 = AnnotationBbox(offsetbox2, xy2,
                         xybox = (2000, 1500),
@@ -87,7 +87,7 @@ def anonymizer():
     p3, t3 = (list(sorted_tweet_occurances)[-3], tweet_occurances[list(sorted_tweet_occurances)[-3]])
     #making a marker for the highest tweets user
     xy3 = (t3, 1)
-    ax.plot(xy3[0], xy3[1])
+    #ax.plot(xy3[0], xy3[1])
     offsetbox3 = TextArea(p3)
     ab3 = AnnotationBbox(offsetbox3, xy3,
                         xybox = (1600, 4000),
@@ -97,7 +97,7 @@ def anonymizer():
     p4, t4 = (list(sorted_tweet_occurances)[-4], tweet_occurances[list(sorted_tweet_occurances)[-4]])
     #making a marker for the highest tweets user
     xy4 = (t4, 2)
-    ax.plot(xy4[0], xy4[1])
+    #ax.plot(xy4[0], xy4[1])
     offsetbox4 = TextArea(p4)
     ab4 = AnnotationBbox(offsetbox4, xy4,
                         xybox = (1200, 1500),
@@ -107,7 +107,7 @@ def anonymizer():
     p5, t5 = (list(sorted_tweet_occurances)[-5], tweet_occurances[list(sorted_tweet_occurances)[-5]])
     #making a marker for the highest tweets user
     xy5 = (t5, 2)
-    ax.plot(xy5[0], xy5[1])
+    #ax.plot(xy5[0], xy5[1])
     offsetbox5 = TextArea(p5)
     ab5 = AnnotationBbox(offsetbox5, xy5,
                         xybox = (1000, 4000),
@@ -118,7 +118,7 @@ def anonymizer():
     p6, t6 = (list(sorted_tweet_occurances)[-6], tweet_occurances[list(sorted_tweet_occurances)[-6]])
     #making a marker for the highest tweets user
     xy6 = (t6, 2)
-    ax.plot(xy6[0], xy6[1])
+    #ax.plot(xy6[0], xy6[1])
     offsetbox6 = TextArea(p6)
     ab6 = AnnotationBbox(offsetbox6, xy6,
                         xybox = (500, 1500),
@@ -132,12 +132,12 @@ def anonymizer():
     plt.xlabel('number of tweets')
     plt.title('Frequency of tweets by users. 2007 -2021')
 
-    ax.add_artist(ab1)
-    ax.add_artist(ab2)
-    ax.add_artist(ab3)
-    ax.add_artist(ab4)
-    ax.add_artist(ab5)
-    ax.add_artist(ab6)
+    #ax.add_artist(ab1)
+    #ax.add_artist(ab2)
+    #ax.add_artist(ab3)
+    #ax.add_artist(ab4)
+    #ax.add_artist(ab5)
+    #ax.add_artist(ab6)
     #plt.show()
     plt.savefig('third_rendition_data/third_rendition_geolocated_user_tweetfreq.png',dpi = 300, format='png',  bbox_inches = 'tight', pad_inches = 0.1) #0.1 is default when bbox is tight
 
