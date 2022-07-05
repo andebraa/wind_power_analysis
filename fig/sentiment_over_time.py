@@ -10,6 +10,16 @@ import pandas as pd
 import numpy as np
 plt.style.use('seaborn')
 
+#defining colours (from oscar)
+blue = '#0072B2'
+bluegreen = '#009E73'
+yellow = '#F0E442'
+skyblue = '#56B4E9'
+orange = '#E69F00'
+vermilion = '#D55E00'
+
+
+
 test_hist = pd.read_csv('../data/third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv', parse_dates=True)
 
 pos_tweets = test_hist[test_hist['label'] == 1]
@@ -93,8 +103,8 @@ flat0 = np.convolve(flat0, np.ones(N)/N, mode = 'valid')
 flat1 = np.convolve(flat1, np.ones(N)/N, mode = 'valid')
 print(np.shape(flat0))
 
-ax.plot(week_nums0, flat0[:len(week_nums0)], label='negative')
-ax.plot(week_nums1, flat1[:len(week_nums1)], label='positive')
+ax.plot(week_nums0, flat0[:len(week_nums0)], label='negative', color = blue)
+ax.plot(week_nums1, flat1[:len(week_nums1)], label='positive', color = vermilion)
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
 plt.legend()
