@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import datetime
 import pandas as pd
 import numpy as np
+plt.style.use('seaborn')
 
 test_hist = pd.read_csv('../data/third_rendition_data/third_rendition_geolocated_anonymous_posneutral_predict.csv', parse_dates=True)
 
