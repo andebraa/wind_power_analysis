@@ -117,9 +117,14 @@ def skewed_data():
     '''
     looks at the percentage of negative and positive tweets in combined datasets
     '''
-    data_negneut = pd.read_csv('annotaion_3000_01label_comb_negneutral_0neg_1pos.csv') 
-    data_posneut = pd.read_csv('annotaion_3000_01label_comb_posneutral_0neg_1pos.csv') 
+    #data_negneut = pd.read_csv('annotaion_3000_01label_comb_negneutral_0neg_1pos.csv') 
+    #data_posneut = pd.read_csv('annotaion_3000_01label_comb_posneutral_0neg_1pos.csv') 
+    data_posneut = pd.read_csv('annotation_5800_012label_600wli.csv') 
+    print(len(data_posneut.loc[data_posneut['label']==0, 'label']))
+    print(len(data_posneut.loc[data_posneut['label']==1, 'label']))
+    print(len(data_posneut.loc[data_posneut['label']==2, 'label']))
 
+    stop
     neg0 = len(data_negneut.loc[data_negneut['label'] ==0, 'label'])
     neg1 = len(data_negneut.loc[data_negneut['label'] ==1, 'label'])
     neg_tot = len(data_negneut)
@@ -207,9 +212,9 @@ def temp_pos_neg_extractor():
 if __name__ == '__main__':
     #remove_category()
     #rename_category()
-    #skewed_data()
+    skewed_data()
     #weak_performer_extractor()
     #append_csv()
     #unskew()
     #data_clean()
-    temp_pos_neg_extractor()
+    #temp_pos_neg_extractor()
