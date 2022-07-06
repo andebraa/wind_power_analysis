@@ -151,7 +151,7 @@ def plot_total_tweet_over_time():
     for label in (ax.get_xticklabels() + ax.get_yticklabels()):
         label.set_fontsize(8)
     N = 5
-    flat = np.convolve(flat, np.ones(N)/N, mode = 'valid')
+    #flat = np.convolve(flat, np.ones(N)/N, mode = 'valid')
 
     ax.plot(week_nums, flat[:len(week_nums)], color = blue)
     plt.ylabel('number of tweets')
