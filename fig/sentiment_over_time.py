@@ -104,7 +104,7 @@ flat1 = np.convolve(flat1, np.ones(N)/N, mode = 'valid')
 print(np.shape(flat0))
 
 ax.plot(week_nums0, flat0[:len(week_nums0)], label='negative', color = blue)
-ax.plot(week_nums1, flat1[:len(week_nums1)], label='positive', color = vermilion)
+ax.plot(week_nums1, flat1[:len(week_nums1)], label='non-negative', color = vermilion)
 plt.ylabel('number of tweets')
 plt.title('tweets per week')
 plt.legend()
