@@ -1,0 +1,15 @@
+*.txt
+*.dat
+*.pdf
+*.odt
+*.dcox
+*.json
+*.csv 
+data/*.csv
+data/*.txt
+data/NUTS*
+backup/*
+*/*.bin
+NorBert_utls/runs/*
+NorBert_utls/test_runs/*
+NorBert_utls/ltgoslo/*

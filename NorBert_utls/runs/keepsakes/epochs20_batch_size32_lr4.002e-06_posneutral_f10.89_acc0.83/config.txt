@@ -1,0 +1,2 @@
+epochs20_batch_size32_lr4.002e-06_posneutral_f10.886917960088692_acc0.8283991228070176
+infile: annotaion_5900_01label_comb_posneutral_0neg_1pos_300iwl_cleaned_walphanumerical
